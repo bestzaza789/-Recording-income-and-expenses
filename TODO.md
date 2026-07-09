@@ -28,11 +28,11 @@
 - [x] Create "Add/Edit Category" form view (with Icon picker & Color picker).
 
 ## 6. UI/UX: Dashboard Tab
-- [ ] Build Header View for Total Net Worth.
-- [ ] Build Account Carousel View (horizontal scrolling cards).
-- [ ] Build Monthly Expense Summary View (Swift Charts - Pie Chart).
-- [ ] Build Recent Transactions List View.
-- [ ] Implement Floating Action Button (+) for manual entry and scan options.
+- [x] Build Header View for Total Net Worth.
+- [x] Build Account Carousel View (horizontal scrolling cards).
+- [x] Build Monthly Expense Summary View (Swift Charts - Pie Chart).
+- [x] Build Recent Transactions List View.
+- [x] Implement Floating Action Button (+) for manual entry and scan options.
 
 ## 7. Core Feature: Transaction Forms
 - [ ] Create "Manual Entry" Form View (Amount, Type, Date, Account, Category, Note).
