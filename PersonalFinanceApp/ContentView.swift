@@ -3,22 +3,22 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         TabView {
-            Text("Dashboard")
+            DashboardView()
                 .tabItem {
                     Label("Dashboard", systemImage: "chart.pie.fill")
                 }
             
-            Text("Transactions")
+            TransactionsLogView()
                 .tabItem {
                     Label("Transactions", systemImage: "list.bullet.rectangle")
                 }
             
-            Text("Management")
+            ManagementView()
                 .tabItem {
                     Label("Management", systemImage: "folder.fill")
                 }
             
-            Text("Analytics")
+            AnalyticsView()
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar.fill")
                 }
