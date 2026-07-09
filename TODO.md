@@ -6,26 +6,26 @@
 - [x] Set up GitHub repository and initial commit.
 
 ## 2. SwiftData Models
-- [ ] Create `Account` model (id, name, accountType, initialBalance, currentBalance, transactions).
-- [ ] Create `Category` model (id, name, type, iconName, hexColor).
-- [ ] Create `Transaction` model (id, amount, transactionType, date, note, account, toAccount, category).
-- [ ] Define relationships between models (Transaction -> Account, Transaction -> Category).
+- [x] Create `Account` model (id, name, accountType, initialBalance, currentBalance, transactions).
+- [x] Create `Category` model (id, name, type, iconName, hexColor).
+- [x] Create `Transaction` model (id, amount, transactionType, date, note, account, toAccount, category).
+- [x] Define relationships between models (Transaction -> Account, Transaction -> Category).
 
 ## 3. Business Logic (Balance Recalculation Engine)
-- [ ] Implement transaction manager to handle creation (Expense, Income, Transfer).
-- [ ] Implement balance updating logic on transaction creation.
-- [ ] Implement balance updating logic on transaction deletion (reverse calculation).
-- [ ] Implement balance updating logic on transaction edit (delta calculation).
+- [x] Implement transaction manager to handle creation (Expense, Income, Transfer).
+- [x] Implement balance updating logic on transaction creation.
+- [x] Implement balance updating logic on transaction deletion (reverse calculation).
+- [x] Implement balance updating logic on transaction edit (delta calculation).
 
 ## 4. UI/UX: Core App Structure
-- [ ] Create main `TabView` with 4 tabs: Dashboard, Transactions, Management, Analytics.
-- [ ] Set up base placeholder views for each tab with SF Symbols icons.
+- [x] Create main `TabView` with 4 tabs: Dashboard, Transactions, Management, Analytics.
+- [x] Set up base placeholder views for each tab with SF Symbols icons.
 
 ## 5. UI/UX: Management Tab (Data Entry Setup)
-- [ ] Create Accounts list view.
-- [ ] Create "Add/Edit Account" form view.
-- [ ] Create Categories list view (segmented into Income/Expense).
-- [ ] Create "Add/Edit Category" form view (with Icon picker & Color picker).
+- [x] Create Accounts list view.
+- [x] Create "Add/Edit Account" form view.
+- [x] Create Categories list view (segmented into Income/Expense).
+- [x] Create "Add/Edit Category" form view (with Icon picker & Color picker).
 
 ## 6. UI/UX: Dashboard Tab
 - [ ] Build Header View for Total Net Worth.
