@@ -121,8 +121,7 @@ struct DashboardView: View {
                 TransferFormView()
             }
             .sheet(isPresented: $showingScanner) {
-                // To be implemented in Step 8
-                Text("Slip Scanner")
+                SlipScannerView()
             }
         }
     }

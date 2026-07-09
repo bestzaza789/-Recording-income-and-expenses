@@ -40,12 +40,12 @@
 - [x] Ensure Balance Recalculation Engine triggers correctly from forms.
 
 ## 8. Core Feature: OCR & Parsing Engine (Apple Vision)
-- [ ] Set up `PhotosPicker` to select bank slip images.
-- [ ] Implement `VNRecognizeTextRequest` service (Languages: `th-TH`, `en-US`, Level: `.accurate`).
-- [ ] Create text extraction parser (Regex for Amount: `\d{1,3}(,\d{3})*\.\d{2}`).
-- [ ] Implement Account detection logic (Keywords: KBank, กสิกร, SCB, ไทยพาณิชย์).
-- [ ] Implement Smart Categorization logic based on merchant names (e.g., 7-Eleven, PTT).
-- [ ] Create "Pre-filled Form View" that receives parsed OCR data for user confirmation.
+- [x] Set up `PhotosPicker` to select bank slip images.
+- [x] Implement `VNRecognizeTextRequest` service (Languages: `th-TH`, `en-US`, Level: `.accurate`).
+- [x] Create text extraction parser (Regex for Amount: `\d{1,3}(,\d{3})*\.\d{2}`).
+- [x] Implement Account detection logic (Keywords: KBank, กสิกร, SCB, ไทยพาณิชย์).
+- [x] Implement Smart Categorization logic based on merchant names (e.g., 7-Eleven, PTT).
+- [x] Create "Pre-filled Form View" that receives parsed OCR data for user confirmation.
 
 ## 9. UI/UX: Transactions Log Tab
 - [ ] Build Transactions list grouped by date.
