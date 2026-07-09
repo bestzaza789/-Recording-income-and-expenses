@@ -1,9 +1,9 @@
 # 📱 Personal Finance App Development Checklist
 
 ## 1. Project Setup & Architecture
-- [ ] Initialize new iOS project in Xcode (SwiftUI, Target iOS 17+).
-- [ ] Setup SwiftData in the project (`ModelContainer`, `App` struct).
-- [ ] Set up GitHub repository and initial commit.
+- [x] Initialize new iOS project in Xcode (SwiftUI, Target iOS 17+).
+- [x] Setup SwiftData in the project (`ModelContainer`, `App` struct).
+- [x] Set up GitHub repository and initial commit.
 
 ## 2. SwiftData Models
 - [ ] Create `Account` model (id, name, accountType, initialBalance, currentBalance, transactions).
