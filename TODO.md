@@ -56,8 +56,8 @@
 - [x] Build Month-over-Month trend chart (Bar chart comparing Income vs Expense using Swift Charts).
 
 ## 11. Testing & Polish
-- [ ] Test all data operations safely on the main thread.
-- [ ] Verify UI refreshes correctly upon data changes.
-- [ ] Test OCR parsing with various real-world Thai bank slips.
-- [ ] Finalize UI styling (colors, padding, typography).
-- [ ] Prepare app icon and launch screen.
+- [x] Test all data operations safely on the main thread.
+- [x] Verify UI refreshes correctly upon data changes.
+- [x] Test OCR parsing with various real-world Thai bank slips.
+- [x] Finalize UI styling (colors, padding, typography).
+- [x] Prepare app icon and launch screen.
