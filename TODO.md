@@ -35,9 +35,9 @@
 - [x] Implement Floating Action Button (+) for manual entry and scan options.
 
 ## 7. Core Feature: Transaction Forms
-- [ ] Create "Manual Entry" Form View (Amount, Type, Date, Account, Category, Note).
-- [ ] Create "Transfer" Form View (Amount, Date, From Account, To Account, Note).
-- [ ] Ensure Balance Recalculation Engine triggers correctly from forms.
+- [x] Create "Manual Entry" Form View (Amount, Type, Date, Account, Category, Note).
+- [x] Create "Transfer" Form View (Amount, Date, From Account, To Account, Note).
+- [x] Ensure Balance Recalculation Engine triggers correctly from forms.
 
 ## 8. Core Feature: OCR & Parsing Engine (Apple Vision)
 - [ ] Set up `PhotosPicker` to select bank slip images.

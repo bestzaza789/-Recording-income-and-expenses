@@ -115,12 +115,10 @@ struct DashboardView: View {
             }
             .navigationTitle("Dashboard")
             .sheet(isPresented: $showingManualEntry) {
-                // To be implemented in Step 7
-                Text("Manual Entry Form")
+                ManualEntryFormView()
             }
             .sheet(isPresented: $showingTransfer) {
-                // To be implemented in Step 7
-                Text("Transfer Form")
+                TransferFormView()
             }
             .sheet(isPresented: $showingScanner) {
                 // To be implemented in Step 8
