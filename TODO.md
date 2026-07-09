@@ -48,9 +48,9 @@
 - [x] Create "Pre-filled Form View" that receives parsed OCR data for user confirmation.
 
 ## 9. UI/UX: Transactions Log Tab
-- [ ] Build Transactions list grouped by date.
-- [ ] Implement Search bar (filter by note, category, account).
-- [ ] Add swipe-to-delete functionality (linked to recalculation engine).
+- [x] Build Transactions list grouped by date.
+- [x] Implement Search bar (filter by note, category, account).
+- [x] Add swipe-to-delete functionality (linked to recalculation engine).
 
 ## 10. UI/UX: Analytics Tab
 - [ ] Build Month-over-Month trend chart (Bar chart comparing Income vs Expense using Swift Charts).
