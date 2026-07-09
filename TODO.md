@@ -53,7 +53,7 @@
 - [x] Add swipe-to-delete functionality (linked to recalculation engine).
 
 ## 10. UI/UX: Analytics Tab
-- [ ] Build Month-over-Month trend chart (Bar chart comparing Income vs Expense using Swift Charts).
+- [x] Build Month-over-Month trend chart (Bar chart comparing Income vs Expense using Swift Charts).
 
 ## 11. Testing & Polish
 - [ ] Test all data operations safely on the main thread.
