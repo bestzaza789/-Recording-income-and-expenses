@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { RefreshCw, ExternalLink } from 'lucide-react';
+import { RefreshCw, ExternalLink, Download } from 'lucide-react';
 import { isGoogleSyncConfigured, requestAccessToken } from '../lib/googleAuth';
-import { syncToGoogleSheets, getSpreadsheetUrl } from '../lib/googleSheetsSync';
+import { syncToGoogleSheets, importFromGoogleSheets, getSpreadsheetUrl } from '../lib/googleSheetsSync';
 import { isAutoSyncEnabled, setAutoSyncEnabled } from '../lib/autoSync';
 
 export function GoogleSyncCard() {
@@ -52,6 +52,22 @@ export function GoogleSyncCard() {
     }
   }
 
+  async function importNow() {
+    if (!confirm('Import data from the connected Google Sheet? New accounts, categories, and non-duplicate transactions will be added to this device.')) return;
+    setBusy(true);
+    setStatus(null);
+    try {
+      const result = await importFromGoogleSheets(true);
+      setStatus(
+        `Imported: ${result.accountsAdded} accounts, ${result.categoriesAdded} categories, ${result.transactionsImported} transactions (${result.transactionsSkipped} skipped as duplicates/unmatched).`
+      );
+    } catch (e) {
+      setStatus(`Import failed: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function disconnect() {
     setAutoSyncEnabled(false);
     setEnabled(false);
@@ -73,9 +89,14 @@ export function GoogleSyncCard() {
       </button>
 
       {sheetUrl && (
-        <a href={sheetUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: 'var(--accent)' }}>
-          <ExternalLink size={14} /> Open spreadsheet
-        </a>
+        <>
+          <a href={sheetUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: 'var(--accent)' }}>
+            <ExternalLink size={14} /> Open spreadsheet
+          </a>
+          <button className="icon-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 10, marginRight: 0, padding: '10px 0' }} onClick={importNow} disabled={busy}>
+            <Download size={16} style={{ marginRight: 6 }} /> Import from Sheet
+          </button>
+        </>
       )}
 
       {status && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>{status}</div>}

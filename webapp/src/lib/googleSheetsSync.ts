@@ -1,6 +1,9 @@
-import { db } from '../db/db';
+import { db, newId, type AccountType, type CategoryType, type TransactionType } from '../db/db';
+import { addTransaction } from '../db/transactionManager';
 import { requestAccessToken, isGoogleSyncConfigured } from './googleAuth';
 import { formatDate } from './format';
+
+const ACCOUNT_TYPES: AccountType[] = ['cash', 'bank', 'credit'];
 
 const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets';
 const SPREADSHEET_ID_KEY = 'googleSheetsSyncSpreadsheetId';
@@ -155,4 +158,103 @@ export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: s
     url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
     rowCount: transactionRows.length - 1,
   };
+}
+
+async function readSheetValues(token: string, spreadsheetId: string, sheetTitle: string): Promise<string[][]> {
+  const res = await apiFetch(`${SHEETS_API}/${spreadsheetId}/values/${sheetTitle}`, token);
+  if (!res.ok) {
+    if (res.status === 400) return [];
+    throw new Error(`Failed to read ${sheetTitle}: ${res.status}`);
+  }
+  const data = await res.json();
+  return (data.values ?? []) as string[][];
+}
+
+export interface ImportResult {
+  accountsAdded: number;
+  categoriesAdded: number;
+  transactionsImported: number;
+  transactionsSkipped: number;
+}
+
+export async function importFromGoogleSheets(interactive: boolean): Promise<ImportResult> {
+  if (!isGoogleSyncConfigured()) throw new Error('Google sync is not configured');
+  const spreadsheetId = getStoredSpreadsheetId();
+  if (!spreadsheetId) throw new Error('No spreadsheet connected yet — sync at least once first');
+
+  const token = await requestAccessToken(interactive);
+
+  const [accountRows, categoryRows, transactionRows] = await Promise.all([
+    readSheetValues(token, spreadsheetId, ACCOUNTS_SHEET),
+    readSheetValues(token, spreadsheetId, CATEGORIES_SHEET),
+    readSheetValues(token, spreadsheetId, TRANSACTIONS_SHEET),
+  ]);
+
+  const accounts = await db.accounts.toArray();
+  const categories = await db.categories.toArray();
+
+  let accountsAdded = 0;
+  for (const [name, type, initialBalanceStr] of accountRows.slice(1)) {
+    if (!name) continue;
+    if (accounts.some((a) => a.name.toLowerCase() === name.toLowerCase())) continue;
+    const accountType = (ACCOUNT_TYPES as string[]).includes(type) ? (type as AccountType) : 'bank';
+    const initialBalance = parseFloat(initialBalanceStr) || 0;
+    const account = { id: newId(), name, accountType, initialBalance, currentBalance: initialBalance };
+    await db.accounts.add(account);
+    accounts.push(account);
+    accountsAdded++;
+  }
+
+  let categoriesAdded = 0;
+  for (const [name, type, icon, color] of categoryRows.slice(1)) {
+    if (!name) continue;
+    const categoryType: CategoryType = type === 'income' ? 'income' : 'expense';
+    if (categories.some((c) => c.name.toLowerCase() === name.toLowerCase() && c.type === categoryType)) continue;
+    const category = { id: newId(), name, type: categoryType, iconName: icon || 'banknote', hexColor: color || '808080' };
+    await db.categories.add(category);
+    categories.push(category);
+    categoriesAdded++;
+  }
+
+  const existingTransactions = await db.transactions.toArray();
+  const accountName = (id?: string) => accounts.find((a) => a.id === id)?.name ?? '';
+  const categoryName = (id?: string) => categories.find((c) => c.id === id)?.name ?? '';
+  const existingKeys = new Set(
+    existingTransactions.map((t) =>
+      [formatDate(t.date), t.transactionType, t.amount.toFixed(2), accountName(t.accountId), accountName(t.toAccountId), categoryName(t.categoryId), t.note ?? ''].join('|')
+    )
+  );
+
+  let transactionsImported = 0;
+  let transactionsSkipped = 0;
+  for (const [dateStr, type, amountStr, accName, toAccName, catName, note] of transactionRows.slice(1)) {
+    if (!dateStr || !type || !amountStr) continue;
+    const amount = parseFloat(amountStr);
+    if (!amount) { transactionsSkipped++; continue; }
+
+    const key = [dateStr, type, amount.toFixed(2), accName ?? '', toAccName ?? '', catName ?? '', note ?? ''].join('|');
+    if (existingKeys.has(key)) { transactionsSkipped++; continue; }
+
+    const account = accounts.find((a) => a.name.toLowerCase() === (accName ?? '').toLowerCase());
+    if (!account) { transactionsSkipped++; continue; }
+    const toAccount = toAccName ? accounts.find((a) => a.name.toLowerCase() === toAccName.toLowerCase()) : undefined;
+    const category = catName ? categories.find((c) => c.name.toLowerCase() === catName.toLowerCase()) : undefined;
+
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) { transactionsSkipped++; continue; }
+
+    await addTransaction({
+      amount,
+      type: type as TransactionType,
+      date,
+      note: note || undefined,
+      accountId: account.id,
+      toAccountId: toAccount?.id,
+      categoryId: category?.id,
+    });
+    existingKeys.add(key);
+    transactionsImported++;
+  }
+
+  return { accountsAdded, categoriesAdded, transactionsImported, transactionsSkipped };
 }
