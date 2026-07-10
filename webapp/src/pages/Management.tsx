@@ -6,6 +6,7 @@ import { formatCurrency } from '../lib/format';
 import { AccountForm } from '../components/AccountForm';
 import { CategoryForm } from '../components/CategoryForm';
 import { GoogleSyncCard } from '../components/GoogleSyncCard';
+import { scheduleAutoSync } from '../lib/autoSync';
 import { Plus, Trash2, Pencil } from 'lucide-react';
 
 type AccountModal = 'new' | Account | null;
@@ -28,10 +29,12 @@ export function Management() {
       return;
     }
     await db.accounts.delete(id);
+    scheduleAutoSync();
   }
 
   async function deleteCategory(id: string) {
     await db.categories.delete(id);
+    scheduleAutoSync();
   }
 
   return (

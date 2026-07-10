@@ -4,7 +4,11 @@ import { formatDate } from './format';
 
 const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets';
 const SPREADSHEET_ID_KEY = 'googleSheetsSyncSpreadsheetId';
-const SHEET_TITLE = 'Transactions';
+
+const TRANSACTIONS_SHEET = 'Transactions';
+const ACCOUNTS_SHEET = 'Accounts';
+const CATEGORIES_SHEET = 'Categories';
+const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET];
 
 export function getStoredSpreadsheetId(): string | null {
   return localStorage.getItem(SPREADSHEET_ID_KEY);
@@ -36,7 +40,7 @@ async function createSpreadsheet(token: string): Promise<string> {
     method: 'POST',
     body: JSON.stringify({
       properties: { title: 'Personal Finance Backup' },
-      sheets: [{ properties: { title: SHEET_TITLE } }],
+      sheets: ALL_SHEETS.map((title) => ({ properties: { title } })),
     }),
   });
   if (!res.ok) throw new Error(`Failed to create spreadsheet: ${res.status}`);
@@ -58,7 +62,34 @@ async function ensureSpreadsheet(token: string): Promise<string> {
   return existing;
 }
 
-async function buildRows(): Promise<string[][]> {
+async function ensureSheetTabs(token: string, spreadsheetId: string): Promise<void> {
+  const res = await apiFetch(`${SHEETS_API}/${spreadsheetId}?fields=sheets.properties.title`, token);
+  if (!res.ok) throw new Error(`Failed to read spreadsheet tabs: ${res.status}`);
+  const data = await res.json();
+  const existingTitles = new Set((data.sheets ?? []).map((s: { properties: { title: string } }) => s.properties.title));
+
+  const missing = ALL_SHEETS.filter((title) => !existingTitles.has(title));
+  if (missing.length === 0) return;
+
+  await apiFetch(`${SHEETS_API}/${spreadsheetId}:batchUpdate`, token, {
+    method: 'POST',
+    body: JSON.stringify({
+      requests: missing.map((title) => ({ addSheet: { properties: { title } } })),
+    }),
+  });
+}
+
+async function writeSheet(token: string, spreadsheetId: string, sheetTitle: string, rows: string[][]): Promise<void> {
+  await apiFetch(`${SHEETS_API}/${spreadsheetId}/values/${sheetTitle}:clear`, token, { method: 'POST' });
+  const res = await apiFetch(
+    `${SHEETS_API}/${spreadsheetId}/values/${sheetTitle}!A1?valueInputOption=USER_ENTERED`,
+    token,
+    { method: 'PUT', body: JSON.stringify({ values: rows }) }
+  );
+  if (!res.ok) throw new Error(`Failed to write ${sheetTitle}: ${res.status}`);
+}
+
+async function buildTransactionRows(): Promise<string[][]> {
   const [accounts, categories, transactions] = await Promise.all([
     db.accounts.toArray(),
     db.categories.toArray(),
@@ -82,22 +113,39 @@ async function buildRows(): Promise<string[][]> {
   return [header, ...rows];
 }
 
+async function buildAccountRows(): Promise<string[][]> {
+  const accounts = await db.accounts.toArray();
+  const header = ['Name', 'Type', 'Initial Balance', 'Current Balance'];
+  const rows = accounts.map((a) => [a.name, a.accountType, a.initialBalance.toFixed(2), a.currentBalance.toFixed(2)]);
+  return [header, ...rows];
+}
+
+async function buildCategoryRows(): Promise<string[][]> {
+  const categories = await db.categories.toArray();
+  const header = ['Name', 'Type', 'Icon', 'Color'];
+  const rows = categories.map((c) => [c.name, c.type, c.iconName, c.hexColor]);
+  return [header, ...rows];
+}
+
 export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: string; rowCount: number }> {
   if (!isGoogleSyncConfigured()) throw new Error('Google sync is not configured');
 
   const token = await requestAccessToken(interactive);
   const spreadsheetId = await ensureSpreadsheet(token);
-  const rows = await buildRows();
+  await ensureSheetTabs(token, spreadsheetId);
 
-  await apiFetch(`${SHEETS_API}/${spreadsheetId}/values/${SHEET_TITLE}:clear`, token, { method: 'POST' });
+  const [transactionRows, accountRows, categoryRows] = await Promise.all([
+    buildTransactionRows(),
+    buildAccountRows(),
+    buildCategoryRows(),
+  ]);
 
-  const range = `${SHEET_TITLE}!A1`;
-  const res = await apiFetch(
-    `${SHEETS_API}/${spreadsheetId}/values/${range}?valueInputOption=USER_ENTERED`,
-    token,
-    { method: 'PUT', body: JSON.stringify({ values: rows }) }
-  );
-  if (!res.ok) throw new Error(`Failed to write spreadsheet: ${res.status}`);
+  await writeSheet(token, spreadsheetId, TRANSACTIONS_SHEET, transactionRows);
+  await writeSheet(token, spreadsheetId, ACCOUNTS_SHEET, accountRows);
+  await writeSheet(token, spreadsheetId, CATEGORIES_SHEET, categoryRows);
 
-  return { url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`, rowCount: rows.length - 1 };
+  return {
+    url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
+    rowCount: transactionRows.length - 1,
+  };
 }
