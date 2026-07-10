@@ -308,6 +308,19 @@ input, select, textarea, button {
   font-size: 12px;
 }
 
+.icon-btn {
+  border: none;
+  background: rgba(128,128,128,0.15);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -519,6 +532,27 @@ input, select, textarea, button {
   max-height: 300px;
   max-width: 100%;
   border-radius: 10px;
+}
+
+.scanner-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.scanner-thumb {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 10px;
+  opacity: 0.6;
+  border: 2px solid transparent;
+}
+
+.scanner-thumb.active {
+  opacity: 1;
+  border-color: var(--accent);
 }
 
 .upload-btn {

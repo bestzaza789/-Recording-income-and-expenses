@@ -5,7 +5,15 @@ import { db } from '../db/db';
 import { addTransaction } from '../db/transactionManager';
 import type { ParsedData } from '../ocr/ocrService';
 
-export function ScannedTransactionForm({ parsedData, onClose }: { parsedData: ParsedData; onClose: () => void }) {
+export function ScannedTransactionForm({
+  parsedData,
+  onClose,
+  titleSuffix,
+}: {
+  parsedData: ParsedData;
+  onClose: () => void;
+  titleSuffix?: string;
+}) {
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
   const expenseCategories = categories.filter((c) => c.type === 'expense');
@@ -52,7 +60,7 @@ export function ScannedTransactionForm({ parsedData, onClose }: { parsedData: Pa
   }
 
   return (
-    <Modal title="Confirm Scanned Slip" onCancel={onClose} onSave={save} saveDisabled={disabled}>
+    <Modal title={`Confirm Scanned Slip${titleSuffix ?? ''}`} onCancel={onClose} onSave={save} saveDisabled={disabled}>
       <div className="form-section">
         <div className="form-section-title">Verify OCR Details</div>
         <div className="form-field">

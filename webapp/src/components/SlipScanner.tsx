@@ -5,34 +5,62 @@ import { recognizeSlip, type ParsedData } from '../ocr/ocrService';
 import { ImageIcon, Upload } from 'lucide-react';
 
 export function SlipScanner({ onClose }: { onClose: () => void }) {
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [processing, setProcessing] = useState(false);
+  const [fileIndex, setFileIndex] = useState(0);
+  const [fileCount, setFileCount] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [parsedData, setParsedData] = useState<ParsedData | null>(null);
+  const [results, setResults] = useState<ParsedData[]>([]);
+  const [reviewIndex, setReviewIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
-    setPreview(URL.createObjectURL(file));
+  async function handleFiles(fileList: FileList | null) {
+    const files = Array.from(fileList ?? []);
+    if (files.length === 0) return;
+
+    setPreviews(files.map((f) => URL.createObjectURL(f)));
+    setFileCount(files.length);
     setProcessing(true);
-    setProgress(0);
-    try {
-      const data = await recognizeSlip(file, setProgress);
-      setParsedData(data);
-    } finally {
-      setProcessing(false);
+
+    const parsed: ParsedData[] = [];
+    for (let i = 0; i < files.length; i++) {
+      setFileIndex(i);
+      setProgress(0);
+      const data = await recognizeSlip(files[i], setProgress);
+      parsed.push(data);
+    }
+
+    setResults(parsed);
+    setProcessing(false);
+  }
+
+  function advanceReview() {
+    if (reviewIndex + 1 >= results.length) {
+      onClose();
+    } else {
+      setReviewIndex(reviewIndex + 1);
     }
   }
 
-  if (parsedData) {
-    return <ScannedTransactionForm parsedData={parsedData} onClose={onClose} />;
+  if (results.length > 0) {
+    return (
+      <ScannedTransactionForm
+        parsedData={results[reviewIndex]}
+        onClose={advanceReview}
+        titleSuffix={results.length > 1 ? ` (${reviewIndex + 1} of ${results.length})` : undefined}
+      />
+    );
   }
 
   return (
     <Modal title="Slip Scanner" onCancel={onClose}>
       <div className="scanner-drop">
-        {preview ? (
-          <img src={preview} alt="Slip preview" className="scanner-preview" />
+        {previews.length > 0 ? (
+          <div className="scanner-thumbs">
+            {previews.map((src, i) => (
+              <img key={i} src={src} alt={`Slip ${i + 1}`} className={`scanner-thumb${processing && i === fileIndex ? ' active' : ''}`} />
+            ))}
+          </div>
         ) : (
           <ImageIcon size={80} color="var(--text-secondary)" />
         )}
@@ -41,14 +69,19 @@ export function SlipScanner({ onClose }: { onClose: () => void }) {
           ref={inputRef}
           type="file"
           accept="image/*"
+          multiple
           style={{ display: 'none' }}
-          onChange={(e) => handleFile(e.target.files?.[0])}
+          onChange={(e) => handleFiles(e.target.files)}
         />
-        <button className="upload-btn" onClick={() => inputRef.current?.click()}>
-          <Upload size={16} /> Select Slip Image
+        <button className="upload-btn" onClick={() => inputRef.current?.click()} disabled={processing}>
+          <Upload size={16} /> Select Slip Image(s)
         </button>
 
-        {processing && <div>Analyzing Slip... {progress}%</div>}
+        {processing && (
+          <div>
+            Analyzing slip {fileIndex + 1} of {fileCount}... {progress}%
+          </div>
+        )}
       </div>
     </Modal>
   );

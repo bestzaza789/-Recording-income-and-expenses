@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type CategoryType } from '../db/db';
+import { db, type Account, type Category, type CategoryType } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
 import { AccountForm } from '../components/AccountForm';
 import { CategoryForm } from '../components/CategoryForm';
 import { GoogleSyncCard } from '../components/GoogleSyncCard';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Pencil } from 'lucide-react';
+
+type AccountModal = 'new' | Account | null;
+type CategoryModal = { type: CategoryType; existing?: Category } | null;
 
 export function Management() {
   const [tab, setTab] = useState<'accounts' | 'categories'>('accounts');
-  const [showAccountForm, setShowAccountForm] = useState(false);
-  const [showCategoryForm, setShowCategoryForm] = useState<CategoryType | null>(null);
+  const [accountModal, setAccountModal] = useState<AccountModal>(null);
+  const [categoryModal, setCategoryModal] = useState<CategoryModal>(null);
 
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
@@ -48,10 +51,13 @@ export function Management() {
                 <div style={{ fontWeight: 600 }}>{a.name}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.accountType} · {formatCurrency(a.currentBalance)}</div>
               </div>
-              <button className="delete-btn" onClick={() => deleteAccount(a.id)}><Trash2 size={14} /></button>
+              <div>
+                <button className="icon-btn" onClick={() => setAccountModal(a)}><Pencil size={14} /></button>
+                <button className="delete-btn" onClick={() => deleteAccount(a.id)}><Trash2 size={14} /></button>
+              </div>
             </div>
           ))}
-          <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setShowAccountForm(true)}>
+          <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setAccountModal('new')}>
             <Plus size={16} /> Add Account
           </button>
         </div>
@@ -65,10 +71,13 @@ export function Management() {
                   <CategoryIcon name={c.iconName} color={`#${c.hexColor}`} />
                   {c.name}
                 </div>
-                <button className="delete-btn" onClick={() => deleteCategory(c.id)}><Trash2 size={14} /></button>
+                <div>
+                  <button className="icon-btn" onClick={() => setCategoryModal({ type: 'expense', existing: c })}><Pencil size={14} /></button>
+                  <button className="delete-btn" onClick={() => deleteCategory(c.id)}><Trash2 size={14} /></button>
+                </div>
               </div>
             ))}
-            <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setShowCategoryForm('expense')}>
+            <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setCategoryModal({ type: 'expense' })}>
               <Plus size={16} /> Add Expense Category
             </button>
           </div>
@@ -80,10 +89,13 @@ export function Management() {
                   <CategoryIcon name={c.iconName} color={`#${c.hexColor}`} />
                   {c.name}
                 </div>
-                <button className="delete-btn" onClick={() => deleteCategory(c.id)}><Trash2 size={14} /></button>
+                <div>
+                  <button className="icon-btn" onClick={() => setCategoryModal({ type: 'income', existing: c })}><Pencil size={14} /></button>
+                  <button className="delete-btn" onClick={() => deleteCategory(c.id)}><Trash2 size={14} /></button>
+                </div>
               </div>
             ))}
-            <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setShowCategoryForm('income')}>
+            <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setCategoryModal({ type: 'income' })}>
               <Plus size={16} /> Add Income Category
             </button>
           </div>
@@ -92,8 +104,19 @@ export function Management() {
 
       <GoogleSyncCard />
 
-      {showAccountForm && <AccountForm onClose={() => setShowAccountForm(false)} />}
-      {showCategoryForm && <CategoryForm defaultType={showCategoryForm} onClose={() => setShowCategoryForm(null)} />}
+      {accountModal && (
+        <AccountForm
+          existing={accountModal === 'new' ? undefined : accountModal}
+          onClose={() => setAccountModal(null)}
+        />
+      )}
+      {categoryModal && (
+        <CategoryForm
+          defaultType={categoryModal.type}
+          existing={categoryModal.existing}
+          onClose={() => setCategoryModal(null)}
+        />
+      )}
     </div>
   );
 }

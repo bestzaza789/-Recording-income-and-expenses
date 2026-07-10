@@ -1,24 +1,30 @@
 import { useState } from 'react';
 import { Modal } from './Modal';
-import { db, newId, type CategoryType } from '../db/db';
+import { db, newId, type Category, type CategoryType } from '../db/db';
 import { CategoryIcon, ICON_NAMES } from '../lib/icons';
+import { scheduleAutoSync } from '../lib/autoSync';
 
 const COLORS = ['FF3B30', 'FF9500', 'FFCC00', '34C759', '007AFF', '5856D6', 'FF2D55', '8E8E93'];
 
-export function CategoryForm({ defaultType, onClose }: { defaultType: CategoryType; onClose: () => void }) {
-  const [name, setName] = useState('');
-  const [type, setType] = useState<CategoryType>(defaultType);
-  const [icon, setIcon] = useState(ICON_NAMES[0]);
-  const [color, setColor] = useState(COLORS[4]);
+export function CategoryForm({ defaultType, onClose, existing }: { defaultType: CategoryType; onClose: () => void; existing?: Category }) {
+  const [name, setName] = useState(existing?.name ?? '');
+  const [type, setType] = useState<CategoryType>(existing?.type ?? defaultType);
+  const [icon, setIcon] = useState(existing?.iconName ?? ICON_NAMES[0]);
+  const [color, setColor] = useState(existing?.hexColor ?? COLORS[4]);
 
   async function save() {
     if (!name) return;
-    await db.categories.add({ id: newId(), name, type, iconName: icon, hexColor: color });
+    if (existing) {
+      await db.categories.update(existing.id, { name, type, iconName: icon, hexColor: color });
+    } else {
+      await db.categories.add({ id: newId(), name, type, iconName: icon, hexColor: color });
+    }
+    scheduleAutoSync();
     onClose();
   }
 
   return (
-    <Modal title="New Category" onCancel={onClose} onSave={save} saveDisabled={!name}>
+    <Modal title={existing ? 'Edit Category' : 'New Category'} onCancel={onClose} onSave={save} saveDisabled={!name}>
       <div className="form-section">
         <div className="form-section-title">Details</div>
         <div className="form-field">

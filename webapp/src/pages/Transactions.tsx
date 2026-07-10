@@ -1,12 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/db';
+import { db, type Transaction } from '../db/db';
 import { TransactionRow } from '../components/TransactionRow';
+import { ManualEntryForm } from '../components/ManualEntryForm';
+import { TransferForm } from '../components/TransferForm';
 import { deleteTransaction } from '../db/transactionManager';
 import { formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
 
 export function Transactions() {
   const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState<Transaction | null>(null);
 
   const transactions = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []) ?? [];
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
@@ -69,13 +72,26 @@ export function Transactions() {
               <div className="date-group-header">{formatDate(new Date(dateKey))}</div>
               <div className="card">
                 {items.map((t) => (
-                  <TransactionRow key={t.id} transaction={t} category={categoryFor(t.categoryId)} onDelete={() => handleDelete(t.id)} />
+                  <TransactionRow
+                    key={t.id}
+                    transaction={t}
+                    category={categoryFor(t.categoryId)}
+                    onDelete={() => handleDelete(t.id)}
+                    onEdit={() => setEditing(t)}
+                  />
                 ))}
               </div>
             </div>
           ))}
         </div>
       ))}
+
+      {editing && editing.transactionType === 'transfer' && (
+        <TransferForm existing={editing} onClose={() => setEditing(null)} />
+      )}
+      {editing && editing.transactionType !== 'transfer' && (
+        <ManualEntryForm existing={editing} onClose={() => setEditing(null)} />
+      )}
     </div>
   );
 }

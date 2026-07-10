@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react';
 import type { Account, Category, Transaction } from '../db/db';
 import { CategoryIcon, TransferIcon } from '../lib/icons';
 import { formatCurrency, formatDate } from '../lib/format';
@@ -6,9 +7,10 @@ interface Props {
   transaction: Transaction;
   category?: Category;
   onDelete?: () => void;
+  onEdit?: () => void;
 }
 
-export function TransactionRow({ transaction, category, onDelete }: Props) {
+export function TransactionRow({ transaction, category, onDelete, onEdit }: Props) {
   const sign = transaction.transactionType === 'expense' ? '-' : transaction.transactionType === 'income' ? '+' : '';
   const title = category?.name || transaction.note || capitalize(transaction.transactionType);
 
@@ -28,6 +30,9 @@ export function TransactionRow({ transaction, category, onDelete }: Props) {
       <div className={`tx-amount ${transaction.transactionType}`}>
         {sign}{formatCurrency(transaction.amount)}
       </div>
+      {onEdit && (
+        <button className="icon-btn" onClick={onEdit}><Pencil size={14} /></button>
+      )}
       {onDelete && (
         <button className="delete-btn" onClick={onDelete}>Del</button>
       )}

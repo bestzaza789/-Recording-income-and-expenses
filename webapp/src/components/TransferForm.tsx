@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
-import { db } from '../db/db';
-import { addTransaction } from '../db/transactionManager';
+import { db, type Transaction } from '../db/db';
+import { addTransaction, updateTransaction } from '../db/transactionManager';
 
-export function TransferForm({ onClose }: { onClose: () => void }) {
+export function TransferForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
 
-  const [amount, setAmount] = useState('');
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [fromAccountId, setFromAccountId] = useState('');
-  const [toAccountId, setToAccountId] = useState('');
-  const [note, setNote] = useState('');
+  const [amount, setAmount] = useState(existing ? String(existing.amount) : '');
+  const [date, setDate] = useState(() => (existing ? new Date(existing.date) : new Date()).toISOString().slice(0, 10));
+  const [fromAccountId, setFromAccountId] = useState(existing?.accountId ?? '');
+  const [toAccountId, setToAccountId] = useState(existing?.toAccountId ?? '');
+  const [note, setNote] = useState(existing?.note ?? '');
 
   useEffect(() => {
     if (!fromAccountId && accounts.length) setFromAccountId(accounts[0].id);
@@ -22,19 +22,30 @@ export function TransferForm({ onClose }: { onClose: () => void }) {
 
   async function save() {
     if (disabled) return;
-    await addTransaction({
-      amount: amountNum,
-      type: 'transfer',
-      date: new Date(date),
-      note: note || undefined,
-      accountId: fromAccountId,
-      toAccountId,
-    });
+    if (existing) {
+      await updateTransaction(existing.id, {
+        amount: amountNum,
+        type: 'transfer',
+        date: new Date(date),
+        note: note || undefined,
+        accountId: fromAccountId,
+        toAccountId,
+      });
+    } else {
+      await addTransaction({
+        amount: amountNum,
+        type: 'transfer',
+        date: new Date(date),
+        note: note || undefined,
+        accountId: fromAccountId,
+        toAccountId,
+      });
+    }
     onClose();
   }
 
   return (
-    <Modal title="Transfer" onCancel={onClose} onSave={save} saveDisabled={disabled}>
+    <Modal title={existing ? 'Edit Transfer' : 'Transfer'} onCancel={onClose} onSave={save} saveDisabled={disabled}>
       <div className="form-section">
         <div className="form-section-title">Transfer Details</div>
         <div className="form-field">

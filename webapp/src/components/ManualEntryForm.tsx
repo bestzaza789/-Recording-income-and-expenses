@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
-import { db, type TransactionType } from '../db/db';
-import { addTransaction } from '../db/transactionManager';
+import { db, type Transaction, type TransactionType } from '../db/db';
+import { addTransaction, updateTransaction } from '../db/transactionManager';
 
-export function ManualEntryForm({ onClose }: { onClose: () => void }) {
+export function ManualEntryForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
-  const [amount, setAmount] = useState('');
-  const [type, setType] = useState<TransactionType>('expense');
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [accountId, setAccountId] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [note, setNote] = useState('');
+  const [amount, setAmount] = useState(existing ? String(existing.amount) : '');
+  const [type, setType] = useState<TransactionType>(existing?.transactionType === 'income' ? 'income' : 'expense');
+  const [date, setDate] = useState(() => (existing ? new Date(existing.date) : new Date()).toISOString().slice(0, 10));
+  const [accountId, setAccountId] = useState(existing?.accountId ?? '');
+  const [categoryId, setCategoryId] = useState(existing?.categoryId ?? '');
+  const [note, setNote] = useState(existing?.note ?? '');
+  const [initialized, setInitialized] = useState(!!existing);
 
   const filteredCategories = categories.filter((c) => c.type === type);
 
@@ -22,7 +23,11 @@ export function ManualEntryForm({ onClose }: { onClose: () => void }) {
   }, [accounts, accountId]);
 
   useEffect(() => {
-    setCategoryId(filteredCategories[0]?.id ?? '');
+    if (!initialized) {
+      setCategoryId(filteredCategories[0]?.id ?? '');
+    } else {
+      setInitialized(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, categories.length]);
 
@@ -31,19 +36,30 @@ export function ManualEntryForm({ onClose }: { onClose: () => void }) {
 
   async function save() {
     if (disabled) return;
-    await addTransaction({
-      amount: amountNum,
-      type,
-      date: new Date(date),
-      note: note || undefined,
-      accountId,
-      categoryId,
-    });
+    if (existing) {
+      await updateTransaction(existing.id, {
+        amount: amountNum,
+        type,
+        date: new Date(date),
+        note: note || undefined,
+        accountId,
+        categoryId,
+      });
+    } else {
+      await addTransaction({
+        amount: amountNum,
+        type,
+        date: new Date(date),
+        note: note || undefined,
+        accountId,
+        categoryId,
+      });
+    }
     onClose();
   }
 
   return (
-    <Modal title="Manual Entry" onCancel={onClose} onSave={save} saveDisabled={disabled}>
+    <Modal title={existing ? 'Edit Transaction' : 'Manual Entry'} onCancel={onClose} onSave={save} saveDisabled={disabled}>
       <div className="segmented">
         <button className={type === 'expense' ? 'active' : ''} onClick={() => setType('expense')}>Expense</button>
         <button className={type === 'income' ? 'active' : ''} onClick={() => setType('income')}>Income</button>

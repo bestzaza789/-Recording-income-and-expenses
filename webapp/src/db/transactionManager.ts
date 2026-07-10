@@ -109,5 +109,19 @@ export async function updateTransaction(transactionId: string, input: UpdateTran
 export async function addAccount(name: string, accountType: Account['accountType'], initialBalance: number): Promise<string> {
   const id = newId();
   await db.accounts.add({ id, name, accountType, initialBalance, currentBalance: initialBalance });
+  scheduleAutoSync();
   return id;
+}
+
+export async function updateAccount(id: string, name: string, accountType: Account['accountType'], initialBalance: number): Promise<void> {
+  const account = await db.accounts.get(id);
+  if (!account) return;
+  const delta = initialBalance - account.initialBalance;
+  await db.accounts.update(id, {
+    name,
+    accountType,
+    initialBalance,
+    currentBalance: account.currentBalance + delta,
+  });
+  scheduleAutoSync();
 }

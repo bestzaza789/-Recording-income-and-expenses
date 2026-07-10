@@ -1,23 +1,27 @@
 import { useState } from 'react';
 import { Modal } from './Modal';
-import { addAccount } from '../db/transactionManager';
-import type { AccountType } from '../db/db';
+import { addAccount, updateAccount } from '../db/transactionManager';
+import type { Account, AccountType } from '../db/db';
 
 const TYPES: AccountType[] = ['cash', 'bank', 'credit'];
 
-export function AccountForm({ onClose }: { onClose: () => void }) {
-  const [name, setName] = useState('');
-  const [accountType, setAccountType] = useState<AccountType>('bank');
-  const [initialBalance, setInitialBalance] = useState('');
+export function AccountForm({ onClose, existing }: { onClose: () => void; existing?: Account }) {
+  const [name, setName] = useState(existing?.name ?? '');
+  const [accountType, setAccountType] = useState<AccountType>(existing?.accountType ?? 'bank');
+  const [initialBalance, setInitialBalance] = useState(existing ? String(existing.initialBalance) : '');
 
   async function save() {
     if (!name) return;
-    await addAccount(name, accountType, parseFloat(initialBalance) || 0);
+    if (existing) {
+      await updateAccount(existing.id, name, accountType, parseFloat(initialBalance) || 0);
+    } else {
+      await addAccount(name, accountType, parseFloat(initialBalance) || 0);
+    }
     onClose();
   }
 
   return (
-    <Modal title="New Account" onCancel={onClose} onSave={save} saveDisabled={!name}>
+    <Modal title={existing ? 'Edit Account' : 'New Account'} onCancel={onClose} onSave={save} saveDisabled={!name}>
       <div className="form-section">
         <div className="form-section-title">Account Details</div>
         <div className="form-field">
@@ -38,6 +42,11 @@ export function AccountForm({ onClose }: { onClose: () => void }) {
             <input type="number" inputMode="decimal" value={initialBalance} onChange={(e) => setInitialBalance(e.target.value)} placeholder="0.00" />
           </div>
         </div>
+        {existing && (
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
+            Changing initial balance adjusts current balance by the same amount.
+          </div>
+        )}
       </div>
     </Modal>
   );
