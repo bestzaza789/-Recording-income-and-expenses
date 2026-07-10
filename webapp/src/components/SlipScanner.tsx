@@ -41,7 +41,6 @@ export function SlipScanner({ onClose }: { onClose: () => void }) {
           ref={inputRef}
           type="file"
           accept="image/*"
-          capture="environment"
           style={{ display: 'none' }}
           onChange={(e) => handleFile(e.target.files?.[0])}
         />
