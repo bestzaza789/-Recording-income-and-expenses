@@ -71,12 +71,16 @@ async function ensureSheetTabs(token: string, spreadsheetId: string): Promise<vo
   const missing = ALL_SHEETS.filter((title) => !existingTitles.has(title));
   if (missing.length === 0) return;
 
-  await apiFetch(`${SHEETS_API}/${spreadsheetId}:batchUpdate`, token, {
+  const batchRes = await apiFetch(`${SHEETS_API}/${spreadsheetId}:batchUpdate`, token, {
     method: 'POST',
     body: JSON.stringify({
       requests: missing.map((title) => ({ addSheet: { properties: { title } } })),
     }),
   });
+  if (!batchRes.ok) {
+    const body = await batchRes.text();
+    throw new Error(`Failed to create tabs (${missing.join(', ')}): ${batchRes.status} ${body}`);
+  }
 }
 
 async function writeSheet(token: string, spreadsheetId: string, sheetTitle: string, rows: string[][]): Promise<void> {
@@ -86,7 +90,10 @@ async function writeSheet(token: string, spreadsheetId: string, sheetTitle: stri
     token,
     { method: 'PUT', body: JSON.stringify({ values: rows }) }
   );
-  if (!res.ok) throw new Error(`Failed to write ${sheetTitle}: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Failed to write ${sheetTitle}: ${res.status} ${body}`);
+  }
 }
 
 async function buildTransactionRows(): Promise<string[][]> {
