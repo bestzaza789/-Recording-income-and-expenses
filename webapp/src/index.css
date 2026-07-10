@@ -253,6 +253,15 @@ input, select, textarea, button {
   font-weight: 600;
   color: var(--text-secondary);
   margin: 16px 0 6px;
+  padding-left: 8px;
+}
+
+.month-group-header {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 24px 0 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
 }
 
 .segmented {
