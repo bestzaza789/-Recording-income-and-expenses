@@ -1,4 +1,5 @@
 import { db, newId, type Account, type Transaction, type TransactionType } from './db';
+import { scheduleAutoSync } from '../lib/autoSync';
 
 async function applyDelta(accountId: string, delta: number) {
   const account = await db.accounts.get(accountId);
@@ -56,6 +57,7 @@ export async function addTransaction(input: AddTransactionInput): Promise<string
     await applyImpact(input.type, input.amount, input.accountId, transaction.toAccountId);
   });
 
+  scheduleAutoSync();
   return id;
 }
 
@@ -66,6 +68,8 @@ export async function deleteTransaction(transactionId: string): Promise<void> {
     await reverseImpact(transaction);
     await db.transactions.delete(transactionId);
   });
+
+  scheduleAutoSync();
 }
 
 export interface UpdateTransactionInput {
@@ -98,6 +102,8 @@ export async function updateTransaction(transactionId: string, input: UpdateTran
 
     await applyImpact(input.type, input.amount, input.accountId, toAccountId);
   });
+
+  scheduleAutoSync();
 }
 
 export async function addAccount(name: string, accountType: Account['accountType'], initialBalance: number): Promise<string> {

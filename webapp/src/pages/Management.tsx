@@ -5,6 +5,7 @@ import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
 import { AccountForm } from '../components/AccountForm';
 import { CategoryForm } from '../components/CategoryForm';
+import { GoogleSyncCard } from '../components/GoogleSyncCard';
 import { Plus, Trash2 } from 'lucide-react';
 
 export function Management() {
@@ -88,6 +89,8 @@ export function Management() {
           </div>
         </>
       )}
+
+      <GoogleSyncCard />
 
       {showAccountForm && <AccountForm onClose={() => setShowAccountForm(false)} />}
       {showCategoryForm && <CategoryForm defaultType={showCategoryForm} onClose={() => setShowCategoryForm(null)} />}
