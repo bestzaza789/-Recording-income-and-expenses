@@ -53,7 +53,7 @@ export function GoogleSyncCard() {
   }
 
   async function importNow() {
-    if (!confirm('Import data from the connected Google Sheet? New accounts, categories, and non-duplicate transactions will be added to this device.')) return;
+    if (!confirm('Import data from the connected Google Sheet? New accounts, categories, budgets, and non-duplicate transactions will be added to this device.')) return;
     setBusy(true);
     setStatus(null);
     try {
