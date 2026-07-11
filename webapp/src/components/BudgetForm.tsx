@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { db, newId, type Budget, type Category } from '../db/db';
+import { scheduleAutoSync } from '../lib/autoSync';
 
 export function BudgetForm({
   category,
@@ -23,6 +24,7 @@ export function BudgetForm({
     } else {
       await db.budgets.add({ id: newId(), categoryId: category.id, monthlyLimit: limit });
     }
+    scheduleAutoSync();
     onClose();
   }
 

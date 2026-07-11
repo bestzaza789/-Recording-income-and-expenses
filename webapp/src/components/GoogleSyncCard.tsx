@@ -59,7 +59,7 @@ export function GoogleSyncCard() {
     try {
       const result = await importFromGoogleSheets(true);
       setStatus(
-        `Imported: ${result.accountsAdded} accounts, ${result.categoriesAdded} categories, ${result.transactionsImported} transactions (${result.transactionsSkipped} skipped as duplicates/unmatched).`
+        `Imported: ${result.accountsAdded} accounts, ${result.categoriesAdded} categories, ${result.budgetsAdded} budgets, ${result.transactionsImported} transactions (${result.transactionsSkipped} skipped as duplicates/unmatched).`
       );
     } catch (e) {
       setStatus(`Import failed: ${(e as Error).message}`);
