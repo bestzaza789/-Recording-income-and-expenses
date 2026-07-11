@@ -20,6 +20,12 @@ export interface Category {
   hexColor: string;
 }
 
+export interface Budget {
+  id: string;
+  categoryId: string;  // one budget per category — enforced unique below
+  monthlyLimit: number;
+}
+
 export interface Transaction {
   id: string;
   amount: number;
@@ -35,12 +41,20 @@ export const db = new Dexie('PersonalFinanceDB') as Dexie & {
   accounts: EntityTable<Account, 'id'>;
   categories: EntityTable<Category, 'id'>;
   transactions: EntityTable<Transaction, 'id'>;
+  budgets: EntityTable<Budget, 'id'>;
 };
 
 db.version(1).stores({
   accounts: 'id, name, accountType',
   categories: 'id, name, type',
   transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+});
+
+db.version(2).stores({
+  accounts: 'id, name, accountType',
+  categories: 'id, name, type',
+  transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+  budgets: 'id, &categoryId',
 });
 
 export function newId(): string {
