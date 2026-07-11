@@ -11,7 +11,8 @@ const SPREADSHEET_ID_KEY = 'googleSheetsSyncSpreadsheetId';
 const TRANSACTIONS_SHEET = 'Transactions';
 const ACCOUNTS_SHEET = 'Accounts';
 const CATEGORIES_SHEET = 'Categories';
-const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET];
+const BUDGETS_SHEET = 'Budgets';
+const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET];
 
 export function getStoredSpreadsheetId(): string | null {
   return localStorage.getItem(SPREADSHEET_ID_KEY);
@@ -137,6 +138,14 @@ async function buildCategoryRows(): Promise<string[][]> {
   return [header, ...rows];
 }
 
+async function buildBudgetRows(): Promise<string[][]> {
+  const [budgets, categories] = await Promise.all([db.budgets.toArray(), db.categories.toArray()]);
+  const categoryName = (id: string) => categories.find((c) => c.id === id)?.name ?? '';
+  const header = ['Category', 'Monthly Limit'];
+  const rows = budgets.map((b) => [categoryName(b.categoryId), b.monthlyLimit.toFixed(2)]);
+  return [header, ...rows];
+}
+
 export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: string; rowCount: number }> {
   if (!isGoogleSyncConfigured()) throw new Error('Google sync is not configured');
 
@@ -144,15 +153,17 @@ export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: s
   const spreadsheetId = await ensureSpreadsheet(token);
   await ensureSheetTabs(token, spreadsheetId);
 
-  const [transactionRows, accountRows, categoryRows] = await Promise.all([
+  const [transactionRows, accountRows, categoryRows, budgetRows] = await Promise.all([
     buildTransactionRows(),
     buildAccountRows(),
     buildCategoryRows(),
+    buildBudgetRows(),
   ]);
 
   await writeSheet(token, spreadsheetId, TRANSACTIONS_SHEET, transactionRows);
   await writeSheet(token, spreadsheetId, ACCOUNTS_SHEET, accountRows);
   await writeSheet(token, spreadsheetId, CATEGORIES_SHEET, categoryRows);
+  await writeSheet(token, spreadsheetId, BUDGETS_SHEET, budgetRows);
 
   return {
     url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
