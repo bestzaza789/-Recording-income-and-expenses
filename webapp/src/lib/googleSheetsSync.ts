@@ -184,6 +184,7 @@ async function readSheetValues(token: string, spreadsheetId: string, sheetTitle:
 export interface ImportResult {
   accountsAdded: number;
   categoriesAdded: number;
+  budgetsAdded: number;
   transactionsImported: number;
   transactionsSkipped: number;
 }
@@ -195,10 +196,11 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
 
   const token = await requestAccessToken(interactive);
 
-  const [accountRows, categoryRows, transactionRows] = await Promise.all([
+  const [accountRows, categoryRows, transactionRows, budgetRows] = await Promise.all([
     readSheetValues(token, spreadsheetId, ACCOUNTS_SHEET),
     readSheetValues(token, spreadsheetId, CATEGORIES_SHEET),
     readSheetValues(token, spreadsheetId, TRANSACTIONS_SHEET),
+    readSheetValues(token, spreadsheetId, BUDGETS_SHEET),
   ]);
 
   const accounts = await db.accounts.toArray();
@@ -225,6 +227,21 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     await db.categories.add(category);
     categories.push(category);
     categoriesAdded++;
+  }
+
+  const existingBudgets = await db.budgets.toArray();
+  let budgetsAdded = 0;
+  for (const [catName, limitStr] of budgetRows.slice(1)) {
+    if (!catName) continue;
+    const limit = parseFloat(limitStr);
+    if (!limit || limit <= 0) continue;
+    const category = categories.find((c) => c.name.toLowerCase() === catName.toLowerCase() && c.type === 'expense');
+    if (!category) continue;
+    if (existingBudgets.some((b) => b.categoryId === category.id)) continue;
+    const budget = { id: newId(), categoryId: category.id, monthlyLimit: limit };
+    await db.budgets.add(budget);
+    existingBudgets.push(budget);
+    budgetsAdded++;
   }
 
   const existingTransactions = await db.transactions.toArray();
@@ -267,5 +284,5 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     transactionsImported++;
   }
 
-  return { accountsAdded, categoriesAdded, transactionsImported, transactionsSkipped };
+  return { accountsAdded, categoriesAdded, budgetsAdded, transactionsImported, transactionsSkipped };
 }
