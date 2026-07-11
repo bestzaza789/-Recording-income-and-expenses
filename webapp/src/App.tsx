@@ -4,6 +4,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { Management } from './pages/Management';
 import { Analytics } from './pages/Analytics';
+import { Budget } from './pages/Budget';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/management" element={<Management />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/budget" element={<Budget />} />
         </Routes>
         <BottomNav />
       </div>
