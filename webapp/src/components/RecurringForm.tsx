@@ -57,8 +57,8 @@ export function RecurringForm({
   return (
     <Modal title={existing ? 'Edit Recurring' : 'New Recurring'} onCancel={onClose} onSave={save} saveDisabled={!valid}>
       <div className="segmented" style={{ marginBottom: 12 }}>
-        <button className={type === 'expense' ? 'active' : ''} onClick={() => setType('expense')}>Expense</button>
-        <button className={type === 'income' ? 'active' : ''} onClick={() => setType('income')}>Income</button>
+        <button className={type === 'expense' ? 'active' : ''} onClick={() => { setType('expense'); setCategoryId(''); }}>Expense</button>
+        <button className={type === 'income' ? 'active' : ''} onClick={() => { setType('income'); setCategoryId(''); }}>Income</button>
       </div>
 
       <div className="form-section">
