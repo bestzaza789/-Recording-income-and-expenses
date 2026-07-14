@@ -31,16 +31,34 @@ export interface Transaction {
   categoryId?: string;
 }
 
+export interface Bookmark {
+  id: string;
+  name: string;
+  type: CategoryType;
+  amount: number;
+  accountId: string;
+  categoryId: string;
+  note?: string;
+}
+
 export const db = new Dexie('PersonalFinanceDB') as Dexie & {
   accounts: EntityTable<Account, 'id'>;
   categories: EntityTable<Category, 'id'>;
   transactions: EntityTable<Transaction, 'id'>;
+  bookmarks: EntityTable<Bookmark, 'id'>;
 };
 
 db.version(1).stores({
   accounts: 'id, name, accountType',
   categories: 'id, name, type',
   transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+});
+
+db.version(2).stores({
+  accounts: 'id, name, accountType',
+  categories: 'id, name, type',
+  transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+  bookmarks: 'id, name, type',
 });
 
 export function newId(): string {

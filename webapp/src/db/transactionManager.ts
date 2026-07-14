@@ -1,4 +1,4 @@
-import { db, newId, type Account, type Transaction, type TransactionType } from './db';
+import { db, newId, type Account, type Bookmark, type CategoryType, type Transaction, type TransactionType } from './db';
 import { scheduleAutoSync } from '../lib/autoSync';
 
 async function applyDelta(accountId: string, delta: number) {
@@ -124,4 +124,41 @@ export async function updateAccount(id: string, name: string, accountType: Accou
     currentBalance: account.currentBalance + delta,
   });
   scheduleAutoSync();
+}
+
+export interface BookmarkInput {
+  name: string;
+  type: CategoryType;
+  amount: number;
+  accountId: string;
+  categoryId: string;
+  note?: string;
+}
+
+export async function addBookmark(input: BookmarkInput): Promise<string> {
+  const id = newId();
+  await db.bookmarks.add({ id, ...input });
+  scheduleAutoSync();
+  return id;
+}
+
+export async function updateBookmark(id: string, input: BookmarkInput): Promise<void> {
+  await db.bookmarks.update(id, { ...input });
+  scheduleAutoSync();
+}
+
+export async function deleteBookmark(id: string): Promise<void> {
+  await db.bookmarks.delete(id);
+  scheduleAutoSync();
+}
+
+export async function useBookmark(bookmark: Bookmark): Promise<string> {
+  return addTransaction({
+    amount: bookmark.amount,
+    type: bookmark.type,
+    date: new Date(),
+    note: bookmark.note || bookmark.name,
+    accountId: bookmark.accountId,
+    categoryId: bookmark.categoryId,
+  });
 }
