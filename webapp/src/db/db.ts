@@ -20,6 +20,23 @@ export interface Category {
   hexColor: string;
 }
 
+export interface Budget {
+  id: string;
+  categoryId: string;  // one budget per category — enforced unique below
+  monthlyLimit: number;
+}
+
+export interface RecurringRule {
+  id: string;
+  amount: number;
+  transactionType: 'income' | 'expense';
+  dayOfMonth: number;      // 1-31; clamped to the month's last day at generation time
+  accountId: string;
+  categoryId?: string;
+  note?: string;
+  lastGenerated: string;   // 'YYYY-MM' month key of the last month generated
+}
+
 export interface Transaction {
   id: string;
   amount: number;
@@ -45,6 +62,8 @@ export const db = new Dexie('PersonalFinanceDB') as Dexie & {
   accounts: EntityTable<Account, 'id'>;
   categories: EntityTable<Category, 'id'>;
   transactions: EntityTable<Transaction, 'id'>;
+  budgets: EntityTable<Budget, 'id'>;
+  recurring: EntityTable<RecurringRule, 'id'>;
   bookmarks: EntityTable<Bookmark, 'id'>;
 };
 
@@ -58,6 +77,23 @@ db.version(2).stores({
   accounts: 'id, name, accountType',
   categories: 'id, name, type',
   transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+  budgets: 'id, &categoryId',
+});
+
+db.version(3).stores({
+  accounts: 'id, name, accountType',
+  categories: 'id, name, type',
+  transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+  budgets: 'id, &categoryId',
+  recurring: 'id',
+});
+
+db.version(4).stores({
+  accounts: 'id, name, accountType',
+  categories: 'id, name, type',
+  transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+  budgets: 'id, &categoryId',
+  recurring: 'id',
   bookmarks: 'id, name, type',
 });
 

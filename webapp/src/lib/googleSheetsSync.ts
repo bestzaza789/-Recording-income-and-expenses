@@ -11,7 +11,8 @@ const SPREADSHEET_ID_KEY = 'googleSheetsSyncSpreadsheetId';
 const TRANSACTIONS_SHEET = 'Transactions';
 const ACCOUNTS_SHEET = 'Accounts';
 const CATEGORIES_SHEET = 'Categories';
-const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET];
+const BUDGETS_SHEET = 'Budgets';
+const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET];
 
 export function getStoredSpreadsheetId(): string | null {
   return localStorage.getItem(SPREADSHEET_ID_KEY);
@@ -137,6 +138,14 @@ async function buildCategoryRows(): Promise<string[][]> {
   return [header, ...rows];
 }
 
+async function buildBudgetRows(): Promise<string[][]> {
+  const [budgets, categories] = await Promise.all([db.budgets.toArray(), db.categories.toArray()]);
+  const categoryName = (id: string) => categories.find((c) => c.id === id)?.name ?? '';
+  const header = ['Category', 'Monthly Limit'];
+  const rows = budgets.map((b) => [categoryName(b.categoryId), b.monthlyLimit.toFixed(2)]);
+  return [header, ...rows];
+}
+
 export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: string; rowCount: number }> {
   if (!isGoogleSyncConfigured()) throw new Error('Google sync is not configured');
 
@@ -144,15 +153,17 @@ export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: s
   const spreadsheetId = await ensureSpreadsheet(token);
   await ensureSheetTabs(token, spreadsheetId);
 
-  const [transactionRows, accountRows, categoryRows] = await Promise.all([
+  const [transactionRows, accountRows, categoryRows, budgetRows] = await Promise.all([
     buildTransactionRows(),
     buildAccountRows(),
     buildCategoryRows(),
+    buildBudgetRows(),
   ]);
 
   await writeSheet(token, spreadsheetId, TRANSACTIONS_SHEET, transactionRows);
   await writeSheet(token, spreadsheetId, ACCOUNTS_SHEET, accountRows);
   await writeSheet(token, spreadsheetId, CATEGORIES_SHEET, categoryRows);
+  await writeSheet(token, spreadsheetId, BUDGETS_SHEET, budgetRows);
 
   return {
     url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
@@ -173,6 +184,7 @@ async function readSheetValues(token: string, spreadsheetId: string, sheetTitle:
 export interface ImportResult {
   accountsAdded: number;
   categoriesAdded: number;
+  budgetsAdded: number;
   transactionsImported: number;
   transactionsSkipped: number;
 }
@@ -184,10 +196,11 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
 
   const token = await requestAccessToken(interactive);
 
-  const [accountRows, categoryRows, transactionRows] = await Promise.all([
+  const [accountRows, categoryRows, transactionRows, budgetRows] = await Promise.all([
     readSheetValues(token, spreadsheetId, ACCOUNTS_SHEET),
     readSheetValues(token, spreadsheetId, CATEGORIES_SHEET),
     readSheetValues(token, spreadsheetId, TRANSACTIONS_SHEET),
+    readSheetValues(token, spreadsheetId, BUDGETS_SHEET),
   ]);
 
   const accounts = await db.accounts.toArray();
@@ -214,6 +227,21 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     await db.categories.add(category);
     categories.push(category);
     categoriesAdded++;
+  }
+
+  const existingBudgets = await db.budgets.toArray();
+  let budgetsAdded = 0;
+  for (const [catName, limitStr] of budgetRows.slice(1)) {
+    if (!catName) continue;
+    const limit = parseFloat(limitStr);
+    if (!limit || limit <= 0) continue;
+    const category = categories.find((c) => c.name.toLowerCase() === catName.toLowerCase() && c.type === 'expense');
+    if (!category) continue;
+    if (existingBudgets.some((b) => b.categoryId === category.id)) continue;
+    const budget = { id: newId(), categoryId: category.id, monthlyLimit: limit };
+    await db.budgets.add(budget);
+    existingBudgets.push(budget);
+    budgetsAdded++;
   }
 
   const existingTransactions = await db.transactions.toArray();
@@ -256,5 +284,5 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     transactionsImported++;
   }
 
-  return { accountsAdded, categoriesAdded, transactionsImported, transactionsSkipped };
+  return { accountsAdded, categoriesAdded, budgetsAdded, transactionsImported, transactionsSkipped };
 }

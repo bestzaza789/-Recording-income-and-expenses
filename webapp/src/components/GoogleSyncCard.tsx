@@ -53,13 +53,13 @@ export function GoogleSyncCard() {
   }
 
   async function importNow() {
-    if (!confirm('Import data from the connected Google Sheet? New accounts, categories, and non-duplicate transactions will be added to this device.')) return;
+    if (!confirm('Import data from the connected Google Sheet? New accounts, categories, budgets, and non-duplicate transactions will be added to this device.')) return;
     setBusy(true);
     setStatus(null);
     try {
       const result = await importFromGoogleSheets(true);
       setStatus(
-        `Imported: ${result.accountsAdded} accounts, ${result.categoriesAdded} categories, ${result.transactionsImported} transactions (${result.transactionsSkipped} skipped as duplicates/unmatched).`
+        `Imported: ${result.accountsAdded} accounts, ${result.categoriesAdded} categories, ${result.budgetsAdded} budgets, ${result.transactionsImported} transactions (${result.transactionsSkipped} skipped as duplicates/unmatched).`
       );
     } catch (e) {
       setStatus(`Import failed: ${(e as Error).message}`);
