@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal } from './Modal';
 import { db, newId, type Account, type Category, type RecurringRule } from '../db/db';
 import { initialLastGenerated } from '../db/recurringEngine';
+import { scheduleAutoSync } from '../lib/autoSync';
 
 export function RecurringForm({
   accounts,
@@ -51,6 +52,7 @@ export function RecurringForm({
         lastGenerated: initialLastGenerated(day),
       });
     }
+    scheduleAutoSync();
     onClose();
   }
 

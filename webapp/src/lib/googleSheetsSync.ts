@@ -12,7 +12,9 @@ const TRANSACTIONS_SHEET = 'Transactions';
 const ACCOUNTS_SHEET = 'Accounts';
 const CATEGORIES_SHEET = 'Categories';
 const BUDGETS_SHEET = 'Budgets';
-const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET];
+const BOOKMARKS_SHEET = 'Quick Add';
+const RECURRING_SHEET = 'Recurring';
+const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET];
 
 export function getStoredSpreadsheetId(): string | null {
   return localStorage.getItem(SPREADSHEET_ID_KEY);
@@ -146,6 +148,32 @@ async function buildBudgetRows(): Promise<string[][]> {
   return [header, ...rows];
 }
 
+async function buildBookmarkRows(): Promise<string[][]> {
+  const [bookmarks, accounts, categories] = await Promise.all([
+    db.bookmarks.toArray(),
+    db.accounts.toArray(),
+    db.categories.toArray(),
+  ]);
+  const accountName = (id: string) => accounts.find((a) => a.id === id)?.name ?? '';
+  const categoryName = (id: string) => categories.find((c) => c.id === id)?.name ?? '';
+  const header = ['Label', 'Type', 'Amount', 'Account', 'Category', 'Note'];
+  const rows = bookmarks.map((b) => [b.name, b.type, b.amount.toFixed(2), accountName(b.accountId), categoryName(b.categoryId), b.note ?? '']);
+  return [header, ...rows];
+}
+
+async function buildRecurringRows(): Promise<string[][]> {
+  const [rules, accounts, categories] = await Promise.all([
+    db.recurring.toArray(),
+    db.accounts.toArray(),
+    db.categories.toArray(),
+  ]);
+  const accountName = (id: string) => accounts.find((a) => a.id === id)?.name ?? '';
+  const categoryName = (id?: string) => categories.find((c) => c.id === id)?.name ?? '';
+  const header = ['Note', 'Type', 'Amount', 'Day of Month', 'Account', 'Category'];
+  const rows = rules.map((r) => [r.note ?? '', r.transactionType, r.amount.toFixed(2), String(r.dayOfMonth), accountName(r.accountId), categoryName(r.categoryId)]);
+  return [header, ...rows];
+}
+
 export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: string; rowCount: number }> {
   if (!isGoogleSyncConfigured()) throw new Error('Google sync is not configured');
 
@@ -153,17 +181,21 @@ export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: s
   const spreadsheetId = await ensureSpreadsheet(token);
   await ensureSheetTabs(token, spreadsheetId);
 
-  const [transactionRows, accountRows, categoryRows, budgetRows] = await Promise.all([
+  const [transactionRows, accountRows, categoryRows, budgetRows, bookmarkRows, recurringRows] = await Promise.all([
     buildTransactionRows(),
     buildAccountRows(),
     buildCategoryRows(),
     buildBudgetRows(),
+    buildBookmarkRows(),
+    buildRecurringRows(),
   ]);
 
   await writeSheet(token, spreadsheetId, TRANSACTIONS_SHEET, transactionRows);
   await writeSheet(token, spreadsheetId, ACCOUNTS_SHEET, accountRows);
   await writeSheet(token, spreadsheetId, CATEGORIES_SHEET, categoryRows);
   await writeSheet(token, spreadsheetId, BUDGETS_SHEET, budgetRows);
+  await writeSheet(token, spreadsheetId, BOOKMARKS_SHEET, bookmarkRows);
+  await writeSheet(token, spreadsheetId, RECURRING_SHEET, recurringRows);
 
   return {
     url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
@@ -185,6 +217,8 @@ export interface ImportResult {
   accountsAdded: number;
   categoriesAdded: number;
   budgetsAdded: number;
+  bookmarksAdded: number;
+  recurringAdded: number;
   transactionsImported: number;
   transactionsSkipped: number;
 }
@@ -196,11 +230,13 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
 
   const token = await requestAccessToken(interactive);
 
-  const [accountRows, categoryRows, transactionRows, budgetRows] = await Promise.all([
+  const [accountRows, categoryRows, transactionRows, budgetRows, bookmarkRows, recurringRows] = await Promise.all([
     readSheetValues(token, spreadsheetId, ACCOUNTS_SHEET),
     readSheetValues(token, spreadsheetId, CATEGORIES_SHEET),
     readSheetValues(token, spreadsheetId, TRANSACTIONS_SHEET),
     readSheetValues(token, spreadsheetId, BUDGETS_SHEET),
+    readSheetValues(token, spreadsheetId, BOOKMARKS_SHEET),
+    readSheetValues(token, spreadsheetId, RECURRING_SHEET),
   ]);
 
   const accounts = await db.accounts.toArray();
@@ -244,6 +280,52 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     budgetsAdded++;
   }
 
+  const existingBookmarks = await db.bookmarks.toArray();
+  let bookmarksAdded = 0;
+  for (const [label, type, amountStr, accName, catName, note] of bookmarkRows.slice(1)) {
+    if (!label) continue;
+    if (existingBookmarks.some((b) => b.name.toLowerCase() === label.toLowerCase())) continue;
+    const amount = parseFloat(amountStr);
+    if (!amount || amount <= 0) continue;
+    const account = accounts.find((a) => a.name.toLowerCase() === (accName ?? '').toLowerCase());
+    const category = categories.find((c) => c.name.toLowerCase() === (catName ?? '').toLowerCase());
+    if (!account || !category) continue;
+    const bookmarkType: CategoryType = type === 'income' ? 'income' : 'expense';
+    const bookmark = { id: newId(), name: label, type: bookmarkType, amount, accountId: account.id, categoryId: category.id, note: note || undefined };
+    await db.bookmarks.add(bookmark);
+    existingBookmarks.push(bookmark);
+    bookmarksAdded++;
+  }
+
+  const existingRecurring = await db.recurring.toArray();
+  let recurringAdded = 0;
+  for (const [note, type, amountStr, dayStr, accName, catName] of recurringRows.slice(1)) {
+    const amount = parseFloat(amountStr);
+    const dayOfMonth = parseInt(dayStr, 10);
+    if (!amount || amount <= 0 || !dayOfMonth) continue;
+    const account = accounts.find((a) => a.name.toLowerCase() === (accName ?? '').toLowerCase());
+    if (!account) continue;
+    const category = catName ? categories.find((c) => c.name.toLowerCase() === catName.toLowerCase()) : undefined;
+    const recurringType = type === 'income' ? 'income' : 'expense';
+    const isDuplicate = existingRecurring.some(
+      (r) => r.amount === amount && r.dayOfMonth === dayOfMonth && r.accountId === account.id && (r.note ?? '') === (note ?? '')
+    );
+    if (isDuplicate) continue;
+    const rule = {
+      id: newId(),
+      amount,
+      transactionType: recurringType as 'income' | 'expense',
+      dayOfMonth,
+      accountId: account.id,
+      categoryId: category?.id,
+      note: note || undefined,
+      lastGenerated: '',
+    };
+    await db.recurring.add(rule);
+    existingRecurring.push(rule);
+    recurringAdded++;
+  }
+
   const existingTransactions = await db.transactions.toArray();
   const accountName = (id?: string) => accounts.find((a) => a.id === id)?.name ?? '';
   const categoryName = (id?: string) => categories.find((c) => c.id === id)?.name ?? '';
@@ -284,5 +366,5 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     transactionsImported++;
   }
 
-  return { accountsAdded, categoriesAdded, budgetsAdded, transactionsImported, transactionsSkipped };
+  return { accountsAdded, categoriesAdded, budgetsAdded, bookmarksAdded, recurringAdded, transactionsImported, transactionsSkipped };
 }

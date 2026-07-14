@@ -53,6 +53,7 @@ export function Management() {
 
   async function deleteRecurring(id: string) {
     await db.recurring.delete(id);
+    scheduleAutoSync();
   }
 
   return (
