@@ -3,12 +3,13 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
 import { db, type Transaction } from '../db/db';
 import { addTransaction, updateTransaction } from '../db/transactionManager';
+import { toDatetimeLocalValue } from '../lib/format';
 
 export function TransferForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
 
   const [amount, setAmount] = useState(existing ? String(existing.amount) : '');
-  const [date, setDate] = useState(() => (existing ? new Date(existing.date) : new Date()).toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => toDatetimeLocalValue(existing ? new Date(existing.date) : new Date()));
   const [fromAccountId, setFromAccountId] = useState(existing?.accountId ?? '');
   const [toAccountId, setToAccountId] = useState(existing?.toAccountId ?? '');
   const [note, setNote] = useState(existing?.note ?? '');
@@ -54,8 +55,8 @@ export function TransferForm({ onClose, existing }: { onClose: () => void; exist
             <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
           </div>
           <div className="form-row">
-            <label>Date</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <label>Date & Time</label>
+            <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
         </div>
       </div>

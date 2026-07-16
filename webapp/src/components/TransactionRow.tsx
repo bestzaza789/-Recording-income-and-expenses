@@ -1,7 +1,7 @@
 import { Pencil } from 'lucide-react';
 import type { Account, Category, Transaction } from '../db/db';
 import { CategoryIcon, TransferIcon } from '../lib/icons';
-import { formatCurrency, formatDate } from '../lib/format';
+import { formatCurrency, formatDateTime } from '../lib/format';
 
 interface Props {
   transaction: Transaction;
@@ -34,7 +34,7 @@ export function TransactionRow({ transaction, category, onDelete, onEdit, runnin
       </div>
       <div className="tx-main">
         <div className="tx-title">{title}</div>
-        <div className="tx-date">{formatDate(transaction.date)}</div>
+        <div className="tx-date">{formatDateTime(transaction.date)}</div>
       </div>
       <div>
         <div className={`tx-amount ${amountClass}`} style={{ textAlign: 'right' }}>
