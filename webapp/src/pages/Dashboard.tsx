@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Plus } from 'lucide-react';
 import { db } from '../db/db';
@@ -12,6 +13,7 @@ import { QuickAddBar } from '../components/QuickAddBar';
 const SlipScanner = lazy(() => import('../components/SlipScanner').then((m) => ({ default: m.SlipScanner })));
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [activeForm, setActiveForm] = useState<'manual' | 'transfer' | 'scan' | null>(null);
 
@@ -51,7 +53,7 @@ export function Dashboard() {
 
       <div className="account-carousel" style={{ marginTop: 16 }}>
         {accounts.map((a) => (
-          <div className="account-card" key={a.id}>
+          <div className="account-card" key={a.id} onClick={() => navigate(`/account/${a.id}`)} style={{ cursor: 'pointer' }}>
             <div className="name">{a.name}</div>
             <div className="balance">{formatCurrency(a.currentBalance)}</div>
           </div>

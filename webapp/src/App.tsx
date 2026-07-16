@@ -5,6 +5,7 @@ import { Transactions } from './pages/Transactions';
 import { Management } from './pages/Management';
 import { Analytics } from './pages/Analytics';
 import { Budget } from './pages/Budget';
+import { AccountDetail } from './pages/AccountDetail';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/management" element={<Management />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/budget" element={<Budget />} />
+          <Route path="/account/:id" element={<AccountDetail />} />
         </Routes>
         <BottomNav />
       </div>

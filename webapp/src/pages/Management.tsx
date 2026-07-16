@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Account, type Bookmark, type Category, type CategoryType, type RecurringRule } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
@@ -19,6 +20,7 @@ type RecurringModal = 'new' | RecurringRule | null;
 type ManagementTab = 'accounts' | 'categories' | 'quickadd' | 'recurring';
 
 export function Management() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<ManagementTab>('accounts');
   const [accountModal, setAccountModal] = useState<AccountModal>(null);
   const [categoryModal, setCategoryModal] = useState<CategoryModal>(null);
@@ -71,7 +73,7 @@ export function Management() {
           {accounts.length === 0 && <div className="empty-state">No accounts yet.</div>}
           {accounts.map((a) => (
             <div className="list-item" key={a.id}>
-              <div>
+              <div style={{ cursor: 'pointer' }} onClick={() => navigate(`/account/${a.id}`)}>
                 <div style={{ fontWeight: 600 }}>{a.name}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.accountType} · {formatCurrency(a.currentBalance)}</div>
               </div>

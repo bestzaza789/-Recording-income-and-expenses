@@ -8,10 +8,19 @@ interface Props {
   category?: Category;
   onDelete?: () => void;
   onEdit?: () => void;
+  runningBalance?: number;
+  deltaOverride?: number;
 }
 
-export function TransactionRow({ transaction, category, onDelete, onEdit }: Props) {
-  const sign = transaction.transactionType === 'expense' ? '-' : transaction.transactionType === 'income' ? '+' : '';
+export function TransactionRow({ transaction, category, onDelete, onEdit, runningBalance, deltaOverride }: Props) {
+  const hasOverride = deltaOverride !== undefined;
+  const sign = hasOverride
+    ? (deltaOverride! > 0 ? '+' : deltaOverride! < 0 ? '-' : '')
+    : (transaction.transactionType === 'expense' ? '-' : transaction.transactionType === 'income' ? '+' : '');
+  const amountClass = hasOverride
+    ? (deltaOverride! > 0 ? 'income' : deltaOverride! < 0 ? 'expense' : 'transfer')
+    : transaction.transactionType;
+  const displayAmount = hasOverride ? Math.abs(deltaOverride!) : transaction.amount;
   const title = category?.name || transaction.note || capitalize(transaction.transactionType);
 
   return (
@@ -27,8 +36,15 @@ export function TransactionRow({ transaction, category, onDelete, onEdit }: Prop
         <div className="tx-title">{title}</div>
         <div className="tx-date">{formatDate(transaction.date)}</div>
       </div>
-      <div className={`tx-amount ${transaction.transactionType}`}>
-        {sign}{formatCurrency(transaction.amount)}
+      <div>
+        <div className={`tx-amount ${amountClass}`} style={{ textAlign: 'right' }}>
+          {sign}{formatCurrency(displayAmount)}
+        </div>
+        {runningBalance !== undefined && (
+          <div style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'right' }}>
+            bal {formatCurrency(runningBalance)}
+          </div>
+        )}
       </div>
       {onEdit && (
         <button className="icon-btn" onClick={onEdit}><Pencil size={14} /></button>
