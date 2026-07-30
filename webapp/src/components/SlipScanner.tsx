@@ -45,6 +45,7 @@ export function SlipScanner({ onClose }: { onClose: () => void }) {
   if (results.length > 0) {
     return (
       <ScannedTransactionForm
+        key={reviewIndex}
         parsedData={results[reviewIndex]}
         onClose={advanceReview}
         titleSuffix={results.length > 1 ? ` (${reviewIndex + 1} of ${results.length})` : undefined}
