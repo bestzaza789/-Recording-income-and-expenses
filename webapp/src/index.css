@@ -588,6 +588,99 @@ input, select, textarea, button {
   color: var(--text);
 }
 
+.wizard-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding-bottom: 16px;
+}
+
+.wizard-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.wizard-dot.active {
+  background: var(--accent);
+  width: 16px;
+  border-radius: 3px;
+}
+
+.wizard-step-title {
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  margin: 8px 0 20px;
+}
+
+.wizard-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.wizard-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.wizard-option:active {
+  opacity: 0.6;
+}
+
+.wizard-type-options {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.wizard-type-option {
+  flex: 1;
+  padding: 28px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.wizard-type-option:active {
+  opacity: 0.6;
+}
+
+.wizard-input-step {
+  padding: 8px 0 16px;
+}
+
+.wizard-input-step input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  color: var(--text);
+  text-align: center;
+  font-size: 20px;
+}
+
+.wizard-input-step input[type="datetime-local"] {
+  font-size: 16px;
+}
+
 .pie-legend {
   display: flex;
   flex-wrap: wrap;

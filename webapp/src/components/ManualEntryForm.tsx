@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
+import { WizardShell, WizardOption } from './WizardShell';
 import { db, type Transaction, type TransactionType } from '../db/db';
 import { addTransaction, updateTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
+import { CategoryIcon } from '../lib/icons';
+
+const STEP_TITLES = ['Expense or Income?', 'Amount', 'Date & Time', 'Account', 'Category', 'Note'];
 
 export function ManualEntryForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
@@ -16,6 +20,7 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
   const [categoryId, setCategoryId] = useState(existing?.categoryId ?? '');
   const [note, setNote] = useState(existing?.note ?? '');
   const [initialized, setInitialized] = useState(!!existing);
+  const [step, setStep] = useState(0);
 
   const filteredCategories = categories.filter((c) => c.type === type);
 
@@ -59,47 +64,123 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
     onClose();
   }
 
+  if (existing) {
+    return (
+      <Modal title="Edit Transaction" onCancel={onClose} onSave={save} saveDisabled={disabled}>
+        <div className="segmented">
+          <button className={type === 'expense' ? 'active' : ''} onClick={() => setType('expense')}>Expense</button>
+          <button className={type === 'income' ? 'active' : ''} onClick={() => setType('income')}>Income</button>
+        </div>
+
+        <div className="form-section">
+          <div className="form-section-title">Details</div>
+          <div className="form-field">
+            <div className="form-row">
+              <label>Amount (฿)</label>
+              <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
+            </div>
+            <div className="form-row">
+              <label>Date & Time</label>
+              <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+            <div className="form-row">
+              <label>Account</label>
+              <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
+                {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </div>
+            <div className="form-row">
+              <label>Category</label>
+              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+                {filteredCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="form-section">
+          <div className="form-section-title">Note (Optional)</div>
+          <div className="form-field">
+            <div className="form-row">
+              <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note" style={{ textAlign: 'left' }} />
+            </div>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
   return (
-    <Modal title={existing ? 'Edit Transaction' : 'Manual Entry'} onCancel={onClose} onSave={save} saveDisabled={disabled}>
-      <div className="segmented">
-        <button className={type === 'expense' ? 'active' : ''} onClick={() => setType('expense')}>Expense</button>
-        <button className={type === 'income' ? 'active' : ''} onClick={() => setType('income')}>Income</button>
-      </div>
-
-      <div className="form-section">
-        <div className="form-section-title">Details</div>
-        <div className="form-field">
-          <div className="form-row">
-            <label>Amount (฿)</label>
-            <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
-          </div>
-          <div className="form-row">
-            <label>Date & Time</label>
-            <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
-          </div>
-          <div className="form-row">
-            <label>Account</label>
-            <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
-              {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-            </select>
-          </div>
-          <div className="form-row">
-            <label>Category</label>
-            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-              {filteredCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
+    <WizardShell
+      title={STEP_TITLES[step]}
+      step={step}
+      totalSteps={STEP_TITLES.length}
+      onBack={step > 0 ? () => setStep((s) => s - 1) : undefined}
+      onCancel={onClose}
+    >
+      {step === 0 && (
+        <div className="wizard-type-options">
+          <button className="wizard-type-option" onClick={() => { setType('expense'); setStep(1); }}>Expense</button>
+          <button className="wizard-type-option" onClick={() => { setType('income'); setStep(1); }}>Income</button>
         </div>
-      </div>
+      )}
 
-      <div className="form-section">
-        <div className="form-section-title">Note (Optional)</div>
-        <div className="form-field">
-          <div className="form-row">
-            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note" style={{ textAlign: 'left' }} />
-          </div>
+      {step === 1 && (
+        <div className="wizard-input-step">
+          <input
+            type="number"
+            inputMode="decimal"
+            autoFocus
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.00"
+          />
+          <button className="upload-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 16 }} disabled={!amountNum || amountNum <= 0} onClick={() => setStep(2)}>
+            Next
+          </button>
         </div>
-      </div>
-    </Modal>
+      )}
+
+      {step === 2 && (
+        <div className="wizard-input-step">
+          <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
+          <button className="upload-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 16 }} onClick={() => setStep(3)}>
+            Next
+          </button>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="wizard-options">
+          {accounts.length === 0 && <div className="empty-state">No accounts yet — add one in Management first.</div>}
+          {accounts.map((a) => (
+            <WizardOption key={a.id} onClick={() => { setAccountId(a.id); setStep(4); }}>
+              {a.name}
+            </WizardOption>
+          ))}
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="wizard-options">
+          {filteredCategories.length === 0 && <div className="empty-state">No {type} categories yet — add one in Management first.</div>}
+          {filteredCategories.map((c) => (
+            <WizardOption key={c.id} onClick={() => { setCategoryId(c.id); setStep(5); }}>
+              <CategoryIcon name={c.iconName} color={`#${c.hexColor}`} />
+              {c.name}
+            </WizardOption>
+          ))}
+        </div>
+      )}
+
+      {step === 5 && (
+        <div className="wizard-input-step">
+          <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" style={{ textAlign: 'left' }} />
+          <button className="upload-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 16 }} disabled={disabled} onClick={save}>
+            Save
+          </button>
+        </div>
+      )}
+    </WizardShell>
   );
 }
