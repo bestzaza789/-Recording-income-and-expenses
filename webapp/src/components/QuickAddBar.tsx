@@ -4,6 +4,7 @@ import { db } from '../db/db';
 import { useBookmark } from '../db/transactionManager';
 import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
+import { categoryFor } from '../lib/lookup';
 
 export function QuickAddBar() {
   const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []) ?? [];
@@ -12,10 +13,6 @@ export function QuickAddBar() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   if (bookmarks.length === 0) return null;
-
-  function categoryFor(id: string) {
-    return categories.find((c) => c.id === id);
-  }
 
   async function tap(bookmark: (typeof bookmarks)[number]) {
     if (busyId) return;
@@ -34,7 +31,7 @@ export function QuickAddBar() {
       <div className="section-title">Quick Add</div>
       <div className="quick-add-row">
         {bookmarks.map((b) => {
-          const category = categoryFor(b.categoryId);
+          const category = categoryFor(categories, b.categoryId);
           return (
             <button key={b.id} className="quick-add-chip" onClick={() => tap(b)} disabled={busyId === b.id}>
               <CategoryIcon name={category?.iconName} color={category ? `#${category.hexColor}` : undefined} size={18} />

@@ -1,5 +1,5 @@
 import { Pencil } from 'lucide-react';
-import type { Account, Category, Transaction } from '../db/db';
+import type { Category, Transaction } from '../db/db';
 import { CategoryIcon, TransferIcon } from '../lib/icons';
 import { formatCurrency, formatDateTime } from '../lib/format';
 
@@ -58,8 +58,4 @@ export function TransactionRow({ transaction, category, onDelete, onEdit, runnin
 
 function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-export function accountName(accounts: Account[] | undefined, id: string): string {
-  return accounts?.find((a) => a.id === id)?.name ?? '';
 }

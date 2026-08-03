@@ -1,4 +1,4 @@
-import { syncToGoogleSheets } from './googleSheetsSync';
+import { syncToGoogleSheets } from './sheets/export';
 import { isGoogleSyncConfigured } from './googleAuth';
 
 const ENABLED_KEY = 'googleSheetsSyncEnabled';

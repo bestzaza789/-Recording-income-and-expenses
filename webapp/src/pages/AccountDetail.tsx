@@ -8,6 +8,7 @@ import { ManualEntryForm } from '../components/ManualEntryForm';
 import { TransferForm } from '../components/TransferForm';
 import { deleteTransaction } from '../db/transactionManager';
 import { formatCurrency, formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
+import { categoryFor } from '../lib/lookup';
 import type { Transaction } from '../db/db';
 
 export function AccountDetail() {
@@ -18,10 +19,6 @@ export function AccountDetail() {
   const account = useLiveQuery(() => (id ? db.accounts.get(id) : undefined), [id]);
   const allTransactions = useLiveQuery(() => db.transactions.toArray(), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
-
-  function categoryFor(catId?: string) {
-    return categories.find((c) => c.id === catId);
-  }
 
   const related = useMemo(
     () => allTransactions.filter((t) => t.accountId === id || t.toAccountId === id),
@@ -94,7 +91,7 @@ export function AccountDetail() {
       <div className="net-worth-value" style={{ color: account.currentBalance >= 0 ? 'var(--text)' : 'var(--red)' }}>
         {formatCurrency(account.currentBalance)}
       </div>
-      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+      <div className="text-secondary-sm" style={{ marginTop: 4 }}>
         {account.accountType} · initial balance {formatCurrency(account.initialBalance)}
       </div>
 
@@ -122,7 +119,7 @@ export function AccountDetail() {
                   <TransactionRow
                     key={transaction.id}
                     transaction={transaction}
-                    category={categoryFor(transaction.categoryId)}
+                    category={categoryFor(categories, transaction.categoryId)}
                     deltaOverride={delta}
                     runningBalance={balanceAfter}
                     onEdit={() => openEdit(transaction)}

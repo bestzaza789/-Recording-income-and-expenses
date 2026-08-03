@@ -6,6 +6,7 @@ import { ManualEntryForm } from '../components/ManualEntryForm';
 import { TransferForm } from '../components/TransferForm';
 import { deleteTransaction } from '../db/transactionManager';
 import { formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
+import { categoryFor, accountNameFor } from '../lib/lookup';
 
 export function Transactions() {
   const [search, setSearch] = useState('');
@@ -15,21 +16,14 @@ export function Transactions() {
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
-  function categoryFor(id?: string) {
-    return categories.find((c) => c.id === id);
-  }
-  function accountNameFor(id?: string) {
-    return accounts.find((a) => a.id === id)?.name ?? '';
-  }
-
   const filtered = useMemo(() => {
     if (!search) return transactions;
     const q = search.toLowerCase();
     return transactions.filter((t) =>
       t.note?.toLowerCase().includes(q) ||
-      categoryFor(t.categoryId)?.name.toLowerCase().includes(q) ||
-      accountNameFor(t.accountId).toLowerCase().includes(q) ||
-      accountNameFor(t.toAccountId).toLowerCase().includes(q)
+      categoryFor(categories, t.categoryId)?.name.toLowerCase().includes(q) ||
+      accountNameFor(accounts, t.accountId).toLowerCase().includes(q) ||
+      accountNameFor(accounts, t.toAccountId).toLowerCase().includes(q)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, transactions, accounts, categories]);
@@ -75,7 +69,7 @@ export function Transactions() {
                   <TransactionRow
                     key={t.id}
                     transaction={t}
-                    category={categoryFor(t.categoryId)}
+                    category={categoryFor(categories, t.categoryId)}
                     onDelete={() => handleDelete(t.id)}
                     onEdit={() => setEditing(t)}
                   />

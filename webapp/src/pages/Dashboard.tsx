@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Plus } from 'lucide-react';
 import { db } from '../db/db';
 import { formatCurrency } from '../lib/format';
+import { categoryFor } from '../lib/lookup';
 import { TransactionRow } from '../components/TransactionRow';
 import { ManualEntryForm } from '../components/ManualEntryForm';
 import { TransferForm } from '../components/TransferForm';
@@ -36,13 +37,9 @@ export function Dashboard() {
     byCategory.set(key, (byCategory.get(key) ?? 0) + t.amount);
   }
   const pieData = Array.from(byCategory.entries()).map(([categoryId, amount]) => {
-    const cat = categories.find((c) => c.id === categoryId);
+    const cat = categoryFor(categories, categoryId);
     return { name: cat?.name ?? 'Other', value: amount, color: cat ? `#${cat.hexColor}` : '#808080' };
   });
-
-  function categoryFor(id?: string) {
-    return categories.find((c) => c.id === id);
-  }
 
   return (
     <div className="page">
@@ -90,7 +87,7 @@ export function Dashboard() {
       <div className="card">
         {recentTransactions.length === 0 && <div className="empty-state">No transactions yet.</div>}
         {recentTransactions.map((t) => (
-          <TransactionRow key={t.id} transaction={t} category={categoryFor(t.categoryId)} />
+          <TransactionRow key={t.id} transaction={t} category={categoryFor(categories, t.categoryId)} />
         ))}
       </div>
 

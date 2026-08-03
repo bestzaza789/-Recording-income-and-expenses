@@ -74,6 +74,17 @@ input, select, textarea, button {
   padding: 16px 16px calc(88px + env(safe-area-inset-bottom));
 }
 
+.text-secondary-sm {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.icon-label-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .page-title {
   font-size: 28px;
   font-weight: 700;

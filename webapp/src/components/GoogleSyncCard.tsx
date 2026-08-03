@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { RefreshCw, ExternalLink, Download } from 'lucide-react';
 import { isGoogleSyncConfigured, requestAccessToken } from '../lib/googleAuth';
-import { syncToGoogleSheets, importFromGoogleSheets, getSpreadsheetUrl } from '../lib/googleSheetsSync';
+import { syncToGoogleSheets } from '../lib/sheets/export';
+import { importFromGoogleSheets } from '../lib/sheets/import';
+import { getSpreadsheetUrl } from '../lib/sheets/api';
 import { isAutoSyncEnabled, setAutoSyncEnabled } from '../lib/autoSync';
 
 export function GoogleSyncCard() {
@@ -99,7 +101,7 @@ export function GoogleSyncCard() {
         </>
       )}
 
-      {status && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>{status}</div>}
+      {status && <div className="text-secondary-sm" style={{ marginTop: 8 }}>{status}</div>}
 
       {enabled && (
         <button className="delete-btn" style={{ marginTop: 10 }} onClick={disconnect}>Turn off auto-sync</button>

@@ -6,6 +6,7 @@ import { db } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
 import { Modal } from '../components/Modal';
 import { formatCurrency, formatDateTime, formatMonth, startOfMonth } from '../lib/format';
+import { categoryFor } from '../lib/lookup';
 
 function addMonths(monthKey: number, delta: number): number {
   const d = new Date(monthKey);
@@ -18,10 +19,6 @@ export function Analytics() {
 
   const [selectedMonth, setSelectedMonth] = useState(() => startOfMonth(new Date()));
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-
-  function categoryFor(id?: string) {
-    return categories.find((c) => c.id === id);
-  }
 
   const chartData = useMemo(() => {
     const map = new Map<number, { month: number; Income: number; Expense: number }>();
@@ -52,7 +49,7 @@ export function Analytics() {
     }
     return Array.from(byCategory.entries())
       .map(([categoryId, amount]) => {
-        const cat = categoryFor(categoryId);
+        const cat = categoryFor(categories, categoryId);
         return {
           categoryId,
           name: cat?.name ?? 'Other',
@@ -107,15 +104,15 @@ export function Analytics() {
 
       <div className="card" style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Income</div>
+          <div className="text-secondary-sm">Income</div>
           <div style={{ fontWeight: 700, color: 'var(--green)' }}>{formatCurrency(monthIncome)}</div>
         </div>
         <div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Expense</div>
+          <div className="text-secondary-sm">Expense</div>
           <div style={{ fontWeight: 700, color: 'var(--red)' }}>{formatCurrency(monthExpense)}</div>
         </div>
         <div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Net</div>
+          <div className="text-secondary-sm">Net</div>
           <div style={{ fontWeight: 700 }}>{formatCurrency(monthIncome - monthExpense)}</div>
         </div>
       </div>
@@ -139,7 +136,7 @@ export function Analytics() {
               onClick={() => setSelectedCategoryId(c.categoryId)}
               style={{ cursor: 'pointer' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="icon-label-row">
                 <CategoryIcon name={c.iconName} color={c.color} />
                 {c.name}
               </div>
@@ -162,9 +159,7 @@ export function Analytics() {
             <div className="list-item" key={t.id}>
               <div>
                 <div>{formatDateTime(t.date)}</div>
-                {t.note && (
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.note}</div>
-                )}
+                {t.note && <div className="text-secondary-sm">{t.note}</div>}
               </div>
               <div style={{ fontWeight: 600 }}>{formatCurrency(t.amount)}</div>
             </div>
