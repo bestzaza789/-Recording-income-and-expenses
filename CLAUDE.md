@@ -31,7 +31,9 @@ There is no test suite configured.
 
 **Recurring transactions (`src/db/recurringEngine.ts`):** `generateDueRecurring()` walks each `RecurringRule` forward from its `lastGenerated` month key, generating one transaction per elapsed due date via `transactionManager.addTransaction`, and advances `lastGenerated`. Month keys are `'YYYY-MM'` strings; day-of-month is clamped to the last day of shorter months.
 
-**Google Sheets sync (`src/lib/googleSheetsSync.ts`, `src/lib/googleAuth.ts`, `src/lib/autoSync.ts`):** optional two-way backup/import to a user's Google Sheet (one sheet tab per table). Import matches existing rows by name/composite key to avoid duplicates before inserting. Sync is opt-in and silently no-ops when not configured or offline.
+**Google Sheets sync (`src/lib/sheets/{api,export,import}.ts`, `src/lib/googleAuth.ts`, `src/lib/autoSync.ts`):** optional two-way backup/import to a user's Google Sheet (one sheet tab per table). `sheets/api.ts` is the low-level fetch/spreadsheet plumbing, `sheets/export.ts` builds per-table rows and pushes them, `sheets/import.ts` reads rows back and matches existing records by name/composite key to avoid duplicates before inserting. Sync is opt-in and silently no-ops when not configured or offline.
+
+**Lookups (`src/lib/lookup.ts`):** `categoryFor`/`accountFor`/`accountNameFor` are the shared helpers for resolving a `Category`/`Account` by id from an already-fetched array — use these instead of writing another local `.find()` closure.
 
 **OCR slip scanning (`src/ocr/ocrService.ts`, `src/components/SlipScanner.tsx`, `ScannedTransactionForm.tsx`):** `tesseract.js` (`tha+eng`) extracts raw text from a bank transfer slip image; `parseExtractedText` regexes out an amount and guesses account/category from keyword lists (bank names, merchant names). Parsed output pre-fills a confirmation form — it is a best-effort guess, never auto-submitted.
 
