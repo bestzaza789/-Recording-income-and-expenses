@@ -4,7 +4,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cart
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
-import { formatCurrency, formatMonth, startOfMonth } from '../lib/format';
+import { Modal } from '../components/Modal';
+import { formatCurrency, formatDateTime, formatMonth, startOfMonth } from '../lib/format';
 
 function addMonths(monthKey: number, delta: number): number {
   const d = new Date(monthKey);
@@ -16,6 +17,7 @@ export function Analytics() {
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
   const [selectedMonth, setSelectedMonth] = useState(() => startOfMonth(new Date()));
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   function categoryFor(id?: string) {
     return categories.find((c) => c.id === id);
@@ -62,6 +64,14 @@ export function Analytics() {
       .sort((a, b) => b.amount - a.amount);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthTransactions, categories]);
+
+  const selectedCategory = categoryBreakdown.find((c) => c.categoryId === selectedCategoryId);
+  const selectedCategoryTransactions = useMemo(() => {
+    if (!selectedCategoryId) return [];
+    return monthTransactions
+      .filter((t) => t.transactionType === 'expense' && (t.categoryId ?? 'other') === selectedCategoryId)
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [monthTransactions, selectedCategoryId]);
 
   return (
     <div className="page">
@@ -123,7 +133,12 @@ export function Analytics() {
           </ResponsiveContainer>
 
           {categoryBreakdown.map((c) => (
-            <div className="list-item" key={c.categoryId}>
+            <div
+              className="list-item"
+              key={c.categoryId}
+              onClick={() => setSelectedCategoryId(c.categoryId)}
+              style={{ cursor: 'pointer' }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <CategoryIcon name={c.iconName} color={c.color} />
                 {c.name}
@@ -139,6 +154,22 @@ export function Analytics() {
         </div>
       ) : (
         <div className="empty-state" style={{ marginTop: 16 }}>No expenses in {formatMonth(new Date(selectedMonth))}.</div>
+      )}
+
+      {selectedCategory && (
+        <Modal title={selectedCategory.name} onCancel={() => setSelectedCategoryId(null)}>
+          {selectedCategoryTransactions.map((t) => (
+            <div className="list-item" key={t.id}>
+              <div>
+                <div>{formatDateTime(t.date)}</div>
+                {t.note && (
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.note}</div>
+                )}
+              </div>
+              <div style={{ fontWeight: 600 }}>{formatCurrency(t.amount)}</div>
+            </div>
+          ))}
+        </Modal>
       )}
     </div>
   );
