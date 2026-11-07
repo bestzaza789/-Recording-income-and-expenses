@@ -48,18 +48,18 @@ export function SlipScanner({ onClose }: { onClose: () => void }) {
         key={reviewIndex}
         parsedData={results[reviewIndex]}
         onClose={advanceReview}
-        titleSuffix={results.length > 1 ? ` (${reviewIndex + 1} of ${results.length})` : undefined}
+        titleSuffix={results.length > 1 ? ` (${reviewIndex + 1}/${results.length})` : undefined}
       />
     );
   }
 
   return (
-    <Modal title="Slip Scanner" onCancel={onClose}>
+    <Modal title="สแกนสลิป" onCancel={onClose}>
       <div className="scanner-drop">
         {previews.length > 0 ? (
           <div className="scanner-thumbs">
             {previews.map((src, i) => (
-              <img key={i} src={src} alt={`Slip ${i + 1}`} className={`scanner-thumb${processing && i === fileIndex ? ' active' : ''}`} />
+              <img key={i} src={src} alt={`สลิป ${i + 1}`} className={`scanner-thumb${processing && i === fileIndex ? ' active' : ''}`} />
             ))}
           </div>
         ) : (
@@ -75,12 +75,12 @@ export function SlipScanner({ onClose }: { onClose: () => void }) {
           onChange={(e) => handleFiles(e.target.files)}
         />
         <button className="upload-btn" onClick={() => inputRef.current?.click()} disabled={processing}>
-          <Upload size={16} /> Select Slip Image(s)
+          <Upload size={16} /> เลือกรูปสลิป
         </button>
 
         {processing && (
           <div>
-            Analyzing slip {fileIndex + 1} of {fileCount}... {progress}%
+            กำลังอ่านสลิป {fileIndex + 1}/{fileCount}... {progress}%
           </div>
         )}
       </div>

@@ -7,7 +7,7 @@ import { addTransaction, updateTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
 import { CategoryIcon } from '../lib/icons';
 
-const STEP_TITLES = ['Expense or Income?', 'Amount', 'Date & Time', 'Account', 'Category', 'Note'];
+const STEP_TITLES = ['รายจ่ายหรือรายรับ?', 'จำนวนเงิน', 'วันและเวลา', 'บัญชี', 'หมวดหมู่', 'โน้ต'];
 
 export function ManualEntryForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
@@ -66,31 +66,31 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
 
   if (existing) {
     return (
-      <Modal title="Edit Transaction" onCancel={onClose} onSave={save} saveDisabled={disabled}>
+      <Modal title="แก้ไขรายการ" onCancel={onClose} onSave={save} saveDisabled={disabled}>
         <div className="segmented">
-          <button className={type === 'expense' ? 'active' : ''} onClick={() => setType('expense')}>Expense</button>
-          <button className={type === 'income' ? 'active' : ''} onClick={() => setType('income')}>Income</button>
+          <button className={type === 'expense' ? 'active' : ''} onClick={() => setType('expense')}>รายจ่าย</button>
+          <button className={type === 'income' ? 'active' : ''} onClick={() => setType('income')}>รายรับ</button>
         </div>
 
         <div className="form-section">
-          <div className="form-section-title">Details</div>
+          <div className="form-section-title">รายละเอียด</div>
           <div className="form-field">
             <div className="form-row">
-              <label>Amount (฿)</label>
+              <label>จำนวนเงิน (฿)</label>
               <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
             </div>
             <div className="form-row">
-              <label>Date & Time</label>
+              <label>วันและเวลา</label>
               <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
             <div className="form-row">
-              <label>Account</label>
+              <label>บัญชี</label>
               <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
                 {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
               </select>
             </div>
             <div className="form-row">
-              <label>Category</label>
+              <label>หมวดหมู่</label>
               <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
                 {filteredCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
@@ -99,10 +99,10 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
         </div>
 
         <div className="form-section">
-          <div className="form-section-title">Note (Optional)</div>
+          <div className="form-section-title">โน้ต (ไม่บังคับ)</div>
           <div className="form-field">
             <div className="form-row">
-              <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note" style={{ textAlign: 'left' }} />
+              <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="โน้ต" style={{ textAlign: 'left' }} />
             </div>
           </div>
         </div>
@@ -120,8 +120,8 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
     >
       {step === 0 && (
         <div className="wizard-type-options">
-          <button className="wizard-type-option" onClick={() => { setType('expense'); setStep(1); }}>Expense</button>
-          <button className="wizard-type-option" onClick={() => { setType('income'); setStep(1); }}>Income</button>
+          <button className="wizard-type-option" onClick={() => { setType('expense'); setStep(1); }}>รายจ่าย</button>
+          <button className="wizard-type-option" onClick={() => { setType('income'); setStep(1); }}>รายรับ</button>
         </div>
       )}
 
@@ -136,7 +136,7 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
             placeholder="0.00"
           />
           <button className="upload-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 16 }} disabled={!amountNum || amountNum <= 0} onClick={() => setStep(2)}>
-            Next
+            ถัดไป
           </button>
         </div>
       )}
@@ -145,14 +145,14 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
         <div className="wizard-input-step">
           <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
           <button className="upload-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 16 }} onClick={() => setStep(3)}>
-            Next
+            ถัดไป
           </button>
         </div>
       )}
 
       {step === 3 && (
         <div className="wizard-options">
-          {accounts.length === 0 && <div className="empty-state">No accounts yet — add one in Management first.</div>}
+          {accounts.length === 0 && <div className="empty-state">ยังไม่มีบัญชี — เพิ่มบัญชีที่หน้า จัดการ ก่อน</div>}
           {accounts.map((a) => (
             <WizardOption key={a.id} onClick={() => { setAccountId(a.id); setStep(4); }}>
               {a.name}
@@ -163,7 +163,7 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
 
       {step === 4 && (
         <div className="wizard-options">
-          {filteredCategories.length === 0 && <div className="empty-state">No {type} categories yet — add one in Management first.</div>}
+          {filteredCategories.length === 0 && <div className="empty-state">ยังไม่มีหมวดหมู่{type === 'income' ? 'รายรับ' : 'รายจ่าย'} — เพิ่มที่หน้า จัดการ ก่อน</div>}
           {filteredCategories.map((c) => (
             <WizardOption key={c.id} onClick={() => { setCategoryId(c.id); setStep(5); }}>
               <CategoryIcon name={c.iconName} color={`#${c.hexColor}`} />
@@ -175,9 +175,9 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
 
       {step === 5 && (
         <div className="wizard-input-step">
-          <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" style={{ textAlign: 'left' }} />
+          <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="โน้ต (ไม่บังคับ)" style={{ textAlign: 'left' }} />
           <button className="upload-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 16 }} disabled={disabled} onClick={save}>
-            Save
+            บันทึก
           </button>
         </div>
       )}

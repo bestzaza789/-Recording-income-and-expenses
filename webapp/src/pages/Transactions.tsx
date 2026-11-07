@@ -52,11 +52,11 @@ export function Transactions() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Transactions</h1>
-      <input className="search-bar" placeholder="Search note, category, or account" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <h1 className="page-title">รายการ</h1>
+      <input className="search-bar" placeholder="ค้นหาโน้ต หมวดหมู่ หรือบัญชี" value={search} onChange={(e) => setSearch(e.target.value)} />
 
-      {transactions.length === 0 && <div className="empty-state">No transactions yet.</div>}
-      {transactions.length > 0 && filtered.length === 0 && <div className="empty-state">No results for '{search}'</div>}
+      {transactions.length === 0 && <div className="empty-state">ยังไม่มีรายการ</div>}
+      {transactions.length > 0 && filtered.length === 0 && <div className="empty-state">ไม่พบ '{search}'</div>}
 
       {grouped.map(({ monthKey, days }) => (
         <div key={monthKey}>

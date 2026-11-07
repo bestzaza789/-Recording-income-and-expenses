@@ -29,11 +29,11 @@ export function BudgetForm({
   }
 
   return (
-    <Modal title={`Budget: ${category.name}`} onCancel={onClose} onSave={save} saveDisabled={!valid}>
+    <Modal title={`งบประมาณ: ${category.name}`} onCancel={onClose} onSave={save} saveDisabled={!valid}>
       <div className="form-section">
         <div className="form-field">
           <div className="form-row">
-            <label>Monthly limit</label>
+            <label>งบต่อเดือน</label>
             <input
               type="number"
               inputMode="decimal"

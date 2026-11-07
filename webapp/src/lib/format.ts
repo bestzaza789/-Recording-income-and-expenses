@@ -3,11 +3,11 @@ export function formatCurrency(amount: number): string {
 }
 
 export function formatDate(date: Date): string {
-  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  return new Date(date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 export function formatTime(date: Date): string {
-  return new Date(date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return new Date(date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 }
 
 export function formatDateTime(date: Date): string {
@@ -22,7 +22,7 @@ export function toDatetimeLocalValue(date: Date): string {
 }
 
 export function formatMonth(date: Date): string {
-  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+  return new Date(date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short' });
 }
 
 export function startOfDay(date: Date): number {

@@ -28,7 +28,7 @@ export function QuickAddBar() {
 
   return (
     <>
-      <div className="section-title">Quick Add</div>
+      <div className="section-title">รายการด่วน</div>
       <div className="quick-add-row">
         {bookmarks.map((b) => {
           const category = categoryFor(categories, b.categoryId);
@@ -37,7 +37,7 @@ export function QuickAddBar() {
               <CategoryIcon name={category?.iconName} color={category ? `#${category.hexColor}` : undefined} size={18} />
               <span className="quick-add-label">{b.name}</span>
               <span className="quick-add-amount">{formatCurrency(b.amount)}</span>
-              {savedId === b.id && <span className="quick-add-added">Added ✓</span>}
+              {savedId === b.id && <span className="quick-add-added">เพิ่มแล้ว ✓</span>}
             </button>
           );
         })}

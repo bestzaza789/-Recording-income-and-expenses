@@ -57,17 +57,17 @@ export function RecurringForm({
   }
 
   return (
-    <Modal title={existing ? 'Edit Recurring' : 'New Recurring'} onCancel={onClose} onSave={save} saveDisabled={!valid}>
+    <Modal title={existing ? 'แก้ไขรายการประจำ' : 'เพิ่มรายการประจำ'} onCancel={onClose} onSave={save} saveDisabled={!valid}>
       <div className="segmented" style={{ marginBottom: 12 }}>
-        <button className={type === 'expense' ? 'active' : ''} onClick={() => { setType('expense'); setCategoryId(''); }}>Expense</button>
-        <button className={type === 'income' ? 'active' : ''} onClick={() => { setType('income'); setCategoryId(''); }}>Income</button>
+        <button className={type === 'expense' ? 'active' : ''} onClick={() => { setType('expense'); setCategoryId(''); }}>รายจ่าย</button>
+        <button className={type === 'income' ? 'active' : ''} onClick={() => { setType('income'); setCategoryId(''); }}>รายรับ</button>
       </div>
 
       <div className="form-section">
-        <div className="form-section-title">Details</div>
+        <div className="form-section-title">รายละเอียด</div>
         <div className="form-field">
           <div className="form-row">
-            <label>Amount (฿)</label>
+            <label>จำนวนเงิน (฿)</label>
             <input
               type="number"
               inputMode="decimal"
@@ -77,7 +77,7 @@ export function RecurringForm({
             />
           </div>
           <div className="form-row">
-            <label>Day of month</label>
+            <label>วันที่ของเดือน</label>
             <input
               type="number"
               inputMode="numeric"
@@ -88,7 +88,7 @@ export function RecurringForm({
             />
           </div>
           <div className="form-row">
-            <label>Account</label>
+            <label>บัญชี</label>
             <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
               {accounts.map((a) => (
                 <option key={a.id} value={a.id}>{a.name}</option>
@@ -96,17 +96,17 @@ export function RecurringForm({
             </select>
           </div>
           <div className="form-row">
-            <label>Category</label>
+            <label>หมวดหมู่</label>
             <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-              <option value="">None</option>
+              <option value="">ไม่ระบุ</option>
               {typeCategories.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </div>
           <div className="form-row">
-            <label>Note</label>
-            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Rent" />
+            <label>โน้ต</label>
+            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="เช่น ค่าเช่าห้อง" />
           </div>
         </div>
       </div>

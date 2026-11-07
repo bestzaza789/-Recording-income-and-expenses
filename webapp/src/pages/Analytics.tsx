@@ -52,7 +52,7 @@ export function Analytics() {
         const cat = categoryFor(categories, categoryId);
         return {
           categoryId,
-          name: cat?.name ?? 'Other',
+          name: cat?.name ?? 'อื่น ๆ',
           iconName: cat?.iconName,
           color: cat ? `#${cat.hexColor}` : '#808080',
           amount,
@@ -72,9 +72,9 @@ export function Analytics() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Analytics</h1>
+      <h1 className="page-title">สถิติ</h1>
       {chartData.length === 0 ? (
-        <div className="empty-state">Not enough data for analytics.</div>
+        <div className="empty-state">ยังมีข้อมูลไม่พอสำหรับสถิติ</div>
       ) : (
         <div className="card">
           <ResponsiveContainer width="100%" height={260}>
@@ -84,14 +84,14 @@ export function Analytics() {
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip labelFormatter={(v) => formatMonth(new Date(v))} formatter={(v) => formatCurrency(Number(v))} />
               <Legend />
-              <Bar dataKey="Income" fill="var(--green)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Expense" fill="var(--red)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Income" name="รายรับ" fill="var(--green)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Expense" name="รายจ่าย" fill="var(--red)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
 
-      <div className="section-title">Monthly Summary</div>
+      <div className="section-title">สรุปรายเดือน</div>
       <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <button className="icon-btn" onClick={() => setSelectedMonth((m) => addMonths(m, -1))}>
           <ChevronLeft size={16} />
@@ -104,22 +104,22 @@ export function Analytics() {
 
       <div className="card" style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between' }}>
         <div>
-          <div className="text-secondary-sm">Income</div>
+          <div className="text-secondary-sm">รายรับ</div>
           <div style={{ fontWeight: 700, color: 'var(--green)' }}>{formatCurrency(monthIncome)}</div>
         </div>
         <div>
-          <div className="text-secondary-sm">Expense</div>
+          <div className="text-secondary-sm">รายจ่าย</div>
           <div style={{ fontWeight: 700, color: 'var(--red)' }}>{formatCurrency(monthExpense)}</div>
         </div>
         <div>
-          <div className="text-secondary-sm">Net</div>
+          <div className="text-secondary-sm">คงเหลือสุทธิ</div>
           <div style={{ fontWeight: 700 }}>{formatCurrency(monthIncome - monthExpense)}</div>
         </div>
       </div>
 
       {categoryBreakdown.length > 0 ? (
         <div className="card" style={{ marginTop: 12 }}>
-          <div className="section-title" style={{ marginTop: 0 }}>Expenses by Category</div>
+          <div className="section-title" style={{ marginTop: 0 }}>รายจ่ายตามหมวดหมู่</div>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={categoryBreakdown} dataKey="amount" innerRadius={50} outerRadius={80} paddingAngle={2}>
@@ -150,7 +150,7 @@ export function Analytics() {
           ))}
         </div>
       ) : (
-        <div className="empty-state" style={{ marginTop: 16 }}>No expenses in {formatMonth(new Date(selectedMonth))}.</div>
+        <div className="empty-state" style={{ marginTop: 16 }}>ไม่มีรายจ่ายในเดือน {formatMonth(new Date(selectedMonth))}</div>
       )}
 
       {selectedCategory && (

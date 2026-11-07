@@ -14,9 +14,9 @@ export function WizardShell({ title, step, totalSteps, onBack, onCancel, childre
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          {onBack ? <button onClick={onBack}>‹ Back</button> : <span style={{ width: 60 }} />}
+          {onBack ? <button onClick={onBack}>‹ ย้อนกลับ</button> : <span style={{ width: 60 }} />}
           <h2>{title}</h2>
-          <button onClick={onCancel}>Cancel</button>
+          <button onClick={onCancel}>ยกเลิก</button>
         </div>
         <div className="wizard-dots">
           {Array.from({ length: totalSteps }).map((_, i) => (

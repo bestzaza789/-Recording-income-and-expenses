@@ -21,7 +21,7 @@ export function ScannedTransactionForm({
   const [amount, setAmount] = useState(String(parsedData.amount ?? ''));
   const [accountId, setAccountId] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [note, setNote] = useState('Scanned from slip');
+  const [note, setNote] = useState('สแกนจากสลิป');
 
   useEffect(() => {
     if (!accounts.length) return;
@@ -60,22 +60,22 @@ export function ScannedTransactionForm({
   }
 
   return (
-    <Modal title={`Confirm Scanned Slip${titleSuffix ?? ''}`} onCancel={onClose} onSave={save} saveDisabled={disabled}>
+    <Modal title={`ยืนยันสลิป${titleSuffix ?? ''}`} onCancel={onClose} onSave={save} saveDisabled={disabled}>
       <div className="form-section">
-        <div className="form-section-title">Verify OCR Details</div>
+        <div className="form-section-title">ตรวจสอบข้อมูลที่อ่านได้</div>
         <div className="form-field">
           <div className="form-row">
-            <label>Amount (฿)</label>
+            <label>จำนวนเงิน (฿)</label>
             <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </div>
           <div className="form-row">
-            <label>Account</label>
+            <label>บัญชี</label>
             <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
               {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
           </div>
           <div className="form-row">
-            <label>Category</label>
+            <label>หมวดหมู่</label>
             <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
               {expenseCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
@@ -83,7 +83,7 @@ export function ScannedTransactionForm({
         </div>
       </div>
       <div className="form-section">
-        <div className="form-section-title">Note</div>
+        <div className="form-section-title">โน้ต</div>
         <div className="form-field">
           <div className="form-row">
             <input value={note} onChange={(e) => setNote(e.target.value)} style={{ textAlign: 'left' }} />

@@ -36,7 +36,7 @@ export function Management() {
   async function deleteAccount(id: string) {
     const count = await db.transactions.where('accountId').equals(id).count();
     if (count > 0) {
-      alert('Cannot delete an account with existing transactions.');
+      alert('ลบบัญชีที่ยังมีรายการอยู่ไม่ได้');
       return;
     }
     await db.accounts.delete(id);
@@ -55,12 +55,12 @@ export function Management() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Management</h1>
+      <h1 className="page-title">จัดการ</h1>
       <div className="segmented">
-        <button className={tab === 'accounts' ? 'active' : ''} onClick={() => setTab('accounts')}>Accounts</button>
-        <button className={tab === 'categories' ? 'active' : ''} onClick={() => setTab('categories')}>Categories</button>
-        <button className={tab === 'quickadd' ? 'active' : ''} onClick={() => setTab('quickadd')}>Quick Add</button>
-        <button className={tab === 'recurring' ? 'active' : ''} onClick={() => setTab('recurring')}>Recurring</button>
+        <button className={tab === 'accounts' ? 'active' : ''} onClick={() => setTab('accounts')}>บัญชี</button>
+        <button className={tab === 'categories' ? 'active' : ''} onClick={() => setTab('categories')}>หมวดหมู่</button>
+        <button className={tab === 'quickadd' ? 'active' : ''} onClick={() => setTab('quickadd')}>รายการด่วน</button>
+        <button className={tab === 'recurring' ? 'active' : ''} onClick={() => setTab('recurring')}>รายการประจำ</button>
       </div>
 
       {tab === 'accounts' && (
