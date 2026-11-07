@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
 import { Modal } from '../components/Modal';
+import { DailySummary } from '../components/DailySummary';
 import { formatCurrency, formatDateTime, formatMonth, startOfMonth } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
 
@@ -19,6 +20,7 @@ export function Analytics() {
 
   const [selectedMonth, setSelectedMonth] = useState(() => startOfMonth(new Date()));
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [view, setView] = useState<'monthly' | 'daily'>('monthly');
 
   const chartData = useMemo(() => {
     const map = new Map<number, { month: number; Income: number; Expense: number }>();
@@ -73,7 +75,11 @@ export function Analytics() {
   return (
     <div className="page">
       <h1 className="page-title">สถิติ</h1>
-      {chartData.length === 0 ? (
+      <div className="segmented">
+        <button className={view === 'monthly' ? 'active' : ''} onClick={() => setView('monthly')}>รายเดือน</button>
+        <button className={view === 'daily' ? 'active' : ''} onClick={() => setView('daily')}>รายวัน</button>
+      </div>
+      {view === 'monthly' && (chartData.length === 0 ? (
         <div className="empty-state">ยังมีข้อมูลไม่พอสำหรับสถิติ</div>
       ) : (
         <div className="card">
@@ -89,9 +95,9 @@ export function Analytics() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      )}
+      ))}
 
-      <div className="section-title">สรุปรายเดือน</div>
+      <div className="section-title">{view === 'monthly' ? 'สรุปรายเดือน' : 'สรุปรายวัน'}</div>
       <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <button className="icon-btn" onClick={() => setSelectedMonth((m) => addMonths(m, -1))}>
           <ChevronLeft size={16} />
@@ -102,6 +108,11 @@ export function Analytics() {
         </button>
       </div>
 
+      {view === 'daily' && (
+        <DailySummary monthTransactions={monthTransactions} categories={categories} selectedMonth={selectedMonth} />
+      )}
+
+      {view === 'monthly' && (<>
       <div className="card" style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between' }}>
         <div>
           <div className="text-secondary-sm">รายรับ</div>
@@ -152,6 +163,7 @@ export function Analytics() {
       ) : (
         <div className="empty-state" style={{ marginTop: 16 }}>ไม่มีรายจ่ายในเดือน {formatMonth(new Date(selectedMonth))}</div>
       )}
+      </>)}
 
       {selectedCategory && (
         <Modal title={selectedCategory.name} onCancel={() => setSelectedCategoryId(null)}>
