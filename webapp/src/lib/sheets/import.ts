@@ -21,9 +21,9 @@ export interface ImportResult {
 }
 
 export async function importFromGoogleSheets(interactive: boolean): Promise<ImportResult> {
-  if (!isGoogleSyncConfigured()) throw new Error('Google sync is not configured');
+  if (!isGoogleSyncConfigured()) throw new Error('ยังไม่ได้ตั้งค่าการซิงก์ Google');
   const spreadsheetId = getStoredSpreadsheetId();
-  if (!spreadsheetId) throw new Error('No spreadsheet connected yet — sync at least once first');
+  if (!spreadsheetId) throw new Error('ยังไม่ได้เชื่อมสเปรดชีต — กดซิงก์อย่างน้อยหนึ่งครั้งก่อน');
 
   const token = await requestAccessToken(interactive);
 

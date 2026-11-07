@@ -38,12 +38,12 @@ export function Dashboard() {
   }
   const pieData = Array.from(byCategory.entries()).map(([categoryId, amount]) => {
     const cat = categoryFor(categories, categoryId);
-    return { name: cat?.name ?? 'Other', value: amount, color: cat ? `#${cat.hexColor}` : '#808080' };
+    return { name: cat?.name ?? 'อื่น ๆ', value: amount, color: cat ? `#${cat.hexColor}` : '#808080' };
   });
 
   return (
     <div className="page">
-      <div className="net-worth-label">Total Net Worth</div>
+      <div className="net-worth-label">ทรัพย์สินสุทธิทั้งหมด</div>
       <div className="net-worth-value" style={{ color: totalNetWorth >= 0 ? 'var(--text)' : 'var(--red)' }}>
         {formatCurrency(totalNetWorth)}
       </div>
@@ -61,7 +61,7 @@ export function Dashboard() {
 
       {pieData.length > 0 && (
         <>
-          <div className="section-title">This Month's Expenses</div>
+          <div className="section-title">รายจ่ายเดือนนี้</div>
           <div className="card">
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
@@ -83,9 +83,9 @@ export function Dashboard() {
         </>
       )}
 
-      <div className="section-title">Recent Transactions</div>
+      <div className="section-title">รายการล่าสุด</div>
       <div className="card">
-        {recentTransactions.length === 0 && <div className="empty-state">No transactions yet.</div>}
+        {recentTransactions.length === 0 && <div className="empty-state">ยังไม่มีรายการ</div>}
         {recentTransactions.map((t) => (
           <TransactionRow key={t.id} transaction={t} category={categoryFor(categories, t.categoryId)} />
         ))}
@@ -99,12 +99,12 @@ export function Dashboard() {
         <div className="action-sheet" onClick={() => setShowActionSheet(false)}>
           <div className="action-sheet-content" onClick={(e) => e.stopPropagation()}>
             <div className="action-sheet-group">
-              <button onClick={() => { setActiveForm('manual'); setShowActionSheet(false); }}>Manual Entry</button>
-              <button onClick={() => { setActiveForm('transfer'); setShowActionSheet(false); }}>Transfer</button>
-              <button onClick={() => { setActiveForm('scan'); setShowActionSheet(false); }}>Scan Slip (OCR)</button>
+              <button onClick={() => { setActiveForm('manual'); setShowActionSheet(false); }}>บันทึกเอง</button>
+              <button onClick={() => { setActiveForm('transfer'); setShowActionSheet(false); }}>โอนเงินระหว่างบัญชี</button>
+              <button onClick={() => { setActiveForm('scan'); setShowActionSheet(false); }}>สแกนสลิป</button>
             </div>
             <div className="action-sheet-group">
-              <button className="cancel" onClick={() => setShowActionSheet(false)}>Cancel</button>
+              <button className="cancel" onClick={() => setShowActionSheet(false)}>ยกเลิก</button>
             </div>
           </div>
         </div>

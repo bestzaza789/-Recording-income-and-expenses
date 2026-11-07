@@ -9,6 +9,7 @@ import { TransferForm } from '../components/TransferForm';
 import { deleteTransaction } from '../db/transactionManager';
 import { formatCurrency, formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
+import { ACCOUNT_TYPE_LABEL } from '../lib/labels';
 import type { Transaction } from '../db/db';
 
 export function AccountDetail() {
@@ -76,7 +77,7 @@ export function AccountDetail() {
   if (!account) {
     return (
       <div className="page">
-        <div className="empty-state">Account not found.</div>
+        <div className="empty-state">ไม่พบบัญชีนี้</div>
       </div>
     );
   }
@@ -84,7 +85,7 @@ export function AccountDetail() {
   return (
     <div className="page">
       <button className="icon-btn" style={{ marginBottom: 12 }} onClick={() => navigate(-1)}>
-        <ChevronLeft size={16} /> Back
+        <ChevronLeft size={16} /> ย้อนกลับ
       </button>
 
       <h1 className="page-title" style={{ marginBottom: 4 }}>{account.name}</h1>
@@ -92,21 +93,21 @@ export function AccountDetail() {
         {formatCurrency(account.currentBalance)}
       </div>
       <div className="text-secondary-sm" style={{ marginTop: 4 }}>
-        {account.accountType} · initial balance {formatCurrency(account.initialBalance)}
+        {ACCOUNT_TYPE_LABEL[account.accountType]} · ยอดเริ่มต้น {formatCurrency(account.initialBalance)}
       </div>
 
       {mismatch && (
         <div className="card" style={{ marginTop: 16, borderColor: 'var(--red)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <AlertTriangle size={18} color="var(--red)" style={{ flexShrink: 0, marginTop: 2 }} />
           <div style={{ fontSize: 13 }}>
-            <strong>Balance mismatch.</strong> Replaying every transaction from the initial balance gives{' '}
-            {formatCurrency(computedFinalBalance)}, but the stored current balance is {formatCurrency(account.currentBalance)}.
-            Scroll through the list below (running balance shown under each amount) to spot where it diverges.
+            <strong>ยอดเงินไม่ตรงกัน</strong> เมื่อคำนวณทุกรายการจากยอดเริ่มต้นได้{' '}
+            {formatCurrency(computedFinalBalance)} แต่ยอดคงเหลือที่บันทึกไว้คือ {formatCurrency(account.currentBalance)}
+            เลื่อนดูรายการด้านล่าง (ยอดคงเหลือแสดงใต้จำนวนเงินแต่ละรายการ) เพื่อหาจุดที่เริ่มคลาดเคลื่อน
           </div>
         </div>
       )}
 
-      {grouped.length === 0 && <div className="empty-state" style={{ marginTop: 16 }}>No transactions on this account yet.</div>}
+      {grouped.length === 0 && <div className="empty-state" style={{ marginTop: 16 }}>บัญชีนี้ยังไม่มีรายการ</div>}
 
       {grouped.map(({ monthKey, days }) => (
         <div key={monthKey}>

@@ -15,9 +15,9 @@ export function GoogleSyncCard() {
   if (!isGoogleSyncConfigured()) {
     return (
       <div className="card" style={{ marginTop: 16 }}>
-        <div className="section-title" style={{ marginTop: 0 }}>Google Sheets Sync</div>
+        <div className="section-title" style={{ marginTop: 0 }}>ซิงก์ Google Sheets</div>
         <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-          Not configured. Set VITE_GOOGLE_CLIENT_ID to enable backup to Google Sheets.
+          ยังไม่ได้ตั้งค่า ต้องตั้ง VITE_GOOGLE_CLIENT_ID ก่อนจึงจะสำรองข้อมูลไป Google Sheets ได้
         </div>
       </div>
     );
@@ -32,9 +32,9 @@ export function GoogleSyncCard() {
       setEnabled(true);
       const result = await syncToGoogleSheets(false);
       setSheetUrl(result.url);
-      setStatus(`Synced ${result.rowCount} transactions just now.`);
+      setStatus(`ซิงก์แล้ว ${result.rowCount} รายการ`);
     } catch (e) {
-      setStatus(`Sync failed: ${(e as Error).message}`);
+      setStatus(`ซิงก์ไม่สำเร็จ: ${(e as Error).message}`);
     } finally {
       setBusy(false);
     }
@@ -46,25 +46,25 @@ export function GoogleSyncCard() {
     try {
       const result = await syncToGoogleSheets(true);
       setSheetUrl(result.url);
-      setStatus(`Synced ${result.rowCount} transactions just now.`);
+      setStatus(`ซิงก์แล้ว ${result.rowCount} รายการ`);
     } catch (e) {
-      setStatus(`Sync failed: ${(e as Error).message}`);
+      setStatus(`ซิงก์ไม่สำเร็จ: ${(e as Error).message}`);
     } finally {
       setBusy(false);
     }
   }
 
   async function importNow() {
-    if (!confirm('Import data from the connected Google Sheet? New accounts, categories, budgets, quick-add presets, recurring rules, and non-duplicate transactions will be added to this device.')) return;
+    if (!confirm('นำเข้าข้อมูลจาก Google Sheet ที่เชื่อมไว้? บัญชี หมวดหมู่ งบประมาณ รายการด่วน รายการประจำ และรายการที่ไม่ซ้ำจะถูกเพิ่มลงในเครื่องนี้')) return;
     setBusy(true);
     setStatus(null);
     try {
       const result = await importFromGoogleSheets(true);
       setStatus(
-        `Imported: ${result.accountsAdded} accounts, ${result.categoriesAdded} categories, ${result.budgetsAdded} budgets, ${result.bookmarksAdded} quick-add presets, ${result.recurringAdded} recurring rules, ${result.transactionsImported} transactions (${result.transactionsSkipped} skipped as duplicates/unmatched).`
+        `นำเข้าแล้ว: บัญชี ${result.accountsAdded}, หมวดหมู่ ${result.categoriesAdded}, งบประมาณ ${result.budgetsAdded}, รายการด่วน ${result.bookmarksAdded}, รายการประจำ ${result.recurringAdded}, รายการ ${result.transactionsImported} (ข้าม ${result.transactionsSkipped} รายการที่ซ้ำหรือจับคู่ไม่ได้)`
       );
     } catch (e) {
-      setStatus(`Import failed: ${(e as Error).message}`);
+      setStatus(`นำเข้าไม่สำเร็จ: ${(e as Error).message}`);
     } finally {
       setBusy(false);
     }
@@ -73,30 +73,30 @@ export function GoogleSyncCard() {
   function disconnect() {
     setAutoSyncEnabled(false);
     setEnabled(false);
-    setStatus('Auto-sync turned off. Local data is unaffected.');
+    setStatus('ปิดซิงก์อัตโนมัติแล้ว ข้อมูลในเครื่องยังอยู่ครบ');
   }
 
   return (
     <div className="card" style={{ marginTop: 16 }}>
-      <div className="section-title" style={{ marginTop: 0 }}>Google Sheets Sync</div>
+      <div className="section-title" style={{ marginTop: 0 }}>ซิงก์ Google Sheets</div>
       <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
         {enabled
-          ? 'Auto-sync is on. Data pushes to your Google Sheet after every change.'
-          : 'Data stays local only until you connect a Google account.'}
+          ? 'เปิดซิงก์อัตโนมัติอยู่ ข้อมูลจะส่งไป Google Sheet ทุกครั้งที่มีการเปลี่ยนแปลง'
+          : 'ข้อมูลเก็บในเครื่องนี้เท่านั้น จนกว่าจะเชื่อมบัญชี Google'}
       </div>
 
       <button className="upload-btn" style={{ width: '100%', justifyContent: 'center' }} onClick={enabled ? syncNow : connectAndSync} disabled={busy}>
         <RefreshCw size={16} className={busy ? 'spin' : ''} />
-        {busy ? 'Syncing...' : enabled ? 'Sync Now' : 'Connect Google Sheets'}
+        {busy ? 'กำลังซิงก์...' : enabled ? 'ซิงก์ตอนนี้' : 'เชื่อม Google Sheets'}
       </button>
 
       {sheetUrl && (
         <>
           <a href={sheetUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: 'var(--accent)' }}>
-            <ExternalLink size={14} /> Open spreadsheet
+            <ExternalLink size={14} /> เปิดสเปรดชีต
           </a>
           <button className="icon-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 10, marginRight: 0, padding: '10px 0' }} onClick={importNow} disabled={busy}>
-            <Download size={16} style={{ marginRight: 6 }} /> Import from Sheet
+            <Download size={16} style={{ marginRight: 6 }} /> นำเข้าจากชีต
           </button>
         </>
       )}
@@ -104,7 +104,7 @@ export function GoogleSyncCard() {
       {status && <div className="text-secondary-sm" style={{ marginTop: 8 }}>{status}</div>}
 
       {enabled && (
-        <button className="delete-btn" style={{ marginTop: 10 }} onClick={disconnect}>Turn off auto-sync</button>
+        <button className="delete-btn" style={{ marginTop: 10 }} onClick={disconnect}>ปิดซิงก์อัตโนมัติ</button>
       )}
     </div>
   );

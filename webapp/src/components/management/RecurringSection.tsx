@@ -16,7 +16,7 @@ interface Props {
 export function RecurringSection({ recurringRules, categories, accounts, onEdit, onDelete, onAdd }: Props) {
   return (
     <div className="card">
-      {recurringRules.length === 0 && <div className="empty-state">No recurring transactions yet.</div>}
+      {recurringRules.length === 0 && <div className="empty-state">ยังไม่มีรายการประจำ</div>}
       {recurringRules.map((r) => {
         const category = categoryFor(categories, r.categoryId);
         const account = accountFor(accounts, r.accountId);
@@ -25,9 +25,9 @@ export function RecurringSection({ recurringRules, categories, accounts, onEdit,
             <div className="icon-label-row">
               <CategoryIcon name={category?.iconName} color={category ? `#${category.hexColor}` : undefined} />
               <div>
-                <div style={{ fontWeight: 600 }}>{r.note || category?.name || 'Recurring'}</div>
+                <div style={{ fontWeight: 600 }}>{r.note || category?.name || 'รายการประจำ'}</div>
                 <div className="text-secondary-sm">
-                  {formatCurrency(r.amount)} · day {r.dayOfMonth} · {account?.name ?? 'Unknown account'}
+                  {formatCurrency(r.amount)} · ทุกวันที่ {r.dayOfMonth} · {account?.name ?? 'ไม่พบบัญชี'}
                 </div>
               </div>
             </div>
@@ -39,7 +39,7 @@ export function RecurringSection({ recurringRules, categories, accounts, onEdit,
         );
       })}
       <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={onAdd}>
-        <Plus size={16} /> Add Recurring
+        <Plus size={16} /> เพิ่มรายการประจำ
       </button>
     </div>
   );

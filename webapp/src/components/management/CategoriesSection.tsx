@@ -10,15 +10,16 @@ interface Props {
   onDelete: (id: string) => void;
 }
 
-function CategoryGroup({ title, categories, onEdit, onAdd, onDelete }: {
+function CategoryGroup({ title, first, categories, onEdit, onAdd, onDelete }: {
   title: string;
+  first?: boolean;
   categories: Category[];
   onEdit: (existing: Category) => void;
   onAdd: () => void;
   onDelete: (id: string) => void;
 }) {
   return (
-    <div className="card" style={{ marginTop: title === 'Expense' ? 0 : 16 }}>
+    <div className="card" style={{ marginTop: first ? 0 : 16 }}>
       <div className="section-title" style={{ marginTop: 0 }}>{title}</div>
       {categories.map((c) => (
         <div className="list-item" key={c.id}>
@@ -33,7 +34,7 @@ function CategoryGroup({ title, categories, onEdit, onAdd, onDelete }: {
         </div>
       ))}
       <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={onAdd}>
-        <Plus size={16} /> Add {title} Category
+        <Plus size={16} /> เพิ่มหมวดหมู่{title}
       </button>
     </div>
   );
@@ -43,14 +44,15 @@ export function CategoriesSection({ expenseCategories, incomeCategories, onEdit,
   return (
     <>
       <CategoryGroup
-        title="Expense"
+        title="รายจ่าย"
+        first
         categories={expenseCategories}
         onEdit={(existing) => onEdit('expense', existing)}
         onAdd={() => onAdd('expense')}
         onDelete={onDelete}
       />
       <CategoryGroup
-        title="Income"
+        title="รายรับ"
         categories={incomeCategories}
         onEdit={(existing) => onEdit('income', existing)}
         onAdd={() => onAdd('income')}

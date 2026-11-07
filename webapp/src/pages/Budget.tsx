@@ -36,9 +36,9 @@ export function Budget() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Budget</h1>
+      <h1 className="page-title">งบประมาณ</h1>
       <div className="card">
-        {categories.length === 0 && <div className="empty-state">No expense categories yet.</div>}
+        {categories.length === 0 && <div className="empty-state">ยังไม่มีหมวดหมู่รายจ่าย</div>}
         {categories.map((c) => {
           const b = budgetFor(c.id);
           const spent = spentByCategory.get(c.id) ?? 0;
@@ -50,7 +50,7 @@ export function Budget() {
                   {c.name}
                 </div>
                 <button className="icon-btn" onClick={() => setEditing(c)}>
-                  {b ? formatCurrency(b.monthlyLimit) : 'Set budget'}
+                  {b ? formatCurrency(b.monthlyLimit) : 'ตั้งงบ'}
                 </button>
               </div>
               {b && (

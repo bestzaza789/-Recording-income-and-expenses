@@ -2,6 +2,7 @@ import { Plus, Trash2, Pencil } from 'lucide-react';
 import type { Bookmark, Category } from '../../db/db';
 import { CategoryIcon } from '../../lib/icons';
 import { formatCurrency } from '../../lib/format';
+import { TRANSACTION_TYPE_LABEL } from '../../lib/labels';
 import { categoryFor } from '../../lib/lookup';
 
 interface Props {
@@ -16,9 +17,9 @@ export function QuickAddSection({ bookmarks, categories, onEdit, onDelete, onAdd
   return (
     <div className="card">
       <div className="text-secondary-sm" style={{ marginBottom: 12 }}>
-        One-tap presets for recurring but irregularly-timed spends (e.g. commute, regular meal) — shown on the Dashboard.
+        ปุ่มบันทึกแตะเดียวสำหรับรายการที่ใช้บ่อยแต่ไม่ได้มีวันแน่นอน (เช่น ค่าเดินทาง ค่าข้าว) — แสดงที่หน้าหลัก
       </div>
-      {bookmarks.length === 0 && <div className="empty-state">No quick-add presets yet.</div>}
+      {bookmarks.length === 0 && <div className="empty-state">ยังไม่มีรายการด่วน</div>}
       {bookmarks.map((b) => {
         const category = categoryFor(categories, b.categoryId);
         return (
@@ -27,7 +28,7 @@ export function QuickAddSection({ bookmarks, categories, onEdit, onDelete, onAdd
               <CategoryIcon name={category?.iconName} color={category ? `#${category.hexColor}` : undefined} />
               <div>
                 <div style={{ fontWeight: 600 }}>{b.name}</div>
-                <div className="text-secondary-sm">{b.type} · {formatCurrency(b.amount)}</div>
+                <div className="text-secondary-sm">{TRANSACTION_TYPE_LABEL[b.type]} · {formatCurrency(b.amount)}</div>
               </div>
             </div>
             <div>
@@ -38,7 +39,7 @@ export function QuickAddSection({ bookmarks, categories, onEdit, onDelete, onAdd
         );
       })}
       <button className="upload-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={onAdd}>
-        <Plus size={16} /> Add Quick Add Preset
+        <Plus size={16} /> เพิ่มรายการด่วน
       </button>
     </div>
   );

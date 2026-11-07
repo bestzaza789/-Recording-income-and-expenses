@@ -24,26 +24,26 @@ export function CategoryForm({ defaultType, onClose, existing }: { defaultType: 
   }
 
   return (
-    <Modal title={existing ? 'Edit Category' : 'New Category'} onCancel={onClose} onSave={save} saveDisabled={!name}>
+    <Modal title={existing ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่'} onCancel={onClose} onSave={save} saveDisabled={!name}>
       <div className="form-section">
-        <div className="form-section-title">Details</div>
+        <div className="form-section-title">รายละเอียด</div>
         <div className="form-field">
           <div className="form-row">
-            <label>Name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Food" />
+            <label>ชื่อ</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="เช่น อาหาร" />
           </div>
           <div className="form-row">
-            <label>Type</label>
+            <label>ประเภท</label>
             <select value={type} onChange={(e) => setType(e.target.value as CategoryType)}>
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
+              <option value="expense">รายจ่าย</option>
+              <option value="income">รายรับ</option>
             </select>
           </div>
         </div>
       </div>
 
       <div className="form-section">
-        <div className="form-section-title">Appearance</div>
+        <div className="form-section-title">สีและไอคอน</div>
         <div className="color-swatches">
           {COLORS.map((c) => (
             <button

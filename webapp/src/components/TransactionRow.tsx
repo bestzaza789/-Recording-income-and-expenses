@@ -2,6 +2,7 @@ import { Pencil } from 'lucide-react';
 import type { Category, Transaction } from '../db/db';
 import { CategoryIcon, TransferIcon } from '../lib/icons';
 import { formatCurrency, formatDateTime } from '../lib/format';
+import { TRANSACTION_TYPE_LABEL } from '../lib/labels';
 
 interface Props {
   transaction: Transaction;
@@ -21,7 +22,7 @@ export function TransactionRow({ transaction, category, onDelete, onEdit, runnin
     ? (deltaOverride! > 0 ? 'income' : deltaOverride! < 0 ? 'expense' : 'transfer')
     : transaction.transactionType;
   const displayAmount = hasOverride ? Math.abs(deltaOverride!) : transaction.amount;
-  const title = category?.name || transaction.note || capitalize(transaction.transactionType);
+  const title = category?.name || transaction.note || TRANSACTION_TYPE_LABEL[transaction.transactionType];
 
   return (
     <div className="tx-row">
@@ -42,7 +43,7 @@ export function TransactionRow({ transaction, category, onDelete, onEdit, runnin
         </div>
         {runningBalance !== undefined && (
           <div style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'right' }}>
-            bal {formatCurrency(runningBalance)}
+            คงเหลือ {formatCurrency(runningBalance)}
           </div>
         )}
       </div>
@@ -50,12 +51,8 @@ export function TransactionRow({ transaction, category, onDelete, onEdit, runnin
         <button className="icon-btn" onClick={onEdit}><Pencil size={14} /></button>
       )}
       {onDelete && (
-        <button className="delete-btn" onClick={onDelete}>Del</button>
+        <button className="delete-btn" onClick={onDelete}>ลบ</button>
       )}
     </div>
   );
-}
-
-function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }

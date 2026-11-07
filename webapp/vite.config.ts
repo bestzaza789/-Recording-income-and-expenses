@@ -10,9 +10,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
-        name: 'Personal Finance',
-        short_name: 'Finance',
-        description: 'Offline personal finance tracker with slip OCR',
+        name: 'บันทึกรายรับรายจ่าย',
+        short_name: 'รายรับรายจ่าย',
+        description: 'แอปบันทึกรายรับรายจ่าย ใช้ออฟไลน์ได้ สแกนสลิปได้',
+        lang: 'th',
         theme_color: '#007aff',
         background_color: '#f2f2f7',
         display: 'standalone',

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal } from './Modal';
 import { addAccount, updateAccount } from '../db/transactionManager';
 import type { Account, AccountType } from '../db/db';
+import { ACCOUNT_TYPE_LABEL } from '../lib/labels';
 
 const TYPES: AccountType[] = ['cash', 'bank', 'credit'];
 
@@ -21,30 +22,30 @@ export function AccountForm({ onClose, existing }: { onClose: () => void; existi
   }
 
   return (
-    <Modal title={existing ? 'Edit Account' : 'New Account'} onCancel={onClose} onSave={save} saveDisabled={!name}>
+    <Modal title={existing ? 'แก้ไขบัญชี' : 'เพิ่มบัญชี'} onCancel={onClose} onSave={save} saveDisabled={!name}>
       <div className="form-section">
-        <div className="form-section-title">Account Details</div>
+        <div className="form-section-title">รายละเอียดบัญชี</div>
         <div className="form-field">
           <div className="form-row">
-            <label>Name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. KBank" />
+            <label>ชื่อ</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="เช่น กสิกร" />
           </div>
           <div className="form-row">
-            <label>Type</label>
+            <label>ประเภท</label>
             <select value={accountType} onChange={(e) => setAccountType(e.target.value as AccountType)}>
               {TYPES.map((t) => (
-                <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                <option key={t} value={t}>{ACCOUNT_TYPE_LABEL[t]}</option>
               ))}
             </select>
           </div>
           <div className="form-row">
-            <label>Initial Balance</label>
+            <label>ยอดเริ่มต้น</label>
             <input type="number" inputMode="decimal" value={initialBalance} onChange={(e) => setInitialBalance(e.target.value)} placeholder="0.00" />
           </div>
         </div>
         {existing && (
           <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
-            Changing initial balance adjusts current balance by the same amount.
+            การแก้ยอดเริ่มต้นจะปรับยอดคงเหลือปัจจุบันตามจำนวนเดียวกัน
           </div>
         )}
       </div>

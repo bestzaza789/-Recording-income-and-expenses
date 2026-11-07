@@ -81,7 +81,7 @@ async function buildRecurringRows(): Promise<string[][]> {
 }
 
 export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: string; rowCount: number }> {
-  if (!isGoogleSyncConfigured()) throw new Error('Google sync is not configured');
+  if (!isGoogleSyncConfigured()) throw new Error('ยังไม่ได้ตั้งค่าการซิงก์ Google');
 
   const token = await requestAccessToken(interactive);
   const spreadsheetId = await ensureSpreadsheet(token);
