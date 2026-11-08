@@ -95,14 +95,22 @@ export async function writeSheet(token: string, spreadsheetId: string, sheetTitl
   }
 }
 
-export async function readSheetValues(token: string, spreadsheetId: string, sheetTitle: string): Promise<string[][]> {
-  const res = await apiFetch(`${SHEETS_API}/${spreadsheetId}/values/${sheetTitle}`, token);
+// `raw: true` reads the underlying cell values instead of what the sheet
+// displays: dates come back as serial day numbers and amounts as plain
+// numbers, independent of the spreadsheet's locale (a Thai-locale sheet
+// displays dates as "8 พ.ย. 2569" and may group thousands with commas).
+export async function readSheetValues(
+  token: string, spreadsheetId: string, sheetTitle: string, raw = false
+): Promise<string[][]> {
+  const query = raw ? '?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER' : '';
+  const res = await apiFetch(`${SHEETS_API}/${spreadsheetId}/values/${sheetTitle}${query}`, token);
   if (!res.ok) {
     if (res.status === 400) return [];
     throw new Error(`Failed to read ${sheetTitle}: ${res.status}`);
   }
   const data = await res.json();
-  return (data.values ?? []) as string[][];
+  const values = (data.values ?? []) as unknown[][];
+  return values.map((row) => row.map((cell) => (cell == null ? '' : String(cell))));
 }
 
 export async function writeRange(token: string, spreadsheetId: string, range: string, values: string[][]): Promise<void> {
