@@ -35,6 +35,9 @@ export function TransactionRow({ transaction, category, onDelete, onEdit, runnin
       </div>
       <div className="tx-main">
         <div className="tx-title">{title}</div>
+        {transaction.note && transaction.note !== title && (
+          <div className="tx-note">{transaction.note}</div>
+        )}
         <div className="tx-date">{formatDateTime(transaction.date)}</div>
       </div>
       <div>
