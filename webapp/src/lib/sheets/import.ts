@@ -1,7 +1,7 @@
 import { db, newId, type AccountType, type CategoryType, type TransactionType } from '../../db/db';
 import { addTransaction } from '../../db/transactionManager';
 import { requestAccessToken, isGoogleSyncConfigured } from '../googleAuth';
-import { formatDate } from '../format';
+import { formatSheetDate } from '../format';
 import { categoryFor, accountNameFor } from '../lookup';
 import {
   ACCOUNTS_SHEET, CATEGORIES_SHEET, TRANSACTIONS_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET,
@@ -126,7 +126,7 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
   const existingTransactions = await db.transactions.toArray();
   const existingKeys = new Set(
     existingTransactions.map((t) =>
-      [formatDate(t.date), t.transactionType, t.amount.toFixed(2), accountNameFor(accounts, t.accountId), accountNameFor(accounts, t.toAccountId), categoryFor(categories, t.categoryId)?.name ?? '', t.note ?? ''].join('|')
+      [formatSheetDate(t.date), t.transactionType, t.amount.toFixed(2), accountNameFor(accounts, t.accountId), accountNameFor(accounts, t.toAccountId), categoryFor(categories, t.categoryId)?.name ?? '', t.note ?? ''].join('|')
     )
   );
 

@@ -1,5 +1,5 @@
 import { db } from '../../db/db';
-import { formatDate } from '../format';
+import { formatSheetDate } from '../format';
 import { categoryFor, accountNameFor } from '../lookup';
 import { isGoogleSyncConfigured, requestAccessToken } from '../googleAuth';
 import {
@@ -16,7 +16,7 @@ async function buildTransactionRows(): Promise<string[][]> {
 
   const header = ['Date', 'Type', 'Amount', 'Account', 'To Account', 'Category', 'Note'];
   const rows = transactions.map((t) => [
-    formatDate(t.date),
+    formatSheetDate(t.date),
     t.transactionType,
     t.amount.toFixed(2),
     accountNameFor(accounts, t.accountId),

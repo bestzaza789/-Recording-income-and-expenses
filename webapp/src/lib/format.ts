@@ -6,6 +6,12 @@ export function formatDate(date: Date): string {
   return new Date(date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+// Machine-readable date for the Google Sheets backup. Must stay parseable by
+// `new Date(str)` so sheets/import.ts can read rows back; don't localize it.
+export function formatSheetDate(date: Date): string {
+  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 export function formatTime(date: Date): string {
   return new Date(date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 }
