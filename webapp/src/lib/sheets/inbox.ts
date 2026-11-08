@@ -57,12 +57,24 @@ export async function markSlip(slip: InboxSlip, status: 'saved' | 'skipped'): Pr
 }
 
 // Pasted by the user into Extensions → Apps Script of their backup spreadsheet
-// and deployed as a web app; the iOS Shortcut POSTs {"text": "..."} to it.
+// and deployed as a web app. The iOS Shortcut calls it with GET
+// `.../exec?text=<url-encoded slip text>` — POSTs from Shortcuts were rejected
+// by Google before reaching the script. doPost is kept for other clients.
 export const APPS_SCRIPT_CODE = `const SHEET_NAME = 'Inbox';
+
+function doGet(e) {
+  const text = String((e.parameter && e.parameter.text) || '').trim();
+  // Opening the URL in a browser with no text just confirms the script is live
+  if (!text) return reply({ ok: true, ready: true });
+  return addSlip(text);
+}
 
 function doPost(e) {
   const body = JSON.parse((e.postData && e.postData.contents) || '{}');
-  const text = String(body.text || '').trim();
+  return addSlip(String(body.text || '').trim());
+}
+
+function addSlip(text) {
   if (!text) return reply({ ok: false, error: 'empty text' });
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
