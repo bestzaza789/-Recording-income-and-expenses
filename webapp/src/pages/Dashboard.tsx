@@ -49,6 +49,7 @@ export function Dashboard() {
 
   return (
     <div className="page">
+      <div className="app-version">{__APP_VERSION__}</div>
       <div className="net-worth-label">ทรัพย์สินสุทธิทั้งหมด</div>
       <div className="net-worth-value" style={{ color: totalNetWorth >= 0 ? 'var(--text)' : 'var(--red)' }}>
         {formatCurrency(totalNetWorth)}
