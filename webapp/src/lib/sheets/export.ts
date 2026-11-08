@@ -4,8 +4,17 @@ import { categoryFor, accountNameFor } from '../lookup';
 import { isGoogleSyncConfigured, requestAccessToken } from '../googleAuth';
 import {
   TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET,
-  ensureSpreadsheet, ensureSheetTabs, writeSheet,
+  ensureSpreadsheet, ensureSheetTabs, writeSheet, readSheetValues,
 } from './api';
+
+export class SheetShrinkError extends Error {
+  constructor(sheetCount: number, appCount: number) {
+    super(`ใน Google Sheet มี ${sheetCount} รายการ แต่ในเครื่องนี้มีแค่ ${appCount} รายการ — ไม่ได้ซิงก์ทับ กด "นำเข้าจากชีต" ก่อน`);
+  }
+}
+
+// Most transactions a sync may drop from the sheet in one go.
+const AUTO_SYNC_SHRINK_LIMIT = 20;
 
 async function buildTransactionRows(): Promise<string[][]> {
   const [accounts, categories, transactions] = await Promise.all([
@@ -80,7 +89,7 @@ async function buildRecurringRows(): Promise<string[][]> {
   return [header, ...rows];
 }
 
-export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: string; rowCount: number }> {
+export async function syncToGoogleSheets(interactive: boolean, force = false): Promise<{ url: string; rowCount: number }> {
   if (!isGoogleSyncConfigured()) throw new Error('ยังไม่ได้ตั้งค่าการซิงก์ Google');
 
   const token = await requestAccessToken(interactive);
@@ -95,6 +104,19 @@ export async function syncToGoogleSheets(interactive: boolean): Promise<{ url: s
     buildBookmarkRows(),
     buildRecurringRows(),
   ]);
+
+  // Every sync replaces the whole sheet with what's on this device. If the
+  // device holds far fewer transactions than the sheet (fresh install, cleared
+  // Safari data, an import that didn't run), a background sync would wipe the
+  // only backup. Refuse unless the user explicitly confirmed (`force`).
+  if (!force) {
+    const sheetRows = await readSheetValues(token, spreadsheetId, TRANSACTIONS_SHEET);
+    const sheetCount = Math.max(0, sheetRows.length - 1);
+    const appCount = transactionRows.length - 1;
+    if (sheetCount - appCount > AUTO_SYNC_SHRINK_LIMIT) {
+      throw new SheetShrinkError(sheetCount, appCount);
+    }
+  }
 
   await writeSheet(token, spreadsheetId, TRANSACTIONS_SHEET, transactionRows);
   await writeSheet(token, spreadsheetId, ACCOUNTS_SHEET, accountRows);

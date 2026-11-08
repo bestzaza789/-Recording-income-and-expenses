@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { RefreshCw, ExternalLink, Download } from 'lucide-react';
 import { isGoogleSyncConfigured, requestAccessToken } from '../lib/googleAuth';
-import { syncToGoogleSheets } from '../lib/sheets/export';
+import { syncToGoogleSheets, SheetShrinkError } from '../lib/sheets/export';
 import { importFromGoogleSheets } from '../lib/sheets/import';
 import { getSpreadsheetUrl } from '../lib/sheets/api';
 import { isAutoSyncEnabled, setAutoSyncEnabled } from '../lib/autoSync';
@@ -45,7 +45,17 @@ export function GoogleSyncCard() {
     setBusy(true);
     setStatus(null);
     try {
-      const result = await syncToGoogleSheets(true);
+      let result;
+      try {
+        result = await syncToGoogleSheets(true);
+      } catch (e) {
+        if (!(e instanceof SheetShrinkError)) throw e;
+        if (!confirm(`${e.message}\n\nถ้าซิงก์ตอนนี้ รายการที่มีเฉพาะในชีตจะถูกลบออกจากชีต ยืนยันซิงก์ทับ?`)) {
+          setStatus(e.message);
+          return;
+        }
+        result = await syncToGoogleSheets(true, true);
+      }
       setSheetUrl(result.url);
       setStatus(`ซิงก์แล้ว ${result.rowCount} รายการ`);
     } catch (e) {

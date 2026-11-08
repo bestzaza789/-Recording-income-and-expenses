@@ -1,9 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { execSync } from 'node:child_process'
+
+// Shown top-left on the Dashboard so it's easy to tell which build the
+// installed PWA is running: build date (Bangkok time) + short commit hash.
+function appVersion(): string {
+  let sha = process.env.VERCEL_GIT_COMMIT_SHA ?? ''
+  if (!sha) {
+    try { sha = execSync('git rev-parse HEAD').toString().trim() } catch { sha = 'dev' }
+  }
+  const date = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' }).replaceAll('-', '.')
+  return `v${date} · ${sha.slice(0, 7)}`
+}
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion()),
+  },
   plugins: [
     react(),
     VitePWA({
