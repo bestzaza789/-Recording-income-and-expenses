@@ -39,8 +39,8 @@ async function buildTransactionRows(): Promise<string[][]> {
 
 async function buildAccountRows(): Promise<string[][]> {
   const accounts = sortAccounts(await db.accounts.toArray());
-  const header = ['Name', 'Type', 'Initial Balance', 'Current Balance'];
-  const rows = accounts.map((a) => [a.name, a.accountType, a.initialBalance.toFixed(2), a.currentBalance.toFixed(2)]);
+  const header = ['Name', 'Type', 'Initial Balance', 'Current Balance', 'Order'];
+  const rows = accounts.map((a, i) => [a.name, a.accountType, a.initialBalance.toFixed(2), a.currentBalance.toFixed(2), String(i + 1)]);
   return [header, ...rows];
 }
 

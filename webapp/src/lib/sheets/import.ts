@@ -1,7 +1,7 @@
 import { db, newId, type AccountType, type CategoryType, type TransactionType } from '../../db/db';
 import { addTransaction } from '../../db/transactionManager';
 import { requestAccessToken, isGoogleSyncConfigured } from '../googleAuth';
-import { categoryFor, accountNameFor, nextAccountSortOrder } from '../lookup';
+import { categoryFor, accountNameFor, nextAccountSortOrder, sortAccounts } from '../lookup';
 import {
   ACCOUNTS_SHEET, CATEGORIES_SHEET, TRANSACTIONS_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET,
   getStoredSpreadsheetId, readSheetValues,
@@ -96,6 +96,12 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
   const categories = await db.categories.toArray();
 
   let accountsAdded = 0;
+  // 'Order' column (5th) holds the display order set by drag-and-drop; older sheets lack it.
+  const sheetOrder = new Map<string, number>();
+  for (const [name, , , , orderStr] of accountRows.slice(1)) {
+    const order = Number(orderStr);
+    if (name && orderStr && Number.isFinite(order)) sheetOrder.set(name.trim().toLowerCase(), order);
+  }
   for (const [name, type, initialBalanceStr] of accountRows.slice(1)) {
     if (!name) continue;
     if (accounts.some((a) => a.name.toLowerCase() === name.toLowerCase())) continue;
@@ -105,6 +111,15 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     await db.accounts.add(account);
     accounts.push(account);
     accountsAdded++;
+  }
+
+  if (sheetOrder.size > 0) {
+    // Accounts listed in the sheet follow its order; any local-only accounts keep their relative order after them.
+    const rank = (a: (typeof accounts)[number]) => sheetOrder.get(a.name.trim().toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+    const ordered = [...sortAccounts(accounts)].sort((a, b) => rank(a) - rank(b));
+    await db.transaction('rw', db.accounts, async () => {
+      await Promise.all(ordered.map((a, i) => db.accounts.update(a.id, { sortOrder: i })));
+    });
   }
 
   let categoriesAdded = 0;
