@@ -4,8 +4,10 @@ import './index.css'
 import App from './App.tsx'
 import { seedDefaultsIfEmpty } from './db/db'
 import { generateDueRecurring } from './db/recurringEngine'
+import { removeBuddhistEraImports } from './db/transactionManager'
 
 seedDefaultsIfEmpty()
+  .then(() => removeBuddhistEraImports())
   .then(() => generateDueRecurring())
   .catch(() => {
     // generation failure must never block app startup

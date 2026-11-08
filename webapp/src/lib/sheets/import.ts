@@ -32,6 +32,9 @@ function parseSheetDate(value: string): Date | null {
     const ms = Math.round((serial - days) * 86_400_000);
     const d = new Date(1899, 11, 30 + days);
     d.setMilliseconds(ms);
+    // Thai-locale sheets can store the Buddhist-era year itself (2569) in the
+    // serial, so "8 พ.ย. 2569" is really 8 Nov 2569 CE. Convert back.
+    if (d.getFullYear() > 2400) d.setFullYear(d.getFullYear() - 543);
     return d;
   }
 
@@ -49,7 +52,9 @@ function parseSheetDate(value: string): Date | null {
   if (m) return new Date(toGregorianYear(+m[3]), +m[2] - 1, +m[1]);
 
   const d = new Date(s);
-  return Number.isNaN(d.getTime()) ? null : d;
+  if (Number.isNaN(d.getTime())) return null;
+  if (d.getFullYear() > 2400) d.setFullYear(d.getFullYear() - 543);
+  return d;
 }
 
 function dayKey(date: Date): string {

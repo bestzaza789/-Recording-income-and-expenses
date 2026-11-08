@@ -6,10 +6,14 @@ export function formatDate(date: Date): string {
   return new Date(date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-// Machine-readable date for the Google Sheets backup. Must stay parseable by
-// `new Date(str)` so sheets/import.ts can read rows back; don't localize it.
+// Machine-readable date for the Google Sheets backup: ISO YYYY-MM-DD (local
+// day). Sheets parses ISO as a Gregorian date in every spreadsheet locale,
+// unlike "Nov 8, 2026" or Thai text, which a th_TH sheet may store with the
+// Buddhist-era year. Don't localize it.
 export function formatSheetDate(date: Date): string {
-  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const d = new Date(date);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 export function formatTime(date: Date): string {

@@ -82,6 +82,25 @@ export interface UpdateTransactionInput {
   note?: string;
 }
 
+// A Google Sheets import once read the sheet's Buddhist-era dates (year 2569)
+// as Gregorian, re-adding every transaction ~543 years in the future and
+// doubling account balances. No real transaction is dated past 2400, so
+// delete those rows and reverse their balance impact. Idempotent; returns
+// how many rows were removed.
+export async function removeBuddhistEraImports(): Promise<number> {
+  const cutoff = new Date(2400, 0, 1);
+  let removed = 0;
+  await db.transaction('rw', db.transactions, db.accounts, async () => {
+    const bogus = await db.transactions.where('date').aboveOrEqual(cutoff).toArray();
+    for (const t of bogus) {
+      await reverseImpact(t);
+      await db.transactions.delete(t.id);
+    }
+    removed = bogus.length;
+  });
+  return removed;
+}
+
 export async function updateTransaction(transactionId: string, input: UpdateTransactionInput): Promise<void> {
   await db.transaction('rw', db.transactions, db.accounts, async () => {
     const existing = await db.transactions.get(transactionId);
