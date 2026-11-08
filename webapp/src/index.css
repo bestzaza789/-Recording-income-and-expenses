@@ -790,3 +790,33 @@ input, select, textarea, button {
   font-weight: 600;
   border: none;
 }
+
+.guide {
+  font-size: 14px;
+  line-height: 1.55;
+  padding: 0 4px 24px;
+}
+
+.guide h3 {
+  font-size: 16px;
+  margin: 18px 0 6px;
+}
+
+.guide ol {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.guide li {
+  margin-bottom: 8px;
+}
+
+.guide code {
+  background: rgba(128,128,128,0.15);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.guide a {
+  color: var(--accent);
+}

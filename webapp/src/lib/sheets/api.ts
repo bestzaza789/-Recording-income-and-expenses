@@ -104,3 +104,15 @@ export async function readSheetValues(token: string, spreadsheetId: string, shee
   const data = await res.json();
   return (data.values ?? []) as string[][];
 }
+
+export async function writeRange(token: string, spreadsheetId: string, range: string, values: string[][]): Promise<void> {
+  const res = await apiFetch(
+    `${SHEETS_API}/${spreadsheetId}/values/${encodeURIComponent(range)}?valueInputOption=RAW`,
+    token,
+    { method: 'PUT', body: JSON.stringify({ values }) }
+  );
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Failed to write ${range}: ${res.status} ${body}`);
+  }
+}

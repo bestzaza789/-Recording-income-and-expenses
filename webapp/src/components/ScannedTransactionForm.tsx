@@ -4,15 +4,20 @@ import { Modal } from './Modal';
 import { db } from '../db/db';
 import { addTransaction } from '../db/transactionManager';
 import type { ParsedData } from '../ocr/ocrService';
+import { accountMatchesBank } from '../ocr/parseSlip';
 
 export function ScannedTransactionForm({
   parsedData,
   onClose,
   titleSuffix,
+  defaultDate,
+  onSaved,
 }: {
   parsedData: ParsedData;
   onClose: () => void;
   titleSuffix?: string;
+  defaultDate?: Date;
+  onSaved?: () => void | Promise<void>;
 }) {
   const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
@@ -26,7 +31,7 @@ export function ScannedTransactionForm({
   useEffect(() => {
     if (!accounts.length) return;
     const byKeyword = parsedData.accountKeyword
-      ? accounts.find((a) => a.name.toLowerCase().includes(parsedData.accountKeyword!))
+      ? accounts.find((a) => accountMatchesBank(a.name, parsedData.accountKeyword!))
       : undefined;
     setAccountId((byKeyword ?? accounts[0]).id);
   }, [accounts, parsedData.accountKeyword]);
@@ -51,11 +56,12 @@ export function ScannedTransactionForm({
     await addTransaction({
       amount: amountNum,
       type: 'expense',
-      date: new Date(),
+      date: defaultDate ?? new Date(),
       note,
       accountId,
       categoryId,
     });
+    await onSaved?.();
     onClose();
   }
 

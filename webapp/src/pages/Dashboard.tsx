@@ -10,6 +10,7 @@ import { TransactionRow } from '../components/TransactionRow';
 import { ManualEntryForm } from '../components/ManualEntryForm';
 import { TransferForm } from '../components/TransferForm';
 import { QuickAddBar } from '../components/QuickAddBar';
+import { SlipInboxCard } from '../components/SlipInboxCard';
 
 const SlipScanner = lazy(() => import('../components/SlipScanner').then((m) => ({ default: m.SlipScanner })));
 
@@ -61,6 +62,8 @@ export function Dashboard() {
           </div>
         ))}
       </div>
+
+      <SlipInboxCard />
 
       <QuickAddBar />
 

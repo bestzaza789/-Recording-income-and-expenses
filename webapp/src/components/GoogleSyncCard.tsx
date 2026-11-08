@@ -5,6 +5,7 @@ import { syncToGoogleSheets } from '../lib/sheets/export';
 import { importFromGoogleSheets } from '../lib/sheets/import';
 import { getSpreadsheetUrl } from '../lib/sheets/api';
 import { isAutoSyncEnabled, setAutoSyncEnabled } from '../lib/autoSync';
+import { SlipInboxSetup } from './SlipInboxSetup';
 
 export function GoogleSyncCard() {
   const [busy, setBusy] = useState(false);
@@ -106,6 +107,8 @@ export function GoogleSyncCard() {
       {enabled && (
         <button className="delete-btn" style={{ marginTop: 10 }} onClick={disconnect}>ปิดซิงก์อัตโนมัติ</button>
       )}
+
+      {enabled && sheetUrl && <SlipInboxSetup sheetUrl={sheetUrl} />}
     </div>
   );
 }
