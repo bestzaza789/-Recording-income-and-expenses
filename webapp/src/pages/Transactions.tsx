@@ -6,14 +6,14 @@ import { ManualEntryForm } from '../components/ManualEntryForm';
 import { TransferForm } from '../components/TransferForm';
 import { deleteTransaction } from '../db/transactionManager';
 import { formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
-import { categoryFor, accountNameFor } from '../lib/lookup';
+import { categoryFor, accountNameFor, sortAccounts } from '../lib/lookup';
 
 export function Transactions() {
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Transaction | null>(null);
 
   const transactions = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []) ?? [];
-  const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
   const filtered = useMemo(() => {

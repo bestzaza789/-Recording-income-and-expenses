@@ -1,5 +1,6 @@
 import { db, newId, type Account, type Bookmark, type CategoryType, type Transaction, type TransactionType } from './db';
 import { scheduleAutoSync } from '../lib/autoSync';
+import { nextAccountSortOrder } from '../lib/lookup';
 
 async function applyDelta(accountId: string, delta: number) {
   const account = await db.accounts.get(accountId);
@@ -127,9 +128,18 @@ export async function updateTransaction(transactionId: string, input: UpdateTran
 
 export async function addAccount(name: string, accountType: Account['accountType'], initialBalance: number): Promise<string> {
   const id = newId();
-  await db.accounts.add({ id, name, accountType, initialBalance, currentBalance: initialBalance });
+  const sortOrder = nextAccountSortOrder(await db.accounts.toArray());
+  await db.accounts.add({ id, name, accountType, initialBalance, currentBalance: initialBalance, sortOrder });
   scheduleAutoSync();
   return id;
+}
+
+/** Persist a new display order: `orderedIds[0]` is shown first. */
+export async function reorderAccounts(orderedIds: string[]): Promise<void> {
+  await db.transaction('rw', db.accounts, async () => {
+    await Promise.all(orderedIds.map((id, i) => db.accounts.update(id, { sortOrder: i })));
+  });
+  scheduleAutoSync();
 }
 
 export async function updateAccount(id: string, name: string, accountType: Account['accountType'], initialBalance: number): Promise<void> {

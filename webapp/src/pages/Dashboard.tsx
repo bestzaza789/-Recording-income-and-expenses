@@ -5,7 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Plus } from 'lucide-react';
 import { db } from '../db/db';
 import { formatCurrency, startOfDay } from '../lib/format';
-import { categoryFor } from '../lib/lookup';
+import { categoryFor, sortAccounts } from '../lib/lookup';
 import { TransactionRow } from '../components/TransactionRow';
 import { ManualEntryForm } from '../components/ManualEntryForm';
 import { TransferForm } from '../components/TransferForm';
@@ -20,7 +20,7 @@ export function Dashboard() {
   const [activeForm, setActiveForm] = useState<'manual' | 'transfer' | 'scan' | null>(null);
   const [pieRange, setPieRange] = useState<'today' | 'month'>('today');
 
-  const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
   const transactions = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 

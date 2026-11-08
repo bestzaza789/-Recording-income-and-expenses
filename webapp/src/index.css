@@ -828,3 +828,28 @@ input, select, textarea, button {
 .guide a {
   color: var(--accent);
 }
+
+.drag-handle {
+  border: none;
+  background: none;
+  color: var(--text-secondary, #8e8e93);
+  padding: 8px 4px;
+  margin-left: -4px;
+  display: inline-flex;
+  align-items: center;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.list-item-dragging {
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}

@@ -5,11 +5,12 @@ import { WizardShell, WizardOption } from './WizardShell';
 import { db, type Transaction } from '../db/db';
 import { addTransaction, updateTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
+import { sortAccounts } from '../lib/lookup';
 
 const STEP_TITLES = ['จำนวนเงิน', 'วันและเวลา', 'จากบัญชี', 'ไปยังบัญชี', 'โน้ต'];
 
 export function TransferForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
 
   const [amount, setAmount] = useState(existing ? String(existing.amount) : '');
   const [date, setDate] = useState(() => toDatetimeLocalValue(existing ? new Date(existing.date) : new Date()));
