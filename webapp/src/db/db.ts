@@ -10,6 +10,7 @@ export interface Account {
   accountType: AccountType;
   initialBalance: number;
   currentBalance: number;
+  sortOrder?: number;  // display order (ascending); unset sorts last. Not indexed — sort in memory via sortAccounts().
 }
 
 export interface Category {

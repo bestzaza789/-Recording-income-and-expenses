@@ -1,6 +1,6 @@
 import { db } from '../../db/db';
 import { formatSheetDate } from '../format';
-import { categoryFor, accountNameFor } from '../lookup';
+import { categoryFor, accountNameFor, sortAccounts } from '../lookup';
 import { isGoogleSyncConfigured, requestAccessToken } from '../googleAuth';
 import {
   TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET,
@@ -38,7 +38,7 @@ async function buildTransactionRows(): Promise<string[][]> {
 }
 
 async function buildAccountRows(): Promise<string[][]> {
-  const accounts = await db.accounts.toArray();
+  const accounts = sortAccounts(await db.accounts.toArray());
   const header = ['Name', 'Type', 'Initial Balance', 'Current Balance'];
   const rows = accounts.map((a) => [a.name, a.accountType, a.initialBalance.toFixed(2), a.currentBalance.toFixed(2)]);
   return [header, ...rows];

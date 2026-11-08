@@ -6,11 +6,12 @@ import { db, type Transaction, type TransactionType } from '../db/db';
 import { addTransaction, updateTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
 import { CategoryIcon } from '../lib/icons';
+import { sortAccounts } from '../lib/lookup';
 
 const STEP_TITLES = ['รายจ่ายหรือรายรับ?', 'จำนวนเงิน', 'วันและเวลา', 'บัญชี', 'หมวดหมู่', 'โน้ต'];
 
 export function ManualEntryForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
   const [amount, setAmount] = useState(existing ? String(existing.amount) : '');

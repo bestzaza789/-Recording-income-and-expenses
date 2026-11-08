@@ -12,6 +12,7 @@ import { QuickAddSection } from '../components/management/QuickAddSection';
 import { RecurringSection } from '../components/management/RecurringSection';
 import { deleteBookmark } from '../db/transactionManager';
 import { scheduleAutoSync } from '../lib/autoSync';
+import { sortAccounts } from '../lib/lookup';
 
 type AccountModal = 'new' | Account | null;
 type CategoryModal = { type: CategoryType; existing?: Category } | null;
@@ -26,7 +27,7 @@ export function Management() {
   const [bookmarkModal, setBookmarkModal] = useState<BookmarkModal>(null);
   const [recurringModal, setRecurringModal] = useState<RecurringModal>(null);
 
-  const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
   const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []) ?? [];
   const recurringRules = useLiveQuery(() => db.recurring.toArray(), []) ?? [];

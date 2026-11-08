@@ -5,6 +5,7 @@ import { db } from '../db/db';
 import { addTransaction } from '../db/transactionManager';
 import type { ParsedData } from '../ocr/ocrService';
 import { accountMatchesBank } from '../ocr/parseSlip';
+import { sortAccounts } from '../lib/lookup';
 
 export function ScannedTransactionForm({
   parsedData,
@@ -19,7 +20,7 @@ export function ScannedTransactionForm({
   defaultDate?: Date;
   onSaved?: () => void | Promise<void>;
 }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
   const expenseCategories = categories.filter((c) => c.type === 'expense');
 

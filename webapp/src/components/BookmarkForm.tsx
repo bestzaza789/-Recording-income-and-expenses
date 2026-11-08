@@ -3,9 +3,10 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
 import { db, type Bookmark, type CategoryType } from '../db/db';
 import { addBookmark, updateBookmark } from '../db/transactionManager';
+import { sortAccounts } from '../lib/lookup';
 
 export function BookmarkForm({ onClose, existing }: { onClose: () => void; existing?: Bookmark }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
   const [name, setName] = useState(existing?.name ?? '');

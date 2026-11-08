@@ -1,7 +1,7 @@
 import { db, newId, type AccountType, type CategoryType, type TransactionType } from '../../db/db';
 import { addTransaction } from '../../db/transactionManager';
 import { requestAccessToken, isGoogleSyncConfigured } from '../googleAuth';
-import { categoryFor, accountNameFor } from '../lookup';
+import { categoryFor, accountNameFor, nextAccountSortOrder } from '../lookup';
 import {
   ACCOUNTS_SHEET, CATEGORIES_SHEET, TRANSACTIONS_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET,
   getStoredSpreadsheetId, readSheetValues,
@@ -101,7 +101,7 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     if (accounts.some((a) => a.name.toLowerCase() === name.toLowerCase())) continue;
     const accountType = (ACCOUNT_TYPES as string[]).includes(type) ? (type as AccountType) : 'bank';
     const initialBalance = parseAmount(initialBalanceStr) || 0;
-    const account = { id: newId(), name, accountType, initialBalance, currentBalance: initialBalance };
+    const account = { id: newId(), name, accountType, initialBalance, currentBalance: initialBalance, sortOrder: nextAccountSortOrder(accounts) };
     await db.accounts.add(account);
     accounts.push(account);
     accountsAdded++;
