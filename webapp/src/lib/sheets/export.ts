@@ -8,7 +8,7 @@ import {
 } from './api';
 
 export class SheetShrinkError extends Error {
-  constructor(public sheetCount: number, public appCount: number) {
+  constructor(sheetCount: number, appCount: number) {
     super(`ใน Google Sheet มี ${sheetCount} รายการ แต่ในเครื่องนี้มีแค่ ${appCount} รายการ — ไม่ได้ซิงก์ทับ กด "นำเข้าจากชีต" ก่อน`);
   }
 }
