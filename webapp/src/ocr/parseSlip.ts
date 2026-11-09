@@ -2,6 +2,9 @@ export interface ParsedData {
   amount?: number;
   accountKeyword?: string;
   categoryKeyword?: string;
+  // Digits of each masked account number in reading order (e.g. "xxx-x-x1234-x" → "1234").
+  // On a transfer slip the first is the sender, the second the receiver.
+  accountSuffixes: string[];
   rawText: string;
 }
 
@@ -18,7 +21,7 @@ const BANKS: { keyword: string; patterns: string[] }[] = [
 
 // Parse raw slip text (from tesseract or iOS Live Text) into a best-effort guess.
 export function parseExtractedText(text: string): ParsedData {
-  const data: ParsedData = { rawText: text };
+  const data: ParsedData = { rawText: text, accountSuffixes: extractAccountSuffixes(text) };
 
   // Prefer a number labelled as the amount; fall back to the first money-looking number.
   const labelled = text.match(/(?:จำนวน(?:เงิน)?|amount)[^\d]{0,20}(\d[\d,]*\.\d{2})/i);
@@ -58,4 +61,18 @@ export function accountMatchesBank(accountName: string, keyword: string): boolea
   const name = accountName.toLowerCase();
   const bank = BANKS.find((b) => b.keyword === keyword);
   return name.includes(keyword) || !!bank?.patterns.some((p) => name.includes(p));
+}
+
+// Masked account / PromptPay numbers look like "xxx-x-x1234-x", "XXX-XXX-5678" or
+// "xxxxxx1234": a run of x/*/• mixed with digits. Dates, times and reference
+// numbers never contain the mask characters, so they're ignored.
+function extractAccountSuffixes(text: string): string[] {
+  const tokens = text.match(/[xX*•\d][xX*•\d -]{4,}[xX*•\d]/g) ?? [];
+  const suffixes: string[] = [];
+  for (const token of tokens) {
+    if (!/[xX*•]/.test(token)) continue;
+    const digits = token.replace(/\D/g, '');
+    if (digits.length >= 3 && digits.length <= 6) suffixes.push(digits);
+  }
+  return suffixes;
 }
