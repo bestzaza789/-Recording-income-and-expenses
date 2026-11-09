@@ -1,26 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Modal } from './Modal';
 import { WizardShell, WizardOption } from './WizardShell';
-import { db, type Transaction, type TransactionType } from '../db/db';
-import { addTransaction, updateTransaction } from '../db/transactionManager';
+import { db, type TransactionType } from '../db/db';
+import { addTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
 import { CategoryIcon } from '../lib/icons';
 import { sortAccounts } from '../lib/lookup';
 
 const STEP_TITLES = ['รายจ่ายหรือรายรับ?', 'จำนวนเงิน', 'วันและเวลา', 'บัญชี', 'หมวดหมู่', 'โน้ต'];
 
-export function ManualEntryForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
+export function ManualEntryForm({ onClose }: { onClose: () => void }) {
   const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
-  const [amount, setAmount] = useState(existing ? String(existing.amount) : '');
-  const [type, setType] = useState<TransactionType>(existing?.transactionType === 'income' ? 'income' : 'expense');
-  const [date, setDate] = useState(() => toDatetimeLocalValue(existing ? new Date(existing.date) : new Date()));
-  const [accountId, setAccountId] = useState(existing?.accountId ?? '');
-  const [categoryId, setCategoryId] = useState(existing?.categoryId ?? '');
-  const [note, setNote] = useState(existing?.note ?? '');
-  const [initialized, setInitialized] = useState(!!existing);
+  const [amount, setAmount] = useState('');
+  const [type, setType] = useState<TransactionType>('expense');
+  const [date, setDate] = useState(() => toDatetimeLocalValue(new Date()));
+  const [accountId, setAccountId] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [note, setNote] = useState('');
   const [step, setStep] = useState(0);
 
   const filteredCategories = categories.filter((c) => c.type === type);
@@ -30,11 +28,7 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
   }, [accounts, accountId]);
 
   useEffect(() => {
-    if (!initialized) {
-      setCategoryId(filteredCategories[0]?.id ?? '');
-    } else {
-      setInitialized(false);
-    }
+    setCategoryId(filteredCategories[0]?.id ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, categories.length]);
 
@@ -43,72 +37,15 @@ export function ManualEntryForm({ onClose, existing }: { onClose: () => void; ex
 
   async function save() {
     if (disabled) return;
-    if (existing) {
-      await updateTransaction(existing.id, {
-        amount: amountNum,
-        type,
-        date: new Date(date),
-        note: note || undefined,
-        accountId,
-        categoryId,
-      });
-    } else {
-      await addTransaction({
-        amount: amountNum,
-        type,
-        date: new Date(date),
-        note: note || undefined,
-        accountId,
-        categoryId,
-      });
-    }
+    await addTransaction({
+      amount: amountNum,
+      type,
+      date: new Date(date),
+      note: note || undefined,
+      accountId,
+      categoryId,
+    });
     onClose();
-  }
-
-  if (existing) {
-    return (
-      <Modal title="แก้ไขรายการ" onCancel={onClose} onSave={save} saveDisabled={disabled}>
-        <div className="segmented">
-          <button className={type === 'expense' ? 'active' : ''} onClick={() => setType('expense')}>รายจ่าย</button>
-          <button className={type === 'income' ? 'active' : ''} onClick={() => setType('income')}>รายรับ</button>
-        </div>
-
-        <div className="form-section">
-          <div className="form-section-title">รายละเอียด</div>
-          <div className="form-field">
-            <div className="form-row">
-              <label>จำนวนเงิน (฿)</label>
-              <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
-            </div>
-            <div className="form-row">
-              <label>วันและเวลา</label>
-              <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
-            </div>
-            <div className="form-row">
-              <label>บัญชี</label>
-              <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
-                {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-            </div>
-            <div className="form-row">
-              <label>หมวดหมู่</label>
-              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-                {filteredCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="form-section">
-          <div className="form-section-title">โน้ต (ไม่บังคับ)</div>
-          <div className="form-field">
-            <div className="form-row">
-              <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="โน้ต" style={{ textAlign: 'left' }} />
-            </div>
-          </div>
-        </div>
-      </Modal>
-    );
   }
 
   return (

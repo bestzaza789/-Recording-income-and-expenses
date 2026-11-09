@@ -1,22 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Modal } from './Modal';
 import { WizardShell, WizardOption } from './WizardShell';
-import { db, type Transaction } from '../db/db';
-import { addTransaction, updateTransaction } from '../db/transactionManager';
+import { db } from '../db/db';
+import { addTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
 import { sortAccounts } from '../lib/lookup';
 
 const STEP_TITLES = ['จำนวนเงิน', 'วันและเวลา', 'จากบัญชี', 'ไปยังบัญชี', 'โน้ต'];
 
-export function TransferForm({ onClose, existing }: { onClose: () => void; existing?: Transaction }) {
+export function TransferForm({ onClose }: { onClose: () => void }) {
   const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
 
-  const [amount, setAmount] = useState(existing ? String(existing.amount) : '');
-  const [date, setDate] = useState(() => toDatetimeLocalValue(existing ? new Date(existing.date) : new Date()));
-  const [fromAccountId, setFromAccountId] = useState(existing?.accountId ?? '');
-  const [toAccountId, setToAccountId] = useState(existing?.toAccountId ?? '');
-  const [note, setNote] = useState(existing?.note ?? '');
+  const [amount, setAmount] = useState('');
+  const [date, setDate] = useState(() => toDatetimeLocalValue(new Date()));
+  const [fromAccountId, setFromAccountId] = useState('');
+  const [toAccountId, setToAccountId] = useState('');
+  const [note, setNote] = useState('');
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -28,74 +27,15 @@ export function TransferForm({ onClose, existing }: { onClose: () => void; exist
 
   async function save() {
     if (disabled) return;
-    if (existing) {
-      await updateTransaction(existing.id, {
-        amount: amountNum,
-        type: 'transfer',
-        date: new Date(date),
-        note: note || undefined,
-        accountId: fromAccountId,
-        toAccountId,
-      });
-    } else {
-      await addTransaction({
-        amount: amountNum,
-        type: 'transfer',
-        date: new Date(date),
-        note: note || undefined,
-        accountId: fromAccountId,
-        toAccountId,
-      });
-    }
+    await addTransaction({
+      amount: amountNum,
+      type: 'transfer',
+      date: new Date(date),
+      note: note || undefined,
+      accountId: fromAccountId,
+      toAccountId,
+    });
     onClose();
-  }
-
-  if (existing) {
-    return (
-      <Modal title="แก้ไขการโอน" onCancel={onClose} onSave={save} saveDisabled={disabled}>
-        <div className="form-section">
-          <div className="form-section-title">รายละเอียดการโอน</div>
-          <div className="form-field">
-            <div className="form-row">
-              <label>จำนวนเงิน (฿)</label>
-              <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
-            </div>
-            <div className="form-row">
-              <label>วันและเวลา</label>
-              <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
-            </div>
-          </div>
-        </div>
-
-        <div className="form-section">
-          <div className="form-section-title">บัญชี</div>
-          <div className="form-field">
-            <div className="form-row">
-              <label>จาก</label>
-              <select value={fromAccountId} onChange={(e) => setFromAccountId(e.target.value)}>
-                {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-            </div>
-            <div className="form-row">
-              <label>ไปยัง</label>
-              <select value={toAccountId} onChange={(e) => setToAccountId(e.target.value)}>
-                <option value="">เลือกบัญชีปลายทาง</option>
-                {accounts.filter((a) => a.id !== fromAccountId).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="form-section">
-          <div className="form-section-title">โน้ต (ไม่บังคับ)</div>
-          <div className="form-field">
-            <div className="form-row">
-              <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="โน้ต" style={{ textAlign: 'left' }} />
-            </div>
-          </div>
-        </div>
-      </Modal>
-    );
   }
 
   const toOptions = accounts.filter((a) => a.id !== fromAccountId);

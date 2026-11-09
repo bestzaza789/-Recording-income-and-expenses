@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Transaction } from '../db/db';
 import { TransactionRow } from '../components/TransactionRow';
-import { ManualEntryForm } from '../components/ManualEntryForm';
-import { TransferForm } from '../components/TransferForm';
+import { EditTransactionForm } from '../components/EditTransactionForm';
 import { deleteTransaction } from '../db/transactionManager';
 import { formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
 import { categoryFor, accountNameFor, sortAccounts } from '../lib/lookup';
@@ -80,12 +79,7 @@ export function Transactions() {
         </div>
       ))}
 
-      {editing && editing.transactionType === 'transfer' && (
-        <TransferForm existing={editing} onClose={() => setEditing(null)} />
-      )}
-      {editing && editing.transactionType !== 'transfer' && (
-        <ManualEntryForm existing={editing} onClose={() => setEditing(null)} />
-      )}
+      {editing && <EditTransactionForm existing={editing} onClose={() => setEditing(null)} />}
     </div>
   );
 }

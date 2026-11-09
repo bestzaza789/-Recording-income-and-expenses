@@ -4,8 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { ChevronLeft, AlertTriangle } from 'lucide-react';
 import { db } from '../db/db';
 import { TransactionRow } from '../components/TransactionRow';
-import { ManualEntryForm } from '../components/ManualEntryForm';
-import { TransferForm } from '../components/TransferForm';
+import { EditTransactionForm } from '../components/EditTransactionForm';
 import { deleteTransaction } from '../db/transactionManager';
 import { formatCurrency, formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
@@ -133,12 +132,7 @@ export function AccountDetail() {
         </div>
       ))}
 
-      {editing && editing.transactionType === 'transfer' && (
-        <TransferForm existing={editing} onClose={() => setEditing(null)} />
-      )}
-      {editing && editing.transactionType !== 'transfer' && (
-        <ManualEntryForm existing={editing} onClose={() => setEditing(null)} />
-      )}
+      {editing && <EditTransactionForm existing={editing} onClose={() => setEditing(null)} />}
     </div>
   );
 }

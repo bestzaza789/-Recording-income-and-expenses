@@ -40,7 +40,7 @@ export function ScannedTransactionForm({
   const [toAccountId, setToAccountId] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [note, setNote] = useState('สแกนจากสลิป');
-  const [guessedTransfer, setGuessedTransfer] = useState(false);
+  const [transferReason, setTransferReason] = useState<'name' | 'remembered' | null>(null);
   const [initialized, setInitialized] = useState(false);
 
   const [senderSuffix, receiverSuffix] = parsedData.accountSuffixes;
@@ -60,15 +60,22 @@ export function ScannedTransactionForm({
     const fromId = fromRemembered ?? fromKeyword ?? accounts[0].id;
     setAccountId(fromId);
 
-    const ownReceiver = accountNumberCount >= 2 ? exists(accountForSuffix(receiverSuffix)) : undefined;
-    if (ownReceiver && ownReceiver !== fromId) {
+    // Receiver is the user's own account if the slip shows the same person on
+    // both sides, or if this receiver number was confirmed as theirs before.
+    const rememberedReceiver = accountNumberCount >= 2 ? exists(accountForSuffix(receiverSuffix)) : undefined;
+    const usableRemembered = rememberedReceiver !== fromId ? rememberedReceiver : undefined;
+    if (parsedData.sameName || usableRemembered) {
+      const receiverBank = parsedData.bankKeywords[1];
+      const byBank = receiverBank
+        ? accounts.find((a) => a.id !== fromId && accountMatchesBank(a.name, receiverBank))?.id
+        : undefined;
       setMode('transfer');
-      setToAccountId(ownReceiver);
+      setToAccountId(usableRemembered ?? byBank ?? '');
       setNote('โอนเข้าบัญชีตัวเอง');
-      setGuessedTransfer(true);
+      setTransferReason(parsedData.sameName ? 'name' : 'remembered');
     }
     setInitialized(true);
-  }, [initialized, accounts, accountNumberCount, senderSuffix, receiverSuffix, parsedData.accountKeyword]);
+  }, [initialized, accounts, accountNumberCount, senderSuffix, receiverSuffix, parsedData.accountKeyword, parsedData.sameName, parsedData.bankKeywords]);
 
   useEffect(() => {
     if (!expenseCategories.length) return;
@@ -97,7 +104,7 @@ export function ScannedTransactionForm({
 
   function switchMode(next: Mode) {
     setMode(next);
-    setGuessedTransfer(false);
+    setTransferReason(null);
     if (next === 'transfer' && note === 'สแกนจากสลิป') setNote('โอนเข้าบัญชีตัวเอง');
     if (next === 'expense' && note === 'โอนเข้าบัญชีตัวเอง') setNote('สแกนจากสลิป');
   }
@@ -134,9 +141,12 @@ export function ScannedTransactionForm({
         <button className={mode === 'transfer' ? 'active' : ''} onClick={() => switchMode('transfer')}>โอนเข้าบัญชีตัวเอง</button>
       </div>
 
-      {guessedTransfer && (
+      {transferReason && (
         <div className="text-secondary-sm" style={{ marginBottom: 12 }}>
-          เลขบัญชีปลายทาง (ลงท้าย {receiverSuffix}) เป็นบัญชีของคุณ ครั้งก่อนเคยบันทึกเป็นการโอนเข้าบัญชีตัวเอง
+          {transferReason === 'name'
+            ? `ชื่อผู้โอนและผู้รับเป็นชื่อเดียวกัน (${parsedData.names[0]}) จึงเดาว่าเป็นการโอนเข้าบัญชีตัวเอง`
+            : `เลขบัญชีปลายทาง (ลงท้าย ${receiverSuffix}) เป็นบัญชีของคุณ ครั้งก่อนเคยบันทึกเป็นการโอนเข้าบัญชีตัวเอง`}
+          {' '}ถ้าไม่ใช่ กด รายจ่าย
         </div>
       )}
 
