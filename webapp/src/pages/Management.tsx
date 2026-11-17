@@ -12,6 +12,9 @@ import { CategoriesSection } from '../components/management/CategoriesSection';
 import { QuickAddSection } from '../components/management/QuickAddSection';
 import { RecurringSection } from '../components/management/RecurringSection';
 import { deleteBookmark } from '../db/transactionManager';
+import { alertDialog, confirmDelete } from '../lib/confirm';
+import { formatCurrency } from '../lib/format';
+import { categoryFor } from '../lib/lookup';
 import { scheduleAutoSync } from '../lib/autoSync';
 import { sortAccounts } from '../lib/lookup';
 
@@ -39,19 +42,26 @@ export function Management() {
   async function deleteAccount(id: string) {
     const count = await db.transactions.where('accountId').equals(id).count();
     if (count > 0) {
-      alert('ลบบัญชีที่ยังมีรายการอยู่ไม่ได้');
+      await alertDialog('ลบบัญชีนี้ไม่ได้', `บัญชีนี้ยังมี ${count} รายการ — ลบหรือย้ายรายการออกก่อน`);
       return;
     }
+    const name = accounts.find((a) => a.id === id)?.name ?? '';
+    if (!(await confirmDelete(`บัญชี "${name}"`))) return;
     await db.accounts.delete(id);
     scheduleAutoSync();
   }
 
   async function deleteCategory(id: string) {
+    const name = categories.find((c) => c.id === id)?.name ?? '';
+    if (!(await confirmDelete(`หมวดหมู่ "${name}"`, 'รายการเดิมในหมวดนี้จะแสดงเป็น "อื่น ๆ" · กู้คืนไม่ได้'))) return;
     await db.categories.delete(id);
     scheduleAutoSync();
   }
 
   async function deleteRecurring(id: string) {
+    const rule = recurringRules.find((r) => r.id === id);
+    const name = rule ? (rule.note || categoryFor(categories, rule.categoryId)?.name || 'รายการประจำ') : '';
+    if (!(await confirmDelete(`รายการประจำ "${name}"`, rule ? `${formatCurrency(rule.amount)} ทุกวันที่ ${rule.dayOfMonth} · รายการที่สร้างไปแล้วจะยังอยู่` : undefined))) return;
     await db.recurring.delete(id);
     scheduleAutoSync();
   }
@@ -94,7 +104,10 @@ export function Management() {
           bookmarks={bookmarks}
           categories={categories}
           onEdit={setBookmarkModal}
-          onDelete={deleteBookmark}
+          onDelete={async (id) => {
+            const name = bookmarks.find((b) => b.id === id)?.name ?? '';
+            if (await confirmDelete(`รายการด่วน "${name}"`)) await deleteBookmark(id);
+          }}
           onAdd={() => setBookmarkModal('new')}
         />
       )}

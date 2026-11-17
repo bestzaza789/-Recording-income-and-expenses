@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { BottomNav } from './components/BottomNav';
 import { SaveToast } from './components/SaveToast';
+import { ConfirmDialog } from './components/ConfirmDialog';
 import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { Management } from './pages/Management';
@@ -22,6 +23,7 @@ function App() {
         </Routes>
         <BottomNav />
         <SaveToast />
+        <ConfirmDialog />
       </div>
     </HashRouter>
   );

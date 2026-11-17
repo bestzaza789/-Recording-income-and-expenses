@@ -6,6 +6,7 @@ import { importFromGoogleSheets } from '../lib/sheets/import';
 import { getSpreadsheetUrl } from '../lib/sheets/api';
 import { isAutoSyncEnabled, setAutoSyncEnabled } from '../lib/autoSync';
 import { SlipInboxSetup } from './SlipInboxSetup';
+import { confirmDialog } from '../lib/confirm';
 
 export function GoogleSyncCard() {
   const [busy, setBusy] = useState(false);
@@ -50,7 +51,7 @@ export function GoogleSyncCard() {
         result = await syncToGoogleSheets(true);
       } catch (e) {
         if (!(e instanceof SheetShrinkError)) throw e;
-        if (!confirm(`${e.message}\n\nถ้าซิงก์ตอนนี้ รายการที่มีเฉพาะในชีตจะถูกลบออกจากชีต ยืนยันซิงก์ทับ?`)) {
+        if (!(await confirmDialog({ title: 'ซิงก์ทับข้อมูลในชีต?', message: `${e.message}\n\nรายการที่มีเฉพาะในชีตจะถูกลบออกจากชีต`, confirmLabel: 'ซิงก์ทับ', tone: 'danger' }))) {
           setStatus(e.message);
           return;
         }
@@ -66,7 +67,7 @@ export function GoogleSyncCard() {
   }
 
   async function importNow() {
-    if (!confirm('นำเข้าข้อมูลจาก Google Sheet ที่เชื่อมไว้? บัญชี หมวดหมู่ งบประมาณ รายการด่วน รายการประจำ และรายการที่ไม่ซ้ำจะถูกเพิ่มลงในเครื่องนี้')) return;
+    if (!(await confirmDialog({ title: 'นำเข้าจาก Google Sheet?', message: 'บัญชี หมวดหมู่ งบประมาณ รายการด่วน รายการประจำ และรายการที่ไม่ซ้ำจะถูกเพิ่มลงในเครื่องนี้', confirmLabel: 'นำเข้า' }))) return;
     setBusy(true);
     setStatus(null);
     try {

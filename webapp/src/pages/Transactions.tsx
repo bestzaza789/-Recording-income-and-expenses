@@ -5,7 +5,9 @@ import { db, type Transaction } from '../db/db';
 import { TransactionRow } from '../components/TransactionRow';
 import { EditTransactionForm } from '../components/EditTransactionForm';
 import { deleteTransaction } from '../db/transactionManager';
-import { formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
+import { confirmDelete } from '../lib/confirm';
+import { TRANSACTION_TYPE_LABEL } from '../lib/labels';
+import { formatCurrency, formatDateTime, formatDate, formatMonth, startOfDay, startOfMonth } from '../lib/format';
 import { categoryFor, accountNameFor, sortAccounts } from '../lib/lookup';
 
 export function Transactions() {
@@ -48,6 +50,11 @@ export function Transactions() {
   }, [filtered]);
 
   async function handleDelete(id: string) {
+    const t = transactions.find((x) => x.id === id);
+    if (!t) return;
+    const name = categoryFor(categories, t.categoryId)?.name || t.note || TRANSACTION_TYPE_LABEL[t.transactionType];
+    if (!(await confirmDelete(`รายการ "${name}"`, `${formatCurrency(t.amount)} · ${formatDateTime(t.date)}
+ยอดเงินในบัญชีจะถูกปรับกลับ และกู้คืนไม่ได้`))) return;
     await deleteTransaction(id);
   }
 
