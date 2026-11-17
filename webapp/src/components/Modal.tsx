@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useSheetClose } from '../lib/useSheetClose';
 
 interface ModalProps {
   title: string;
@@ -10,11 +11,13 @@ interface ModalProps {
 }
 
 export function Modal({ title, onCancel, onSave, saveDisabled, saveLabel = 'บันทึก', children }: ModalProps) {
+  const { closing, close } = useSheetClose(onCancel);
+
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+    <div className={`modal-overlay${closing ? ' is-closing' : ''}`} onClick={close}>
+      <div className="modal-sheet" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <button onClick={onCancel}>ยกเลิก</button>
+          <button onClick={close}>ยกเลิก</button>
           <h2>{title}</h2>
           {onSave ? (
             <button className="save" onClick={onSave} disabled={saveDisabled}>

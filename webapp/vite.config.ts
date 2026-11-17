@@ -29,8 +29,8 @@ export default defineConfig({
         short_name: 'รายรับรายจ่าย',
         description: 'แอปบันทึกรายรับรายจ่าย ใช้ออฟไลน์ได้ สแกนสลิปได้',
         lang: 'th',
-        theme_color: '#007aff',
-        background_color: '#f2f2f7',
+        theme_color: '#4f46e5',
+        background_color: '#f3f4f8',
         display: 'standalone',
         start_url: '/',
         scope: '/',
@@ -43,6 +43,20 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'google-fonts-css' },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-files',
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/.*/i,
             handler: 'CacheFirst',

@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import type { CSSProperties } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { PieChart, List, Folder, BarChart3, Wallet } from 'lucide-react';
 
 const items = [
@@ -10,8 +11,12 @@ const items = [
 ];
 
 export function BottomNav() {
+  const { pathname } = useLocation();
+  const activeIndex = items.findIndex(({ to }) => (to === '/' ? pathname === '/' : pathname.startsWith(to)));
+
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-nav" style={{ '--active': activeIndex, '--count': items.length } as CSSProperties}>
+      {activeIndex >= 0 && <span className="nav-indicator" aria-hidden="true" />}
       {items.map(({ to, label, Icon }) => (
         <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
           <Icon size={22} />

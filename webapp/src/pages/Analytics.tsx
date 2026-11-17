@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
 import { Modal } from '../components/Modal';
 import { DailySummary } from '../components/DailySummary';
+import { DonutChart } from '../components/DonutChart';
 import { formatCurrency, formatDateTime, formatMonth, startOfMonth } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
 
@@ -90,8 +91,8 @@ export function Analytics() {
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip labelFormatter={(v) => formatMonth(new Date(v))} formatter={(v) => formatCurrency(Number(v))} />
               <Legend />
-              <Bar dataKey="Income" name="รายรับ" fill="var(--green)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Expense" name="รายจ่าย" fill="var(--red)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Income" name="รายรับ" fill="var(--green)" radius={[6, 6, 0, 0]} animationDuration={900} animationEasing="ease-out" />
+              <Bar dataKey="Expense" name="รายจ่าย" fill="var(--red)" radius={[6, 6, 0, 0]} animationBegin={120} animationDuration={900} animationEasing="ease-out" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -131,14 +132,14 @@ export function Analytics() {
       {categoryBreakdown.length > 0 ? (
         <div className="card" style={{ marginTop: 12 }}>
           <div className="section-title" style={{ marginTop: 0 }}>รายจ่ายตามหมวดหมู่</div>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={categoryBreakdown} dataKey="amount" innerRadius={50} outerRadius={80} paddingAngle={2}>
-                {categoryBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-              <Tooltip formatter={(v) => formatCurrency(Number(v))} />
-            </PieChart>
-          </ResponsiveContainer>
+          <div style={{ marginBottom: 8 }}>
+            <DonutChart
+              key={selectedMonth}
+              slices={categoryBreakdown.map((c) => ({ key: c.categoryId, name: c.name, value: c.amount, color: c.color }))}
+              centerLabel="รายจ่ายรวม"
+              legend={false}
+            />
+          </div>
 
           {categoryBreakdown.map((c) => (
             <div

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { Pencil } from 'lucide-react';
 import type { Category, Transaction } from '../db/db';
 import { CategoryIcon, TransferIcon } from '../lib/icons';
@@ -26,7 +27,12 @@ export function TransactionRow({ transaction, category, onDelete, onEdit, runnin
 
   return (
     <div className="tx-row">
-      <div className="tx-icon" style={{ color: category ? `#${category.hexColor}` : undefined }}>
+      <div
+        className="tx-icon"
+        style={category
+          ? ({ '--tint': `#${category.hexColor}` } as CSSProperties)
+          : transaction.transactionType === 'transfer' ? ({ '--tint': 'var(--accent)' } as CSSProperties) : undefined}
+      >
         {transaction.transactionType === 'transfer' && !category ? (
           <TransferIcon />
         ) : (
