@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { db, newId, type Account, type Category, type RecurringRule } from '../db/db';
@@ -53,6 +54,7 @@ export function RecurringForm({
       });
     }
     scheduleAutoSync();
+    await showSaved();
     onClose();
   }
 

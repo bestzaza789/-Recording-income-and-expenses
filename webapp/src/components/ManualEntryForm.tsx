@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { WizardShell, WizardOption } from './WizardShell';
@@ -45,6 +46,7 @@ export function ManualEntryForm({ onClose }: { onClose: () => void }) {
       accountId,
       categoryId,
     });
+    await showSaved();
     onClose();
   }
 

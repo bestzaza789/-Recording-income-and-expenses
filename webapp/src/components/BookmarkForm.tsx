@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
@@ -40,6 +41,7 @@ export function BookmarkForm({ onClose, existing }: { onClose: () => void; exist
     } else {
       await addBookmark(input);
     }
+    await showSaved();
     onClose();
   }
 

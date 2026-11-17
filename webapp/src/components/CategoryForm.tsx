@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { db, newId, type Category, type CategoryType } from '../db/db';
@@ -20,6 +21,7 @@ export function CategoryForm({ defaultType, onClose, existing }: { defaultType: 
       await db.categories.add({ id: newId(), name, type, iconName: icon, hexColor: color });
     }
     scheduleAutoSync();
+    await showSaved();
     onClose();
   }
 

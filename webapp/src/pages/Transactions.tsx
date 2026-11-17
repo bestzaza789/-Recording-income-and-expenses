@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { PageSkeleton } from '../components/Skeleton';
 import { db, type Transaction } from '../db/db';
 import { TransactionRow } from '../components/TransactionRow';
 import { EditTransactionForm } from '../components/EditTransactionForm';
@@ -11,7 +12,8 @@ export function Transactions() {
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Transaction | null>(null);
 
-  const transactions = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []) ?? [];
+  const transactionsQuery = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []);
+  const transactions = transactionsQuery ?? [];
   const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
@@ -47,6 +49,10 @@ export function Transactions() {
 
   async function handleDelete(id: string) {
     await deleteTransaction(id);
+  }
+
+  if (!transactionsQuery) {
+    return <div className="page"><PageSkeleton variant="list" /></div>;
   }
 
   return (

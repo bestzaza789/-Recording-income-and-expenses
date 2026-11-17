@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
@@ -49,6 +50,7 @@ export function EditTransactionForm({ existing, onClose }: { existing: Transacti
       toAccountId: type === 'transfer' ? toAccountId : undefined,
       categoryId: type === 'transfer' ? undefined : effectiveCategoryId,
     });
+    await showSaved();
     onClose();
   }
 

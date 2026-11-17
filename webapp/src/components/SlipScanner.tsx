@@ -59,7 +59,9 @@ export function SlipScanner({ onClose }: { onClose: () => void }) {
         {previews.length > 0 ? (
           <div className="scanner-thumbs">
             {previews.map((src, i) => (
-              <img key={i} src={src} alt={`สลิป ${i + 1}`} className={`scanner-thumb${processing && i === fileIndex ? ' active' : ''}`} />
+              <span key={i} className={`scanner-thumb-wrap${processing && i === fileIndex ? ' is-scanning' : ''}${processing && i < fileIndex ? ' is-done' : ''}`}>
+                <img src={src} alt={`สลิป ${i + 1}`} className={`scanner-thumb${processing && i === fileIndex ? ' active' : ''}`} />
+              </span>
             ))}
           </div>
         ) : (
@@ -79,8 +81,12 @@ export function SlipScanner({ onClose }: { onClose: () => void }) {
         </button>
 
         {processing && (
-          <div>
-            กำลังอ่านสลิป {fileIndex + 1}/{fileCount}... {progress}%
+          <div className="scan-status" role="status">
+            <div className="scan-status-text">
+              <span>กำลังอ่านสลิป {fileIndex + 1}/{fileCount}</span>
+              <span className="scan-status-pct">{progress}%</span>
+            </div>
+            <div className="scan-progress"><div className="scan-progress-fill" style={{ width: `${progress}%` }} /></div>
           </div>
         )}
       </div>

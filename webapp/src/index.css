@@ -1531,6 +1531,244 @@ button {
   cursor: grabbing;
 }
 
+/* ---------- Loading: skeletons, dots, scan progress ---------- */
+
+@keyframes shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-7px); opacity: 1; }
+}
+
+@keyframes scan-line {
+  0% { top: -10%; }
+  100% { top: 100%; }
+}
+
+/* Delayed so loads under ~150ms never flash a skeleton. */
+.page-skeleton {
+  display: flex;
+  flex-direction: column;
+  animation: fade-in 300ms var(--ease-out) 150ms both;
+}
+
+.skeleton {
+  display: block;
+  flex-shrink: 0;
+  max-width: 100%;
+  background: linear-gradient(100deg, var(--surface-2) 30%, color-mix(in srgb, var(--surface-2) 40%, var(--surface)) 50%, var(--surface-2) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+
+.skeleton-cards {
+  display: flex;
+  gap: 12px;
+  overflow: hidden;
+  margin: 24px 0 28px;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+}
+
+.skeleton-lines {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-donut {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.sheet-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px calc(56px + env(safe-area-inset-bottom));
+}
+
+.loader-dots {
+  display: inline-flex;
+  gap: 7px;
+}
+
+.loader-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: dot-bounce 1s var(--ease-in-out, ease-in-out) infinite;
+}
+
+.loader-dots i:nth-child(2) { animation-delay: 120ms; }
+.loader-dots i:nth-child(3) { animation-delay: 240ms; }
+
+.scanner-thumb-wrap {
+  position: relative;
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.scanner-thumb-wrap .scanner-thumb {
+  display: block;
+}
+
+.scanner-thumb-wrap.is-scanning::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18%;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent-strong) 55%, transparent));
+  border-bottom: 2px solid var(--accent-strong);
+  animation: scan-line 1.2s var(--ease-in-out, ease-in-out) infinite alternate;
+  pointer-events: none;
+}
+
+.scanner-thumb-wrap.is-done::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  background: color-mix(in srgb, var(--green) 55%, transparent);
+  animation: pop-in 400ms var(--ease-out) both;
+}
+
+.scan-status {
+  width: 100%;
+  animation: rise 400ms var(--ease-out) both;
+}
+
+.scan-status-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.scan-status-pct {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.scan-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.scan-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-strong), var(--accent2), var(--accent-strong));
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  transition: width 300ms var(--ease-out);
+}
+
+/* ---------- Save confirmation ---------- */
+
+@keyframes toast-in {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+  60% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes ring-fill {
+  to { fill: var(--green); }
+}
+
+.save-toast-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+}
+
+.save-toast {
+  position: fixed;
+  top: 45%;
+  left: 50%;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 168px;
+  padding: 24px 28px 20px;
+  border-radius: 24px;
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-float);
+  animation: toast-in 420ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+.save-toast.is-leaving {
+  animation: toast-out 260ms var(--ease-in) both;
+}
+
+.save-toast-mark {
+  width: 64px;
+  height: 64px;
+}
+
+.save-toast-ring {
+  stroke: var(--green);
+  stroke-width: 3.5;
+  stroke-dasharray: 145;
+  stroke-dashoffset: 145;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  animation:
+    draw 420ms var(--ease-out) 80ms forwards,
+    ring-fill 260ms var(--ease-out) 420ms forwards;
+}
+
+.save-toast-check {
+  stroke: var(--surface);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: draw 300ms var(--ease-out) 520ms forwards;
+}
+
+.save-toast-text {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 /* ---------- Reduced motion: keep state changes, drop the travel ---------- */
 
 @media (prefers-reduced-motion: reduce) {

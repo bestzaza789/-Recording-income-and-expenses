@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { WizardShell, WizardOption } from './WizardShell';
@@ -35,6 +36,7 @@ export function TransferForm({ onClose }: { onClose: () => void }) {
       accountId: fromAccountId,
       toAccountId,
     });
+    await showSaved();
     onClose();
   }
 

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { PageSkeleton } from '../components/Skeleton';
 import { db } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
 import { Modal } from '../components/Modal';
@@ -16,7 +17,8 @@ function addMonths(monthKey: number, delta: number): number {
 }
 
 export function Analytics() {
-  const transactions = useLiveQuery(() => db.transactions.toArray(), []) ?? [];
+  const transactionsQuery = useLiveQuery(() => db.transactions.toArray(), []);
+  const transactions = transactionsQuery ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
   const [selectedMonth, setSelectedMonth] = useState(() => startOfMonth(new Date()));
@@ -72,6 +74,10 @@ export function Analytics() {
       .filter((t) => t.transactionType === 'expense' && (t.categoryId ?? 'other') === selectedCategoryId)
       .sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [monthTransactions, selectedCategoryId]);
+
+  if (!transactionsQuery) {
+    return <div className="page"><PageSkeleton variant="chart" /></div>;
+  }
 
   return (
     <div className="page">

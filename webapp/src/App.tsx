@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { BottomNav } from './components/BottomNav';
+import { SaveToast } from './components/SaveToast';
 import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { Management } from './pages/Management';
@@ -20,6 +21,7 @@ function App() {
           <Route path="/account/:id" element={<AccountDetail />} />
         </Routes>
         <BottomNav />
+        <SaveToast />
       </div>
     </HashRouter>
   );

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { PageSkeleton } from '../components/Skeleton';
 import { db, type Account, type Bookmark, type Category, type CategoryType, type RecurringRule } from '../db/db';
 import { AccountForm } from '../components/AccountForm';
 import { CategoryForm } from '../components/CategoryForm';
@@ -27,7 +28,8 @@ export function Management() {
   const [bookmarkModal, setBookmarkModal] = useState<BookmarkModal>(null);
   const [recurringModal, setRecurringModal] = useState<RecurringModal>(null);
 
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
+  const accountsQuery = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []);
+  const accounts = accountsQuery ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
   const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []) ?? [];
   const recurringRules = useLiveQuery(() => db.recurring.toArray(), []) ?? [];
@@ -52,6 +54,10 @@ export function Management() {
   async function deleteRecurring(id: string) {
     await db.recurring.delete(id);
     scheduleAutoSync();
+  }
+
+  if (!accountsQuery) {
+    return <div className="page"><PageSkeleton variant="list" /></div>;
   }
 
   return (

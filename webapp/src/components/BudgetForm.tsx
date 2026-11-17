@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { db, newId, type Budget, type Category } from '../db/db';
@@ -25,6 +26,7 @@ export function BudgetForm({
       await db.budgets.add({ id: newId(), categoryId: category.id, monthlyLimit: limit });
     }
     scheduleAutoSync();
+    await showSaved();
     onClose();
   }
 

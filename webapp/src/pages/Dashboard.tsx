@@ -14,6 +14,7 @@ import { SlipInboxCard } from '../components/SlipInboxCard';
 import { AccountCard } from '../components/AccountCard';
 import { DonutChart } from '../components/DonutChart';
 import { SpeedDial } from '../components/SpeedDial';
+import { PageSkeleton, SheetLoading } from '../components/Skeleton';
 
 const SlipScanner = lazy(() => import('../components/SlipScanner').then((m) => ({ default: m.SlipScanner })));
 
@@ -22,8 +23,10 @@ export function Dashboard() {
   const [activeForm, setActiveForm] = useState<'manual' | 'transfer' | 'scan' | null>(null);
   const [pieRange, setPieRange] = useState<'today' | 'month'>('today');
 
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
-  const transactions = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []) ?? [];
+  const accountsQuery = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []);
+  const transactionsQuery = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []);
+  const accounts = accountsQuery ?? [];
+  const transactions = transactionsQuery ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
   const totalNetWorth = accounts.reduce((sum, a) => sum + a.currentBalance, 0);
@@ -56,6 +59,10 @@ export function Dashboard() {
     const cat = categoryFor(categories, categoryId);
     return { key: categoryId, name: cat?.name ?? 'อื่น ๆ', value: amount, color: cat ? `#${cat.hexColor}` : '#808080' };
   }).sort((a, b) => b.value - a.value);
+
+  if (!accountsQuery || !transactionsQuery) {
+    return <div className="page"><PageSkeleton variant="dashboard" /></div>;
+  }
 
   return (
     <div className="page dashboard">
@@ -135,7 +142,7 @@ export function Dashboard() {
       {activeForm === 'manual' && <ManualEntryForm onClose={() => setActiveForm(null)} />}
       {activeForm === 'transfer' && <TransferForm onClose={() => setActiveForm(null)} />}
       {activeForm === 'scan' && (
-        <Suspense fallback={null}>
+        <Suspense fallback={<SheetLoading />}>
           <SlipScanner onClose={() => setActiveForm(null)} />
         </Suspense>
       )}

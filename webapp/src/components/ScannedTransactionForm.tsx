@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AlertTriangle } from 'lucide-react';
@@ -131,6 +132,7 @@ export function ScannedTransactionForm({
     }
 
     await onSaved?.();
+    await showSaved();
     onClose();
   }
 

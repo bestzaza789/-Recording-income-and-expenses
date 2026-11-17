@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ChevronLeft, AlertTriangle } from 'lucide-react';
+import { PageSkeleton } from '../components/Skeleton';
 import { db } from '../db/db';
 import { TransactionRow } from '../components/TransactionRow';
 import { EditTransactionForm } from '../components/EditTransactionForm';
@@ -17,7 +18,8 @@ export function AccountDetail() {
   const [editing, setEditing] = useState<Transaction | null>(null);
 
   const account = useLiveQuery(() => (id ? db.accounts.get(id) : undefined), [id]);
-  const allTransactions = useLiveQuery(() => db.transactions.toArray(), []) ?? [];
+  const allTransactionsQuery = useLiveQuery(() => db.transactions.toArray(), []);
+  const allTransactions = allTransactionsQuery ?? [];
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
 
   const related = useMemo(
@@ -71,6 +73,10 @@ export function AccountDetail() {
 
   function openEdit(t: Transaction) {
     setEditing(t);
+  }
+
+  if (!allTransactionsQuery) {
+    return <div className="page"><PageSkeleton variant="list" /></div>;
   }
 
   if (!account) {

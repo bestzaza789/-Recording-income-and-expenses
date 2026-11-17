@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { PageSkeleton } from '../components/Skeleton';
 import { db, type Category } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
@@ -10,7 +11,8 @@ export function Budget() {
 
   const categories = useLiveQuery(() => db.categories.where('type').equals('expense').toArray(), []) ?? [];
   const budgets = useLiveQuery(() => db.budgets.toArray(), []) ?? [];
-  const transactions = useLiveQuery(() => db.transactions.toArray(), []) ?? [];
+  const transactionsQuery = useLiveQuery(() => db.transactions.toArray(), []);
+  const transactions = transactionsQuery ?? [];
 
   const now = new Date();
   const spentByCategory = new Map<string, number>();
@@ -33,6 +35,10 @@ export function Budget() {
   }
 
   const editingBudget = editing ? budgetFor(editing.id) : undefined;
+
+  if (!transactionsQuery) {
+    return <div className="page"><PageSkeleton variant="list" /></div>;
+  }
 
   return (
     <div className="page">

@@ -1,3 +1,4 @@
+import { showSaved } from '../lib/saveFeedback';
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { addAccount, updateAccount } from '../db/transactionManager';
@@ -18,6 +19,7 @@ export function AccountForm({ onClose, existing }: { onClose: () => void; existi
     } else {
       await addAccount(name, accountType, parseFloat(initialBalance) || 0);
     }
+    await showSaved();
     onClose();
   }
 
