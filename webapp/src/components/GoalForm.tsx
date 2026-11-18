@@ -5,7 +5,7 @@ import { showSaved } from '../lib/saveFeedback';
 import { scheduleAutoSync } from '../lib/autoSync';
 import { confirmDelete } from '../lib/confirm';
 
-export const GOAL_EMOJIS = ['🐷', '✈️', '🏠', '🚗', '📱', '🎮', '🎁', '🏖️'];
+const GOAL_EMOJIS = ['🐷', '✈️', '🏠', '🚗', '📱', '🎮', '🎁', '🏖️'];
 
 export function GoalForm({ existing, onClose }: { existing?: Goal; onClose: () => void }) {
   const [name, setName] = useState(existing?.name ?? '');

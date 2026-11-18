@@ -5,6 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { AlertTriangle } from 'lucide-react';
 import { Modal } from './Modal';
 import { db } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { addTransaction } from '../db/transactionManager';
 import type { ParsedData } from '../ocr/ocrService';
 import { accountMatchesBank } from '../ocr/parseSlip';
@@ -31,8 +32,8 @@ export function ScannedTransactionForm({
   defaultDate?: Date;
   onSaved?: () => void | Promise<void>;
 }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
   const expenseCategories = categories.filter((c) => c.type === 'expense');
 
   const [date] = useState(() => defaultDate ?? new Date());
@@ -99,7 +100,7 @@ export function ScannedTransactionForm({
       .between(new Date(date.getTime() - DUPLICATE_WINDOW_MS), new Date(date.getTime() + DUPLICATE_WINDOW_MS), true, true)
       .toArray(),
     [date.getTime()],
-  ) ?? [];
+  ) ?? EMPTY;
   const possibleDuplicates = amountNum > 0
     ? nearby.filter((t) => t.transactionType !== 'income' && Math.abs(t.amount - amountNum) < 0.005)
     : [];

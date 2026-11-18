@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { WizardShell, WizardOption } from './WizardShell';
 import { db, type TransactionType } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { addTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
 import { CategoryIcon } from '../lib/icons';
@@ -12,8 +13,8 @@ import { sortAccounts } from '../lib/lookup';
 const STEP_TITLES = ['รายจ่ายหรือรายรับ?', 'จำนวนเงิน', 'วันและเวลา', 'บัญชี', 'หมวดหมู่', 'โน้ต'];
 
 export function ManualEntryForm({ onClose }: { onClose: () => void }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
 
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<TransactionType>('expense');

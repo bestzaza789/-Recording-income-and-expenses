@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useNavigate } from 'react-router-dom';
 import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, PencilLine, ScanLine } from 'lucide-react';
 import { db } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { formatCurrency, startOfDay } from '../lib/format';
 import { categoryFor, sortAccounts } from '../lib/lookup';
 import { useCountUp } from '../lib/useCountUp';
@@ -47,9 +48,9 @@ export function Dashboard() {
 
   const accountsQuery = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []);
   const transactionsQuery = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []);
-  const accounts = accountsQuery ?? [];
-  const transactions = transactionsQuery ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const accounts = accountsQuery ?? EMPTY;
+  const transactions = transactionsQuery ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
 
   const totalNetWorth = accounts.reduce((sum, a) => sum + a.currentBalance, 0);
   const shownNetWorth = useCountUp(totalNetWorth, 1100);

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
 import { db, type Transaction, type TransactionType } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { updateTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
 import { sortAccounts } from '../lib/lookup';
@@ -12,8 +13,8 @@ import { sortAccounts } from '../lib/lookup';
 // the user's own accounts (transfer). updateTransaction reverses the old
 // balance impact and applies the new one, so changing the type is safe.
 export function EditTransactionForm({ existing, onClose }: { existing: Transaction; onClose: () => void }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
 
   const [type, setType] = useState<TransactionType>(existing.transactionType);
   const [amount, setAmount] = useState(String(existing.amount));

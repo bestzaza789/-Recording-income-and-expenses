@@ -11,7 +11,6 @@ declare global {
             scope: string;
             callback: (response: { access_token?: string; error?: string }) => void;
           }): { requestAccessToken: (opts?: { prompt?: string }) => void };
-          revoke(token: string, callback: () => void): void;
         };
       };
     };
@@ -75,12 +74,4 @@ export async function requestAccessToken(interactive: boolean): Promise<string> 
     setTimeout(() => reject(new Error('Silent token request timed out (not signed in)')), 8000)
   );
   return Promise.race([tokenPromise, timeout]);
-}
-
-export function signOut() {
-  if (accessToken && window.google?.accounts?.oauth2) {
-    window.google.accounts.oauth2.revoke(accessToken, () => {});
-  }
-  accessToken = null;
-  tokenExpiry = 0;
 }

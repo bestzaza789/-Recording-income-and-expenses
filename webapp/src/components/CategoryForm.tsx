@@ -2,7 +2,8 @@ import { showSaved } from '../lib/saveFeedback';
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { db, newId, type Category, type CategoryType } from '../db/db';
-import { CategoryIcon, CATEGORY_EMOJIS, EMOJI_PREFIX, ICON_NAMES } from '../lib/icons';
+import { CategoryIcon } from '../lib/icons';
+import { CATEGORY_EMOJIS, EMOJI_PREFIX, ICON_NAMES } from '../lib/iconData';
 import { scheduleAutoSync } from '../lib/autoSync';
 
 const COLORS = ['FF3B30', 'FF9500', 'FFCC00', '34C759', '007AFF', '5856D6', 'FF2D55', '8E8E93'];

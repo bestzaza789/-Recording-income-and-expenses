@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Pencil, Plus } from 'lucide-react';
 import { db, type Goal } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { formatCurrency } from '../lib/format';
 import { Mascot, type MascotMood } from './Mascot';
 import { GoalForm } from './GoalForm';
@@ -22,7 +23,7 @@ export function GoalsSection() {
   const [editing, setEditing] = useState<Goal | 'new' | null>(null);
   const [depositing, setDepositing] = useState<Goal | null>(null);
 
-  const goals = useLiveQuery(() => db.goals.toArray().then((g) => g.sort((a, b) => +a.createdAt - +b.createdAt)), []) ?? [];
+  const goals = useLiveQuery(() => db.goals.toArray().then((g) => g.sort((a, b) => +a.createdAt - +b.createdAt)), []) ?? EMPTY;
 
   // Modals are siblings of <section>, not children: .page animates its direct children with a
   // transform, which would trap a position:fixed overlay inside the section. Modals are exempt

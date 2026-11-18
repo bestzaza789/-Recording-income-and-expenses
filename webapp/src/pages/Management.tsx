@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { PageSkeleton } from '../components/Skeleton';
 import { db, type Account, type Bookmark, type Category, type CategoryType, type RecurringRule } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { AccountForm } from '../components/AccountForm';
 import { CategoryForm } from '../components/CategoryForm';
 import { BookmarkForm } from '../components/BookmarkForm';
@@ -12,12 +13,11 @@ import { AccountsSection } from '../components/management/AccountsSection';
 import { CategoriesSection } from '../components/management/CategoriesSection';
 import { QuickAddSection } from '../components/management/QuickAddSection';
 import { RecurringSection } from '../components/management/RecurringSection';
-import { deleteBookmark } from '../db/transactionManager';
+import { deleteAccount as removeAccount, deleteBookmark } from '../db/transactionManager';
 import { alertDialog, confirmDelete } from '../lib/confirm';
 import { formatCurrency } from '../lib/format';
-import { categoryFor } from '../lib/lookup';
 import { scheduleAutoSync } from '../lib/autoSync';
-import { sortAccounts } from '../lib/lookup';
+import { accountNameFor, categoryFor, sortAccounts } from '../lib/lookup';
 
 type AccountModal = 'new' | Account | null;
 type CategoryModal = { type: CategoryType; existing?: Category } | null;
@@ -33,10 +33,10 @@ export function Management() {
   const [recurringModal, setRecurringModal] = useState<RecurringModal>(null);
 
   const accountsQuery = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []);
-  const accounts = accountsQuery ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
-  const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []) ?? [];
-  const recurringRules = useLiveQuery(() => db.recurring.toArray(), []) ?? [];
+  const accounts = accountsQuery ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
+  const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []) ?? EMPTY;
+  const recurringRules = useLiveQuery(() => db.recurring.toArray(), []) ?? EMPTY;
   const expenseCategories = categories.filter((c) => c.type === 'expense');
   const incomeCategories = categories.filter((c) => c.type === 'income');
 
@@ -46,14 +46,13 @@ export function Management() {
       await alertDialog('ลบบัญชีนี้ไม่ได้', `บัญชีนี้ยังมี ${count} รายการ — ลบหรือย้ายรายการออกก่อน`);
       return;
     }
-    const name = accounts.find((a) => a.id === id)?.name ?? '';
+    const name = accountNameFor(accounts, id);
     if (!(await confirmDelete(`บัญชี "${name}"`))) return;
-    await db.accounts.delete(id);
-    scheduleAutoSync();
+    await removeAccount(id);
   }
 
   async function deleteCategory(id: string) {
-    const name = categories.find((c) => c.id === id)?.name ?? '';
+    const name = categoryFor(categories, id)?.name ?? '';
     if (!(await confirmDelete(`หมวดหมู่ "${name}"`, 'รายการเดิมในหมวดนี้จะแสดงเป็น "อื่น ๆ" · กู้คืนไม่ได้'))) return;
     await db.categories.delete(id);
     scheduleAutoSync();

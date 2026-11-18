@@ -7,6 +7,10 @@ import {
   getStoredSpreadsheetId, readSheetValues,
 } from './api';
 
+// Names from the sheet are matched to existing rows ignoring case and stray spaces.
+const norm = (s: string) => s.trim().toLowerCase();
+const sameName = (a: string, b: string) => norm(a) === norm(b);
+
 const ACCOUNT_TYPES: AccountType[] = ['cash', 'bank', 'credit'];
 const TRANSACTION_TYPES: TransactionType[] = ['income', 'expense', 'transfer'];
 
@@ -102,11 +106,11 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
   const sheetOrder = new Map<string, number>();
   for (const [name, , , , orderStr] of accountRows.slice(1)) {
     const order = Number(orderStr);
-    if (name && orderStr && Number.isFinite(order)) sheetOrder.set(name.trim().toLowerCase(), order);
+    if (name && orderStr && Number.isFinite(order)) sheetOrder.set(norm(name), order);
   }
   for (const [name, type, initialBalanceStr] of accountRows.slice(1)) {
     if (!name) continue;
-    if (accounts.some((a) => a.name.toLowerCase() === name.toLowerCase())) continue;
+    if (accounts.some((a) => sameName(a.name, name))) continue;
     const accountType = (ACCOUNT_TYPES as string[]).includes(type) ? (type as AccountType) : 'bank';
     const initialBalance = parseAmount(initialBalanceStr) || 0;
     const account = { id: newId(), name, accountType, initialBalance, currentBalance: initialBalance, sortOrder: nextAccountSortOrder(accounts) };
@@ -117,7 +121,7 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
 
   if (sheetOrder.size > 0) {
     // Accounts listed in the sheet follow its order; any local-only accounts keep their relative order after them.
-    const rank = (a: (typeof accounts)[number]) => sheetOrder.get(a.name.trim().toLowerCase()) ?? Number.MAX_SAFE_INTEGER;
+    const rank = (a: (typeof accounts)[number]) => sheetOrder.get(norm(a.name)) ?? Number.MAX_SAFE_INTEGER;
     const ordered = [...sortAccounts(accounts)].sort((a, b) => rank(a) - rank(b));
     await db.transaction('rw', db.accounts, async () => {
       await Promise.all(ordered.map((a, i) => db.accounts.update(a.id, { sortOrder: i })));
@@ -128,7 +132,7 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
   for (const [name, type, icon, color] of categoryRows.slice(1)) {
     if (!name) continue;
     const categoryType: CategoryType = type === 'income' ? 'income' : 'expense';
-    if (categories.some((c) => c.name.toLowerCase() === name.toLowerCase() && c.type === categoryType)) continue;
+    if (categories.some((c) => sameName(c.name, name) && c.type === categoryType)) continue;
     const category = { id: newId(), name, type: categoryType, iconName: icon || 'banknote', hexColor: color || '808080' };
     await db.categories.add(category);
     categories.push(category);
@@ -141,7 +145,7 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     if (!catName) continue;
     const limit = parseAmount(limitStr);
     if (!limit || limit <= 0) continue;
-    const category = categories.find((c) => c.name.toLowerCase() === catName.toLowerCase() && c.type === 'expense');
+    const category = categories.find((c) => sameName(c.name, catName) && c.type === 'expense');
     if (!category) continue;
     if (existingBudgets.some((b) => b.categoryId === category.id)) continue;
     const budget = { id: newId(), categoryId: category.id, monthlyLimit: limit };
@@ -155,7 +159,7 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
   let goalsAdded = 0;
   for (const [name, emoji, targetStr, savedStr, createdStr] of goalRows.slice(1)) {
     if (!name?.trim()) continue;
-    if (existingGoals.some((g) => g.name.trim().toLowerCase() === name.trim().toLowerCase())) continue;
+    if (existingGoals.some((g) => sameName(g.name, name))) continue;
     const target = parseAmount(targetStr);
     if (!target || target <= 0) continue;
     const saved = parseAmount(savedStr);
@@ -181,11 +185,11 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
   let bookmarksAdded = 0;
   for (const [label, type, amountStr, accName, catName, note] of bookmarkRows.slice(1)) {
     if (!label) continue;
-    if (existingBookmarks.some((b) => b.name.toLowerCase() === label.toLowerCase())) continue;
+    if (existingBookmarks.some((b) => sameName(b.name, label))) continue;
     const amount = parseAmount(amountStr);
     if (!amount || amount <= 0) continue;
-    const account = accounts.find((a) => a.name.toLowerCase() === (accName ?? '').toLowerCase());
-    const category = categories.find((c) => c.name.toLowerCase() === (catName ?? '').toLowerCase());
+    const account = accounts.find((a) => sameName(a.name, accName ?? ''));
+    const category = categories.find((c) => sameName(c.name, catName ?? ''));
     if (!account || !category) continue;
     const bookmarkType: CategoryType = type === 'income' ? 'income' : 'expense';
     const bookmark = { id: newId(), name: label, type: bookmarkType, amount, accountId: account.id, categoryId: category.id, note: note || undefined };
@@ -200,9 +204,9 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     const amount = parseAmount(amountStr);
     const dayOfMonth = parseInt(dayStr, 10);
     if (!amount || amount <= 0 || !dayOfMonth) continue;
-    const account = accounts.find((a) => a.name.toLowerCase() === (accName ?? '').toLowerCase());
+    const account = accounts.find((a) => sameName(a.name, accName ?? ''));
     if (!account) continue;
-    const category = catName ? categories.find((c) => c.name.toLowerCase() === catName.toLowerCase()) : undefined;
+    const category = catName ? categories.find((c) => sameName(c.name, catName)) : undefined;
     const recurringType = type === 'income' ? 'income' : 'expense';
     const isDuplicate = existingRecurring.some(
       (r) => r.amount === amount && r.dayOfMonth === dayOfMonth && r.accountId === account.id && (r.note ?? '') === (note ?? '')
@@ -251,13 +255,13 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     const remaining = existingCounts.get(key) ?? 0;
     if (remaining > 0) { existingCounts.set(key, remaining - 1); transactionsSkipped++; continue; }
 
-    const findAccount = (name: string) => accounts.find((a) => a.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const findAccount = (name: string) => accounts.find((a) => sameName(a.name, name));
     const account = findAccount(accName);
     if (!account) { transactionsSkipped++; continue; }
     const toAccount = toAccName.trim() ? findAccount(toAccName) : undefined;
     if (type === 'transfer' && !toAccount) { transactionsSkipped++; continue; }
     const category = catName.trim()
-      ? categories.find((c) => c.name.trim().toLowerCase() === catName.trim().toLowerCase())
+      ? categories.find((c) => sameName(c.name, catName))
       : undefined;
 
     await addTransaction({

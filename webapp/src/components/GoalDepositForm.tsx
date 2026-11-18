@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
 import { db, newId, type CategoryType, type Goal } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { addTransaction } from '../db/transactionManager';
-import { EMOJI_PREFIX } from '../lib/icons';
+import { EMOJI_PREFIX } from '../lib/iconData';
 import { sortAccounts } from '../lib/lookup';
 import { formatCurrency } from '../lib/format';
 import { showSaved } from '../lib/saveFeedback';
@@ -32,7 +33,7 @@ export function GoalDepositForm({ goal, onClose }: { goal: Goal; onClose: () => 
   const [mode, setMode] = useState<Mode>('deposit');
   const [input, setInput] = useState('');
   const [accountId, setAccountId] = useState('');
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? EMPTY;
 
   const amount = Number(input);
   const tooMuch = mode === 'withdraw' && amount > goal.savedAmount;

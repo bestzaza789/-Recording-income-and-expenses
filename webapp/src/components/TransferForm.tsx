@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { WizardShell, WizardOption } from './WizardShell';
 import { db } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { addTransaction } from '../db/transactionManager';
 import { toDatetimeLocalValue } from '../lib/format';
 import { sortAccounts } from '../lib/lookup';
@@ -10,7 +11,7 @@ import { sortAccounts } from '../lib/lookup';
 const STEP_TITLES = ['จำนวนเงิน', 'วันและเวลา', 'จากบัญชี', 'ไปยังบัญชี', 'โน้ต'];
 
 export function TransferForm({ onClose }: { onClose: () => void }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? EMPTY;
 
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(() => toDatetimeLocalValue(new Date()));

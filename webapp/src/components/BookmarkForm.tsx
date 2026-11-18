@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Modal } from './Modal';
 import { db, type Bookmark, type CategoryType } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { addBookmark, updateBookmark } from '../db/transactionManager';
 import { sortAccounts } from '../lib/lookup';
 
 export function BookmarkForm({ onClose, existing }: { onClose: () => void; existing?: Bookmark }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
 
   const [name, setName] = useState(existing?.name ?? '');
   const [type, setType] = useState<CategoryType>(existing?.type ?? 'expense');

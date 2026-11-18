@@ -134,6 +134,12 @@ export async function addAccount(name: string, accountType: Account['accountType
   return id;
 }
 
+/** Callers must make sure the account has no transactions first. */
+export async function deleteAccount(id: string): Promise<void> {
+  await db.accounts.delete(id);
+  scheduleAutoSync();
+}
+
 /** Persist a new display order: `orderedIds[0]` is shown first. */
 export async function reorderAccounts(orderedIds: string[]): Promise<void> {
   await db.transaction('rw', db.accounts, async () => {

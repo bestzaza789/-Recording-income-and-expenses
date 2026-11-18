@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { addFromBookmark } from '../db/transactionManager';
 import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
@@ -9,8 +10,8 @@ import { showSaved } from '../lib/saveFeedback';
 import { budgetWarningAfterExpense } from '../lib/budgetAlert';
 
 export function QuickAddBar() {
-  const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []) ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []) ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
   const [savedId, setSavedId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 

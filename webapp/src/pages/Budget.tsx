@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { PageSkeleton } from '../components/Skeleton';
 import { db, type Category } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
 import { BudgetForm } from '../components/BudgetForm';
@@ -11,10 +12,10 @@ import { Mascot, type MascotMood } from '../components/Mascot';
 export function Budget() {
   const [editing, setEditing] = useState<Category | null>(null);
 
-  const categories = useLiveQuery(() => db.categories.where('type').equals('expense').toArray(), []) ?? [];
-  const budgets = useLiveQuery(() => db.budgets.toArray(), []) ?? [];
+  const categories = useLiveQuery(() => db.categories.where('type').equals('expense').toArray(), []) ?? EMPTY;
+  const budgets = useLiveQuery(() => db.budgets.toArray(), []) ?? EMPTY;
   const transactionsQuery = useLiveQuery(() => db.transactions.toArray(), []);
-  const transactions = transactionsQuery ?? [];
+  const transactions = transactionsQuery ?? EMPTY;
 
   const now = new Date();
   const spentByCategory = new Map<string, number>();

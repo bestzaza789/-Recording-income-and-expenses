@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { ChevronLeft, AlertTriangle } from 'lucide-react';
 import { PageSkeleton } from '../components/Skeleton';
 import { db } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { TransactionRow } from '../components/TransactionRow';
 import { EditTransactionForm } from '../components/EditTransactionForm';
 import { deleteTransaction } from '../db/transactionManager';
@@ -23,8 +24,8 @@ export function AccountDetail() {
 
   const account = useLiveQuery(() => (id ? db.accounts.get(id) : undefined), [id]);
   const allTransactionsQuery = useLiveQuery(() => db.transactions.toArray(), []);
-  const allTransactions = allTransactionsQuery ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const allTransactions = allTransactionsQuery ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
 
   const related = useMemo(
     () => allTransactions.filter((t) => t.accountId === id || t.toAccountId === id),

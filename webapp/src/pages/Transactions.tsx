@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { PageSkeleton } from '../components/Skeleton';
 import { db, type Transaction } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { TransactionRow } from '../components/TransactionRow';
 import { EmptyState } from '../components/EmptyState';
 import { EditTransactionForm } from '../components/EditTransactionForm';
@@ -16,9 +17,9 @@ export function Transactions() {
   const [editing, setEditing] = useState<Transaction | null>(null);
 
   const transactionsQuery = useLiveQuery(() => db.transactions.orderBy('date').reverse().toArray(), []);
-  const transactions = transactionsQuery ?? [];
-  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const transactions = transactionsQuery ?? EMPTY;
+  const accounts = useLiveQuery(() => db.accounts.toArray().then(sortAccounts), []) ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
 
   const filtered = useMemo(() => {
     if (!search) return transactions;

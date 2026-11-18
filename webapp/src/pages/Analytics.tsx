@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cart
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { PageSkeleton } from '../components/Skeleton';
 import { db } from '../db/db';
+import { EMPTY } from '../lib/empty';
 import { CategoryIcon } from '../lib/icons';
 import { Modal } from '../components/Modal';
 import { DailySummary } from '../components/DailySummary';
@@ -21,8 +22,8 @@ function addMonths(monthKey: number, delta: number): number {
 
 export function Analytics() {
   const transactionsQuery = useLiveQuery(() => db.transactions.toArray(), []);
-  const transactions = transactionsQuery ?? [];
-  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? [];
+  const transactions = transactionsQuery ?? EMPTY;
+  const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
 
   const [selectedMonth, setSelectedMonth] = useState(() => startOfMonth(new Date()));
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
