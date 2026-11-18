@@ -1921,3 +1921,59 @@ button {
     transition-delay: 0ms !important;
   }
 }
+
+/* ---------- Mascot ---------- */
+
+.hero { position: relative; }
+
+.hero-mascot {
+  position: absolute;
+  right: 4px;
+  top: 14px;
+  color: var(--text);
+  pointer-events: none;
+}
+
+.empty-state.has-mascot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.mascot { color: var(--text); overflow: visible; }
+.mascot-body { transform-origin: 40px 72px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .mascot-body { animation: mascot-bob 3.2s var(--ease-out) infinite alternate; }
+  .mascot-shocked .mascot-body { animation: mascot-shake 0.5s ease-in-out infinite; }
+  .mascot-arm { transform-box: fill-box; transform-origin: 50% 100%; animation: mascot-wave 0.9s ease-in-out infinite alternate; }
+  .mascot-arm-r { animation-delay: 0.25s; }
+  .mascot-zzz { animation: mascot-zzz 2.4s ease-in-out infinite; }
+  .mascot-zzz-2 { animation-delay: 0.8s; }
+  .mascot-sweat { animation: mascot-drip 1.6s ease-in infinite; }
+}
+
+@keyframes mascot-bob {
+  from { transform: translateY(0) scale(1, 1); }
+  to { transform: translateY(-3px) scale(1.02, 0.98); }
+}
+@keyframes mascot-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1.5px); }
+  75% { transform: translateX(1.5px); }
+}
+@keyframes mascot-wave {
+  from { transform: rotate(-10deg); }
+  to { transform: rotate(10deg); }
+}
+@keyframes mascot-zzz {
+  0%, 100% { opacity: 0.25; transform: translateY(2px); }
+  50% { opacity: 1; transform: translateY(-2px); }
+}
+@keyframes mascot-drip {
+  0% { opacity: 0; transform: translateY(-3px); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(6px); }
+}

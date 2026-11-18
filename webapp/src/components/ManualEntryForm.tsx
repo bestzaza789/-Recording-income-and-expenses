@@ -46,7 +46,7 @@ export function ManualEntryForm({ onClose }: { onClose: () => void }) {
       accountId,
       categoryId,
     });
-    await showSaved();
+    await showSaved(type === 'income' ? 'ได้เงินเข้าแล้ว เย้! 🎉' : undefined, { celebrate: type === 'income' });
     onClose();
   }
 

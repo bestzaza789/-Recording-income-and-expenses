@@ -7,6 +7,8 @@ import { formatCurrency, startOfDay } from '../lib/format';
 import { categoryFor, sortAccounts } from '../lib/lookup';
 import { useCountUp } from '../lib/useCountUp';
 import { TransactionRow } from '../components/TransactionRow';
+import { EmptyState } from '../components/EmptyState';
+import { Mascot, type MascotMood } from '../components/Mascot';
 import { ManualEntryForm } from '../components/ManualEntryForm';
 import { TransferForm } from '../components/TransferForm';
 import { QuickAddBar } from '../components/QuickAddBar';
@@ -69,6 +71,8 @@ export function Dashboard() {
     return { key: categoryId, name: cat?.name ?? 'อื่น ๆ', value: amount, color: cat ? `#${cat.hexColor}` : '#808080' };
   }).sort((a, b) => b.value - a.value);
 
+  const heroMood: MascotMood = monthIncome === 0 && monthExpense === 0 ? 'sleepy' : monthExpense > monthIncome ? 'shocked' : 'cheer';
+
   if (!accountsQuery || !transactionsQuery) {
     return <div className="page"><PageSkeleton variant="dashboard" /></div>;
   }
@@ -76,6 +80,7 @@ export function Dashboard() {
   return (
     <div className="page dashboard">
       <header className="hero">
+        <div className="hero-mascot"><Mascot mood={heroMood} size={64} /></div>
         <div className="app-version">{__APP_VERSION__}</div>
         <div className="hero-greeting">{greeting()}</div>
         <div className="net-worth-label">ทรัพย์สินสุทธิทั้งหมด</div>
@@ -134,7 +139,7 @@ export function Dashboard() {
       <section>
         <div className="section-title">รายการล่าสุด</div>
         <div className="card">
-          {recentTransactions.length === 0 && <div className="empty-state">ยังไม่มีรายการเลย มาเพิ่มรายการแรกกัน~ 🐥</div>}
+          {recentTransactions.length === 0 && <EmptyState mood="sleepy">ยังไม่มีรายการเลย มาเพิ่มรายการแรกกัน~ 🐥</EmptyState>}
           {recentTransactions.map((t) => (
             <TransactionRow key={t.id} transaction={t} category={categoryFor(categories, t.categoryId)} />
           ))}

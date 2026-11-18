@@ -14,6 +14,7 @@ import { formatCurrency, formatDate, formatMonth, startOfDay, startOfMonth } fro
 import { categoryFor } from '../lib/lookup';
 import { ACCOUNT_TYPE_LABEL } from '../lib/labels';
 import type { Transaction } from '../db/db';
+import { EmptyState } from '../components/EmptyState';
 
 export function AccountDetail() {
   const { id } = useParams<{ id: string }>();
@@ -120,7 +121,7 @@ export function AccountDetail() {
         </div>
       )}
 
-      {grouped.length === 0 && <div className="empty-state" style={{ marginTop: 16 }}>บัญชีนี้ยังไม่มีรายการ มาเริ่มกัน~ ✨</div>}
+      {grouped.length === 0 && <EmptyState mood="sleepy" style={{ marginTop: 16 }}>บัญชีนี้ยังไม่มีรายการ มาเริ่มกัน~ ✨</EmptyState>}
 
       {grouped.map(({ monthKey, days }) => (
         <div key={monthKey}>

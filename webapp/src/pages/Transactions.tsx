@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { PageSkeleton } from '../components/Skeleton';
 import { db, type Transaction } from '../db/db';
 import { TransactionRow } from '../components/TransactionRow';
+import { EmptyState } from '../components/EmptyState';
 import { EditTransactionForm } from '../components/EditTransactionForm';
 import { deleteTransaction } from '../db/transactionManager';
 import { confirmDelete } from '../lib/confirm';
@@ -67,8 +68,8 @@ export function Transactions() {
       <h1 className="page-title">รายการ</h1>
       <input className="search-bar" placeholder="ค้นหาโน้ต หมวดหมู่ หรือบัญชี" value={search} onChange={(e) => setSearch(e.target.value)} />
 
-      {transactions.length === 0 && <div className="empty-state">ยังไม่มีรายการเลย มาเพิ่มรายการแรกกัน~ 🐥</div>}
-      {transactions.length > 0 && filtered.length === 0 && <div className="empty-state">ไม่พบ '{search}'</div>}
+      {transactions.length === 0 && <EmptyState mood="sleepy">ยังไม่มีรายการเลย มาเพิ่มรายการแรกกัน~ 🐥</EmptyState>}
+      {transactions.length > 0 && filtered.length === 0 && <EmptyState mood="shocked">ไม่พบ '{search}'</EmptyState>}
 
       {grouped.map(({ monthKey, days }) => (
         <div key={monthKey}>
