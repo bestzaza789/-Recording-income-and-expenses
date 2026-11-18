@@ -1,34 +1,35 @@
 /* Design: "Copilot-style" native polish — grouped surfaces, gradient account
- * cards, rounded numerals, one indigo accent. Motion is spring/expo-out on
+ * cards, rounded numerals, one pastel-blue accent. Motion is spring/expo-out on
  * transform + opacity only and collapses under prefers-reduced-motion. */
 
 :root {
-  --bg: #f3f4f8;
+  --bg: #eef5ff;
   --surface: #ffffff;
-  --surface-2: #eef0f5;
+  --surface-2: #e2eefd;
   --thumb: #ffffff;
-  --text: #111322;
-  --text-secondary: #5c6373;
-  --border: #e4e6ee;
+  --text: #1b2a41;
+  --text-secondary: #5a6b84;
+  --border: #d6e5fa;
   --card-border: transparent;
-  --accent: #4f46e5;
-  --accent-strong: #4f46e5;
-  --accent2: #7c3aed;
-  --accent-soft: rgba(79, 70, 229, 0.12);
+  --accent: #4a8fe7;
+  --accent-strong: #2f74d0;
+  --accent2: #7ab8f5;
+  --accent-soft: rgba(74, 143, 231, 0.14);
   --green: #047857;
   --red: #dc2626;
   --yellow: #d97706;
   --blue: var(--accent);
   --nav-bg: rgba(255, 255, 255, 0.78);
-  --backdrop: rgba(17, 19, 34, 0.28);
-  --shadow-card: 0 1px 2px rgba(17, 19, 34, 0.04), 0 8px 24px -6px rgba(17, 19, 34, 0.08);
-  --shadow-float: 0 12px 32px -8px rgba(17, 19, 34, 0.22);
+  --backdrop: rgba(27, 42, 65, 0.28);
+  --shadow-card: 0 1px 2px rgba(47, 116, 208, 0.05), 0 8px 24px -6px rgba(47, 116, 208, 0.14);
+  --shadow-float: 0 12px 32px -8px rgba(47, 116, 208, 0.3);
 
+  --font-cute: 'Mali', 'Nunito', 'Noto Sans Thai', ui-rounded, sans-serif;
   --font: ui-rounded, 'Nunito', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  --radius-sm: 10px;
-  --radius: 14px;
-  --radius-lg: 20px;
+  --radius-sm: 12px;
+  --radius: 18px;
+  --radius-lg: 26px;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
@@ -43,20 +44,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a0a0f;
-    --surface: #16161d;
-    --surface-2: #22222c;
-    --thumb: #34343f;
-    --text: #f4f4f7;
-    --text-secondary: #a0a3b1;
-    --border: #2a2a35;
+    --bg: #0b1220;
+    --surface: #141d2f;
+    --surface-2: #1e2a42;
+    --thumb: #31415e;
+    --text: #f1f6ff;
+    --text-secondary: #9fb0cc;
+    --border: #26344f;
     --card-border: rgba(255, 255, 255, 0.05);
-    --accent: #a5a1ff;
-    --accent-soft: rgba(165, 161, 255, 0.16);
+    --accent: #8ec5ff;
+    --accent-strong: #8ec5ff;
+    --accent2: #5aa5f0;
+    --accent-soft: rgba(142, 197, 255, 0.16);
     --green: #34d399;
     --red: #f87171;
     --yellow: #fbbf24;
-    --nav-bg: rgba(22, 22, 29, 0.78);
+    --nav-bg: rgba(20, 29, 47, 0.78);
     --backdrop: rgba(0, 0, 0, 0.5);
     --shadow-card: none;
     --shadow-float: 0 12px 32px -8px rgba(0, 0, 0, 0.7);
@@ -229,6 +232,7 @@ button {
 }
 
 .section-title {
+  font-family: var(--font-cute);
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -316,6 +320,14 @@ button {
   opacity: 0.7;
   margin-bottom: 6px;
   font-variant-numeric: tabular-nums;
+}
+
+.hero-greeting {
+  font-family: var(--font-cute);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-strong);
+  margin-bottom: 4px;
 }
 
 .net-worth-label {
@@ -815,7 +827,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 14px 28px -10px rgba(79, 70, 229, 0.7);
+  box-shadow: 0 14px 28px -10px rgba(74, 143, 231, 0.7);
   transition: scale var(--dur-fast) var(--ease-spring), box-shadow var(--dur) var(--ease-out);
 }
 
@@ -860,7 +872,8 @@ button {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--tint) 15%, transparent);
+  background: color-mix(in srgb, var(--tint) 22%, var(--surface));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--tint) 12%, transparent);
   color: var(--tint);
   display: flex;
   align-items: center;
@@ -1097,7 +1110,7 @@ button {
   border-radius: var(--radius);
   font-weight: 700;
   border: none;
-  box-shadow: 0 10px 22px -10px rgba(79, 70, 229, 0.7);
+  box-shadow: 0 10px 22px -10px rgba(74, 143, 231, 0.7);
   transition: scale var(--dur-fast) var(--ease-spring);
 }
 

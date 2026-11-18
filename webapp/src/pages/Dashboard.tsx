@@ -18,6 +18,15 @@ import { PageSkeleton, SheetLoading } from '../components/Skeleton';
 
 const SlipScanner = lazy(() => import('../components/SlipScanner').then((m) => ({ default: m.SlipScanner })));
 
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 5) return 'ดึกแล้วนะ พักผ่อนบ้าง 🌙';
+  if (h < 12) return 'อรุณสวัสดิ์ ☀️';
+  if (h < 17) return 'สวัสดีตอนบ่าย 🌼';
+  if (h < 21) return 'สวัสดีตอนเย็น 🌆';
+  return 'ราตรีสวัสดิ์ 🌙';
+}
+
 export function Dashboard() {
   const navigate = useNavigate();
   const [activeForm, setActiveForm] = useState<'manual' | 'transfer' | 'scan' | null>(null);
@@ -68,6 +77,7 @@ export function Dashboard() {
     <div className="page dashboard">
       <header className="hero">
         <div className="app-version">{__APP_VERSION__}</div>
+        <div className="hero-greeting">{greeting()}</div>
         <div className="net-worth-label">ทรัพย์สินสุทธิทั้งหมด</div>
         <div className="net-worth-value" style={totalNetWorth < 0 ? { color: 'var(--red)' } : undefined}>
           {formatCurrency(shownNetWorth)}
@@ -114,7 +124,7 @@ export function Dashboard() {
             />
             {pieData.length === 0 && (
               <div className="text-secondary-sm" style={{ textAlign: 'center', marginTop: 8 }}>
-                {pieRange === 'today' ? 'วันนี้ยังไม่มีรายจ่าย' : 'เดือนนี้ยังไม่มีรายจ่าย'}
+                {pieRange === 'today' ? 'วันนี้ยังไม่ได้ใช้เงินเลย เก่งมาก 🎈' : 'เดือนนี้ยังไม่มีรายจ่าย เก่งมาก 🎈'}
               </div>
             )}
           </div>
@@ -124,7 +134,7 @@ export function Dashboard() {
       <section>
         <div className="section-title">รายการล่าสุด</div>
         <div className="card">
-          {recentTransactions.length === 0 && <div className="empty-state">ยังไม่มีรายการ</div>}
+          {recentTransactions.length === 0 && <div className="empty-state">ยังไม่มีรายการเลย มาเพิ่มรายการแรกกัน~ 🐥</div>}
           {recentTransactions.map((t) => (
             <TransactionRow key={t.id} transaction={t} category={categoryFor(categories, t.categoryId)} />
           ))}

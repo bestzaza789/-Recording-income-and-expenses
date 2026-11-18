@@ -101,7 +101,7 @@ export function DailySummary({ monthTransactions, categories, selectedMonth }: P
       )}
 
       {activeDays.length === 0 ? (
-        <div className="empty-state" style={{ marginTop: 16 }}>ไม่มีรายการในเดือนนี้</div>
+        <div className="empty-state" style={{ marginTop: 16 }}>เดือนนี้ยังเงียบอยู่เลย 🍃</div>
       ) : (
         <div className="card" style={{ marginTop: 12 }}>
           {activeDays.map((d) => (
@@ -128,7 +128,7 @@ export function DailySummary({ monthTransactions, categories, selectedMonth }: P
 
       {selected && (
         <Modal title={formatDate(new Date(year, month, selected.day))} onCancel={() => setSelectedDay(null)}>
-          {selected.transactions.length === 0 && <div className="empty-state">ไม่มีรายการในวันนี้</div>}
+          {selected.transactions.length === 0 && <div className="empty-state">วันนี้ยังไม่มีรายการ~ 🌤️</div>}
           {selected.transactions.map((t) => {
             const category = categoryFor(categories, t.categoryId);
             const isExpense = t.transactionType === 'expense';

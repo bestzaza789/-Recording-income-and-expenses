@@ -16,7 +16,7 @@ interface Props {
 export function RecurringSection({ recurringRules, categories, accounts, onEdit, onDelete, onAdd }: Props) {
   return (
     <div className="card">
-      {recurringRules.length === 0 && <div className="empty-state">ยังไม่มีรายการประจำ</div>}
+      {recurringRules.length === 0 && <div className="empty-state">ยังไม่มีรายการประจำ 🔁</div>}
       {recurringRules.map((r) => {
         const category = categoryFor(categories, r.categoryId);
         const account = accountFor(accounts, r.accountId);

@@ -91,7 +91,7 @@ export function AccountsSection({ accounts, onEdit, onDelete, onAdd }: Props) {
 
   return (
     <div className="card">
-      {accounts.length === 0 && <div className="empty-state">ยังไม่มีบัญชี</div>}
+      {accounts.length === 0 && <div className="empty-state">ยังไม่มีบัญชีเลย มาเพิ่มกัน~ 🐣</div>}
       {accounts.length > 1 && (
         <div className="text-secondary-sm" style={{ padding: '0 4px 8px' }}>
           ลาก <GripVertical size={12} style={{ verticalAlign: 'middle' }} /> เพื่อเรียงลำดับบัญชีที่แสดงในหน้าหลัก

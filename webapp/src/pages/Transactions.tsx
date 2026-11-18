@@ -67,7 +67,7 @@ export function Transactions() {
       <h1 className="page-title">รายการ</h1>
       <input className="search-bar" placeholder="ค้นหาโน้ต หมวดหมู่ หรือบัญชี" value={search} onChange={(e) => setSearch(e.target.value)} />
 
-      {transactions.length === 0 && <div className="empty-state">ยังไม่มีรายการ</div>}
+      {transactions.length === 0 && <div className="empty-state">ยังไม่มีรายการเลย มาเพิ่มรายการแรกกัน~ 🐥</div>}
       {transactions.length > 0 && filtered.length === 0 && <div className="empty-state">ไม่พบ '{search}'</div>}
 
       {grouped.map(({ monthKey, days }) => (

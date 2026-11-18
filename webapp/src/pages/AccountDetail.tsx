@@ -120,7 +120,7 @@ export function AccountDetail() {
         </div>
       )}
 
-      {grouped.length === 0 && <div className="empty-state" style={{ marginTop: 16 }}>บัญชีนี้ยังไม่มีรายการ</div>}
+      {grouped.length === 0 && <div className="empty-state" style={{ marginTop: 16 }}>บัญชีนี้ยังไม่มีรายการ มาเริ่มกัน~ ✨</div>}
 
       {grouped.map(({ monthKey, days }) => (
         <div key={monthKey}>

@@ -10,7 +10,7 @@ export const SAVED_HOLD_MS = 750;
  * enough for the caller to close the sheet underneath it; the toast itself
  * lingers a little longer and fades out on its own.
  */
-export function showSaved(message = 'บันทึกสำเร็จ'): Promise<void> {
+export function showSaved(message = 'บันทึกแล้วจ้า 🎉'): Promise<void> {
   listeners.forEach((l) => l(message));
   if (listeners.size === 0) return Promise.resolve();
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -19,7 +19,7 @@ export function QuickAddSection({ bookmarks, categories, onEdit, onDelete, onAdd
       <div className="text-secondary-sm" style={{ marginBottom: 12 }}>
         ปุ่มบันทึกแตะเดียวสำหรับรายการที่ใช้บ่อยแต่ไม่ได้มีวันแน่นอน (เช่น ค่าเดินทาง ค่าข้าว) — แสดงที่หน้าหลัก
       </div>
-      {bookmarks.length === 0 && <div className="empty-state">ยังไม่มีรายการด่วน</div>}
+      {bookmarks.length === 0 && <div className="empty-state">ยังไม่มีรายการด่วน ลองเพิ่มสักอัน ⚡</div>}
       {bookmarks.map((b) => {
         const category = categoryFor(categories, b.categoryId);
         return (
