@@ -2254,3 +2254,11 @@ button {
 .save-toast.is-warn { border: 2px solid var(--yellow); }
 .save-toast.is-warn .save-toast-text { color: var(--text); }
 .save-toast .mascot { flex-shrink: 0; }
+
+.suggest-name {
+  width: 100%; box-sizing: border-box; margin-top: 10px; padding: 9px 12px;
+  font: inherit; font-weight: 600; color: var(--text); background: var(--surface-2);
+  border: 2px solid var(--border); border-radius: var(--radius-sm);
+}
+.suggest-name:focus { outline: none; border-color: var(--accent); }
+.suggest-actions .confirm-btn:disabled { opacity: 0.5; }
