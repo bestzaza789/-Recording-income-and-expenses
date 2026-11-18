@@ -7,7 +7,7 @@ import { formatCurrency, startOfDay } from '../lib/format';
 import { categoryFor, sortAccounts } from '../lib/lookup';
 import { useCountUp } from '../lib/useCountUp';
 import { computeStreak } from '../lib/streak';
-import { RecurringSuggestionCard } from '../components/RecurringSuggestionCard';
+import { QuickAddSuggestionCard } from '../components/QuickAddSuggestionCard';
 import { TransactionRow } from '../components/TransactionRow';
 import { EmptyState } from '../components/EmptyState';
 import { Mascot, type MascotMood } from '../components/Mascot';
@@ -126,7 +126,7 @@ export function Dashboard() {
       </div>
 
       <SlipInboxCard />
-      <RecurringSuggestionCard />
+      <QuickAddSuggestionCard />
 
       <div>
         <QuickAddBar />

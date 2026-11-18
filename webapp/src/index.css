@@ -2171,7 +2171,7 @@ button {
 .streak-chip.is-pending { color: var(--text-secondary); background: var(--surface-2); }
 @media (prefers-color-scheme: dark) { .streak-chip:not(.is-pending) { color: #fbbf24; } }
 
-/* ---------- Trend, recurring suggestion ---------- */
+/* ---------- Trend, quick-add suggestion ---------- */
 
 .trend-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .trend-select {

@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, newId } from '../db/db';
-import { initialLastGenerated } from '../db/recurringEngine';
-import { scheduleAutoSync } from '../lib/autoSync';
+import { db } from '../db/db';
+import { addBookmark } from '../db/transactionManager';
 import { formatCurrency } from '../lib/format';
-import { findRecurringSuggestions } from '../lib/recurringSuggest';
+import { findQuickAddSuggestions } from '../lib/quickAddSuggest';
 import { showSaved } from '../lib/saveFeedback';
 import { Mascot } from './Mascot';
 
-const KEY = 'recurringDismissed';
+const KEY = 'quickAddDismissed';
 
 function loadDismissed(): Set<string> {
   try {
@@ -26,15 +25,15 @@ function saveDismissed(set: Set<string>) {
   }
 }
 
-/** Offers to turn a repeating monthly entry into a recurring rule. One suggestion at a time. */
-export function RecurringSuggestionCard() {
+/** Offers to turn an entry the user keeps logging into a quick-add button. One suggestion at a time. */
+export function QuickAddSuggestionCard() {
   const transactions = useLiveQuery(() => db.transactions.toArray(), []);
-  const rules = useLiveQuery(() => db.recurring.toArray(), []);
+  const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []);
   const categories = useLiveQuery(() => db.categories.toArray(), []);
   const [dismissed, setDismissed] = useState<Set<string>>(loadDismissed);
 
-  if (!transactions || !rules || !categories) return null;
-  const suggestion = findRecurringSuggestions(transactions, rules, categories, dismissed)[0];
+  if (!transactions || !bookmarks || !categories) return null;
+  const suggestion = findQuickAddSuggestions(transactions, bookmarks, categories, dismissed)[0];
   if (!suggestion) return null;
 
   function dismiss() {
@@ -44,18 +43,15 @@ export function RecurringSuggestionCard() {
   }
 
   async function accept() {
-    await db.recurring.add({
-      id: newId(),
+    await addBookmark({
+      name: suggestion.label,
+      type: suggestion.type,
       amount: suggestion.amount,
-      transactionType: suggestion.type,
-      dayOfMonth: suggestion.dayOfMonth,
       accountId: suggestion.accountId,
       categoryId: suggestion.categoryId,
       note: suggestion.note,
-      lastGenerated: initialLastGenerated(suggestion.dayOfMonth),
     });
-    scheduleAutoSync();
-    await showSaved('ตั้งเป็นรายการประจำแล้ว 🔁');
+    await showSaved('เพิ่มเป็นรายการด่วนแล้ว ⚡');
   }
 
   return (
@@ -63,13 +59,13 @@ export function RecurringSuggestionCard() {
       <div className="card suggest-card">
         <Mascot mood="happy" size={56} />
         <div className="suggest-main">
-          <div className="suggest-title">เจอรายการซ้ำทุกเดือน 🔁</div>
+          <div className="suggest-title">จดบ่อยจัง ทำปุ่มลัดมั้ย? ⚡</div>
           <div className="suggest-sub">
-            {suggestion.label} {formatCurrency(suggestion.amount)} · ทุกวันที่ {suggestion.dayOfMonth} ({suggestion.months} เดือนล่าสุด) ตั้งเป็นรายการประจำเลยมั้ย?
+            {suggestion.label} {formatCurrency(suggestion.amount)} · จดมาแล้ว {suggestion.count} ครั้งใน 6 เดือน เพิ่มเป็นรายการด่วนเลยมั้ย?
           </div>
           <div className="suggest-actions">
             <button className="confirm-btn cancel" onClick={dismiss}>ไม่ต้อง</button>
-            <button className="confirm-btn ok" onClick={accept}>ตั้งเลย</button>
+            <button className="confirm-btn ok" onClick={accept}>เพิ่มเลย</button>
           </div>
         </div>
       </div>
