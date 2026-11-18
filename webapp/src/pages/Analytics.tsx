@@ -9,6 +9,7 @@ import { Modal } from '../components/Modal';
 import { DailySummary } from '../components/DailySummary';
 import { DonutChart } from '../components/DonutChart';
 import { InsightCard } from '../components/InsightCard';
+import { CategoryTrendCard } from '../components/CategoryTrendCard';
 import { buildInsights } from '../lib/insights';
 import { formatCurrency, formatDateTime, formatMonth, startOfMonth } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
@@ -146,6 +147,8 @@ export function Analytics() {
           <div style={{ fontWeight: 700 }}>{formatCurrency(monthIncome - monthExpense)}</div>
         </div>
       </div>
+
+      <CategoryTrendCard transactions={transactions} categories={categories} selectedMonth={selectedMonth} />
 
       {categoryBreakdown.length > 0 ? (
         <div className="card" style={{ marginTop: 12 }}>

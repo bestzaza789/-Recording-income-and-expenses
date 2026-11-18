@@ -181,7 +181,7 @@ export async function deleteBookmark(id: string): Promise<void> {
   scheduleAutoSync();
 }
 
-export async function useBookmark(bookmark: Bookmark): Promise<string> {
+export async function addFromBookmark(bookmark: Bookmark): Promise<string> {
   return addTransaction({
     amount: bookmark.amount,
     type: bookmark.type,

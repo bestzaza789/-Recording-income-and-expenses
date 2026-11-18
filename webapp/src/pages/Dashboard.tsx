@@ -7,6 +7,7 @@ import { formatCurrency, startOfDay } from '../lib/format';
 import { categoryFor, sortAccounts } from '../lib/lookup';
 import { useCountUp } from '../lib/useCountUp';
 import { computeStreak } from '../lib/streak';
+import { RecurringSuggestionCard } from '../components/RecurringSuggestionCard';
 import { TransactionRow } from '../components/TransactionRow';
 import { EmptyState } from '../components/EmptyState';
 import { Mascot, type MascotMood } from '../components/Mascot';
@@ -20,6 +21,15 @@ import { SpeedDial } from '../components/SpeedDial';
 import { PageSkeleton, SheetLoading } from '../components/Skeleton';
 
 const SlipScanner = lazy(() => import('../components/SlipScanner').then((m) => ({ default: m.SlipScanner })));
+
+/** Which part of the day the hero scenery shows. */
+function phaseOfDay(): 'dawn' | 'day' | 'dusk' | 'night' {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 9) return 'dawn';
+  if (h >= 9 && h < 17) return 'day';
+  if (h >= 17 && h < 20) return 'dusk';
+  return 'night';
+}
 
 function greeting() {
   const h = new Date().getHours();
@@ -81,7 +91,7 @@ export function Dashboard() {
 
   return (
     <div className="page dashboard">
-      <header className="hero">
+      <header className="hero" data-tod={phaseOfDay()}>
         <div className="hero-mascot"><Mascot mood={heroMood} size={64} /></div>
         <div className="app-version">{__APP_VERSION__}</div>
         <div className="hero-greeting">{greeting()}</div>
@@ -116,6 +126,7 @@ export function Dashboard() {
       </div>
 
       <SlipInboxCard />
+      <RecurringSuggestionCard />
 
       <div>
         <QuickAddBar />

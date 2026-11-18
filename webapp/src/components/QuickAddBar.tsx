@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { useBookmark } from '../db/transactionManager';
+import { addFromBookmark } from '../db/transactionManager';
 import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
@@ -18,7 +18,7 @@ export function QuickAddBar() {
     if (busyId) return;
     setBusyId(bookmark.id);
     try {
-      await useBookmark(bookmark);
+      await addFromBookmark(bookmark);
       setSavedId(bookmark.id);
       setTimeout(() => setSavedId((cur) => (cur === bookmark.id ? null : cur)), 1500);
     } finally {
