@@ -24,7 +24,11 @@ export function GoalsSection() {
 
   const goals = useLiveQuery(() => db.goals.toArray().then((g) => g.sort((a, b) => +a.createdAt - +b.createdAt)), []) ?? [];
 
+  // Modals are siblings of <section>, not children: .page animates its direct children with a
+  // transform, which would trap a position:fixed overlay inside the section. Modals are exempt
+  // from that rule only when they sit directly under .page.
   return (
+    <>
     <section>
       <div className="section-title goals-title">
         <span>เป้าหมายออมเงิน</span>
@@ -59,8 +63,9 @@ export function GoalsSection() {
           </div>
         );
       })}
-      {editing && <GoalForm existing={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
-      {depositing && <GoalDepositForm goal={depositing} onClose={() => setDepositing(null)} />}
     </section>
+    {editing && <GoalForm existing={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
+    {depositing && <GoalDepositForm goal={depositing} onClose={() => setDepositing(null)} />}
+    </>
   );
 }
