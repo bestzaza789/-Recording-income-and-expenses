@@ -3,6 +3,7 @@ import { Modal } from './Modal';
 import { db, type Goal } from '../db/db';
 import { formatCurrency } from '../lib/format';
 import { showSaved } from '../lib/saveFeedback';
+import { scheduleAutoSync } from '../lib/autoSync';
 
 type Mode = 'deposit' | 'withdraw';
 
@@ -18,6 +19,7 @@ export function GoalDepositForm({ goal, onClose }: { goal: Goal; onClose: () => 
     if (!valid) return;
     const next = mode === 'deposit' ? goal.savedAmount + amount : goal.savedAmount - amount;
     await db.goals.update(goal.id, { savedAmount: next });
+    scheduleAutoSync();
     const reached = goal.savedAmount < goal.targetAmount && next >= goal.targetAmount;
     await showSaved(reached ? 'ถึงเป้าแล้ว! เก่งมากกก 🎉' : mode === 'deposit' ? 'ฝากแล้วจ้า 🐷' : 'ถอนแล้ว', { celebrate: reached });
     onClose();

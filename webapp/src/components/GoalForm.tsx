@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal } from './Modal';
 import { db, newId, type Goal } from '../db/db';
 import { showSaved } from '../lib/saveFeedback';
+import { scheduleAutoSync } from '../lib/autoSync';
 import { confirmDelete } from '../lib/confirm';
 
 export const GOAL_EMOJIS = ['🐷', '✈️', '🏠', '🚗', '📱', '🎮', '🎁', '🏖️'];
@@ -21,6 +22,7 @@ export function GoalForm({ existing, onClose }: { existing?: Goal; onClose: () =
     } else {
       await db.goals.add({ id: newId(), name: name.trim(), emoji, targetAmount: target, savedAmount: 0, createdAt: new Date() });
     }
+    scheduleAutoSync();
     await showSaved();
     onClose();
   }
@@ -30,6 +32,7 @@ export function GoalForm({ existing, onClose }: { existing?: Goal; onClose: () =
     const detail = existing.savedAmount > 0 ? 'เงินที่ฝากไว้ในเป้าหมายนี้จะหายไปจากรายการ · กู้คืนไม่ได้' : undefined;
     if (!(await confirmDelete(`เป้าหมาย "${existing.name}"`, detail))) return;
     await db.goals.delete(existing.id);
+    scheduleAutoSync();
     onClose();
   }
 

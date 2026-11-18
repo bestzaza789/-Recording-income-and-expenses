@@ -3,7 +3,7 @@ import { formatSheetDate } from '../format';
 import { categoryFor, accountNameFor, sortAccounts } from '../lookup';
 import { isGoogleSyncConfigured, requestAccessToken } from '../googleAuth';
 import {
-  TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET,
+  TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET, GOALS_SHEET,
   ensureSpreadsheet, ensureSheetTabs, writeSheet, readSheetValues,
 } from './api';
 
@@ -89,6 +89,13 @@ async function buildRecurringRows(): Promise<string[][]> {
   return [header, ...rows];
 }
 
+async function buildGoalRows(): Promise<string[][]> {
+  const goals = (await db.goals.toArray()).sort((a, b) => +a.createdAt - +b.createdAt);
+  const header = ['Name', 'Emoji', 'Target', 'Saved', 'Created'];
+  const rows = goals.map((g) => [g.name, g.emoji, g.targetAmount.toFixed(2), g.savedAmount.toFixed(2), formatSheetDate(g.createdAt)]);
+  return [header, ...rows];
+}
+
 export async function syncToGoogleSheets(interactive: boolean, force = false): Promise<{ url: string; rowCount: number }> {
   if (!isGoogleSyncConfigured()) throw new Error('ยังไม่ได้ตั้งค่าการซิงก์ Google');
 
@@ -96,13 +103,14 @@ export async function syncToGoogleSheets(interactive: boolean, force = false): P
   const spreadsheetId = await ensureSpreadsheet(token);
   await ensureSheetTabs(token, spreadsheetId);
 
-  const [transactionRows, accountRows, categoryRows, budgetRows, bookmarkRows, recurringRows] = await Promise.all([
+  const [transactionRows, accountRows, categoryRows, budgetRows, bookmarkRows, recurringRows, goalRows] = await Promise.all([
     buildTransactionRows(),
     buildAccountRows(),
     buildCategoryRows(),
     buildBudgetRows(),
     buildBookmarkRows(),
     buildRecurringRows(),
+    buildGoalRows(),
   ]);
 
   // Every sync replaces the whole sheet with what's on this device. If the
@@ -124,6 +132,7 @@ export async function syncToGoogleSheets(interactive: boolean, force = false): P
   await writeSheet(token, spreadsheetId, BUDGETS_SHEET, budgetRows);
   await writeSheet(token, spreadsheetId, BOOKMARKS_SHEET, bookmarkRows);
   await writeSheet(token, spreadsheetId, RECURRING_SHEET, recurringRows);
+  await writeSheet(token, spreadsheetId, GOALS_SHEET, goalRows);
 
   return {
     url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,

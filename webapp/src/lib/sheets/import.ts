@@ -3,7 +3,7 @@ import { addTransaction } from '../../db/transactionManager';
 import { requestAccessToken, isGoogleSyncConfigured } from '../googleAuth';
 import { categoryFor, accountNameFor, nextAccountSortOrder, sortAccounts } from '../lookup';
 import {
-  ACCOUNTS_SHEET, CATEGORIES_SHEET, TRANSACTIONS_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET,
+  ACCOUNTS_SHEET, CATEGORIES_SHEET, TRANSACTIONS_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET, GOALS_SHEET,
   getStoredSpreadsheetId, readSheetValues,
 } from './api';
 
@@ -72,6 +72,7 @@ export interface ImportResult {
   budgetsAdded: number;
   bookmarksAdded: number;
   recurringAdded: number;
+  goalsAdded: number;
   transactionsImported: number;
   transactionsSkipped: number;
 }
@@ -83,13 +84,14 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
 
   const token = await requestAccessToken(interactive);
 
-  const [accountRows, categoryRows, transactionRows, budgetRows, bookmarkRows, recurringRows] = await Promise.all([
+  const [accountRows, categoryRows, transactionRows, budgetRows, bookmarkRows, recurringRows, goalRows] = await Promise.all([
     readSheetValues(token, spreadsheetId, ACCOUNTS_SHEET, true),
     readSheetValues(token, spreadsheetId, CATEGORIES_SHEET, true),
     readSheetValues(token, spreadsheetId, TRANSACTIONS_SHEET, true),
     readSheetValues(token, spreadsheetId, BUDGETS_SHEET, true),
     readSheetValues(token, spreadsheetId, BOOKMARKS_SHEET, true),
     readSheetValues(token, spreadsheetId, RECURRING_SHEET, true),
+    readSheetValues(token, spreadsheetId, GOALS_SHEET, true),
   ]);
 
   const accounts = await db.accounts.toArray();
@@ -146,6 +148,33 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     await db.budgets.add(budget);
     existingBudgets.push(budget);
     budgetsAdded++;
+  }
+
+  // Goals match by name; an existing local goal is never overwritten.
+  const existingGoals = await db.goals.toArray();
+  let goalsAdded = 0;
+  for (const [name, emoji, targetStr, savedStr, createdStr] of goalRows.slice(1)) {
+    if (!name?.trim()) continue;
+    if (existingGoals.some((g) => g.name.trim().toLowerCase() === name.trim().toLowerCase())) continue;
+    const target = parseAmount(targetStr);
+    if (!target || target <= 0) continue;
+    const saved = parseAmount(savedStr);
+    const createdSerial = Number(createdStr);
+    // Sheet dates are serial numbers (UNFORMATTED_VALUE); fall back to "now" when unreadable.
+    const createdAt = Number.isFinite(createdSerial) && createdSerial > 0
+      ? new Date(Math.round((createdSerial - 25569) * 86400 * 1000))
+      : new Date();
+    const goal = {
+      id: newId(),
+      name: name.trim(),
+      emoji: emoji?.trim() || '🐷',
+      targetAmount: target,
+      savedAmount: Number.isFinite(saved) && saved > 0 ? saved : 0,
+      createdAt,
+    };
+    await db.goals.add(goal);
+    existingGoals.push(goal);
+    goalsAdded++;
   }
 
   const existingBookmarks = await db.bookmarks.toArray();
@@ -243,5 +272,5 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     transactionsImported++;
   }
 
-  return { accountsAdded, categoriesAdded, budgetsAdded, bookmarksAdded, recurringAdded, transactionsImported, transactionsSkipped };
+  return { accountsAdded, categoriesAdded, budgetsAdded, bookmarksAdded, recurringAdded, goalsAdded, transactionsImported, transactionsSkipped };
 }
