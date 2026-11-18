@@ -26,7 +26,7 @@ export function subscribeSaved(listener: Listener): () => void {
 }
 
 /** Pastel confetti burst. The library is loaded on demand so it stays out of the main bundle. */
-async function celebrate() {
+export async function celebrate() {
   try {
     const { default: confetti } = await import('canvas-confetti');
     confetti({

@@ -8,6 +8,8 @@ import { CategoryIcon } from '../lib/icons';
 import { Modal } from '../components/Modal';
 import { DailySummary } from '../components/DailySummary';
 import { DonutChart } from '../components/DonutChart';
+import { InsightCard } from '../components/InsightCard';
+import { buildInsights } from '../lib/insights';
 import { formatCurrency, formatDateTime, formatMonth, startOfMonth } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
 
@@ -67,6 +69,15 @@ export function Analytics() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthTransactions, categories]);
 
+  const insight = useMemo(() => {
+    const prevMonth = addMonths(selectedMonth, -1);
+    return buildInsights(
+      monthTransactions,
+      transactions.filter((t) => startOfMonth(t.date) === prevMonth),
+      categories,
+    );
+  }, [monthTransactions, transactions, categories, selectedMonth]);
+
   const selectedCategory = categoryBreakdown.find((c) => c.categoryId === selectedCategoryId);
   const selectedCategoryTransactions = useMemo(() => {
     if (!selectedCategoryId) return [];
@@ -120,6 +131,7 @@ export function Analytics() {
       )}
 
       {view === 'monthly' && (<>
+      {insight && <div style={{ marginTop: 12 }}><InsightCard insight={insight} /></div>}
       <div className="card" style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between' }}>
         <div>
           <div className="text-secondary-sm">รายรับ</div>

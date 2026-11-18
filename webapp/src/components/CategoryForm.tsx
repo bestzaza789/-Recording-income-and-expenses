@@ -2,7 +2,7 @@ import { showSaved } from '../lib/saveFeedback';
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { db, newId, type Category, type CategoryType } from '../db/db';
-import { CategoryIcon, ICON_NAMES } from '../lib/icons';
+import { CategoryIcon, CATEGORY_EMOJIS, EMOJI_PREFIX, ICON_NAMES } from '../lib/icons';
 import { scheduleAutoSync } from '../lib/autoSync';
 
 const COLORS = ['FF3B30', 'FF9500', 'FFCC00', '34C759', '007AFF', '5856D6', 'FF2D55', '8E8E93'];
@@ -64,6 +64,19 @@ export function CategoryForm({ defaultType, onClose, existing }: { defaultType: 
               onClick={() => setIcon(iconName)}
             >
               <CategoryIcon name={iconName} />
+            </button>
+          ))}
+        </div>
+        <div className="form-section-title" style={{ marginTop: 14 }}>หรือใช้สติกเกอร์</div>
+        <div className="icon-picker">
+          {CATEGORY_EMOJIS.map((e) => (
+            <button
+              key={e}
+              className={`icon-choice${icon === EMOJI_PREFIX + e ? ' selected' : ''}`}
+              onClick={() => setIcon(EMOJI_PREFIX + e)}
+              aria-label={e}
+            >
+              <span style={{ fontSize: 20, lineHeight: 1 }}>{e}</span>
             </button>
           ))}
         </div>

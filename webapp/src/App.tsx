@@ -3,6 +3,7 @@ import { BottomNav } from './components/BottomNav';
 import { SaveToast } from './components/SaveToast';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { Onboarding } from './components/Onboarding';
+import { MonthEndCelebration } from './components/MonthEndCelebration';
 import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { Management } from './pages/Management';
@@ -26,6 +27,7 @@ function App() {
         <SaveToast />
         <ConfirmDialog />
         <Onboarding />
+        <MonthEndCelebration />
       </div>
     </HashRouter>
   );

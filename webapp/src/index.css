@@ -2157,3 +2157,16 @@ button {
 }
 .emoji-chip:active { transform: scale(0.9); }
 .emoji-chip.is-active { border-color: var(--accent); background: var(--accent-soft); }
+
+/* ---------- Insights, streak ---------- */
+
+.insight-card { display: flex; align-items: center; gap: 14px; padding: 16px; }
+.insight-lines { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; }
+.insight-lines li::before { content: '•'; color: var(--accent); margin-right: 6px; }
+
+.streak-chip {
+  display: inline-block; margin-bottom: 6px; padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; color: #b45309; background: rgba(251, 191, 36, 0.22);
+}
+.streak-chip.is-pending { color: var(--text-secondary); background: var(--surface-2); }
+@media (prefers-color-scheme: dark) { .streak-chip:not(.is-pending) { color: #fbbf24; } }

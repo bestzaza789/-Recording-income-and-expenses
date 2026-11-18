@@ -6,6 +6,7 @@ import { db } from '../db/db';
 import { formatCurrency, startOfDay } from '../lib/format';
 import { categoryFor, sortAccounts } from '../lib/lookup';
 import { useCountUp } from '../lib/useCountUp';
+import { computeStreak } from '../lib/streak';
 import { TransactionRow } from '../components/TransactionRow';
 import { EmptyState } from '../components/EmptyState';
 import { Mascot, type MascotMood } from '../components/Mascot';
@@ -43,6 +44,7 @@ export function Dashboard() {
   const totalNetWorth = accounts.reduce((sum, a) => sum + a.currentBalance, 0);
   const shownNetWorth = useCountUp(totalNetWorth, 1100);
   const recentTransactions = transactions.slice(0, 5);
+  const streak = computeStreak(transactions.map((t) => t.date));
 
   const now = new Date();
   const todayKey = startOfDay(now);
@@ -83,6 +85,11 @@ export function Dashboard() {
         <div className="hero-mascot"><Mascot mood={heroMood} size={64} /></div>
         <div className="app-version">{__APP_VERSION__}</div>
         <div className="hero-greeting">{greeting()}</div>
+        {streak.count > 0 && (
+          <div className={`streak-chip${streak.loggedToday ? '' : ' is-pending'}`}>
+            🔥 จดต่อเนื่อง {streak.count} วัน{streak.loggedToday ? '' : ' · จดวันนี้เพื่อไม่ให้ขาด'}
+          </div>
+        )}
         <div className="net-worth-label">ทรัพย์สินสุทธิทั้งหมด</div>
         <div className="net-worth-value" style={totalNetWorth < 0 ? { color: 'var(--red)' } : undefined}>
           {formatCurrency(shownNetWorth)}
