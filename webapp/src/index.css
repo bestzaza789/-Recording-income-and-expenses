@@ -2131,3 +2131,29 @@ button {
 .onboarding .theme-picker { width: 100%; text-align: left; margin-bottom: 0; }
 .onboarding-actions { display: flex; gap: 10px; width: 100%; margin-top: 20px; }
 .onboarding-actions .confirm-btn:disabled { opacity: 0.6; }
+
+/* ---------- Savings goals ---------- */
+
+.goals-title { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.goal-empty { display: flex; align-items: center; gap: 14px; padding: 16px; color: var(--text-secondary); margin-bottom: 12px; }
+.goal-card { display: flex; align-items: center; gap: 14px; padding: 16px; margin-bottom: 12px; }
+.goal-mascot { width: 88px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; }
+.goal-main { flex: 1; min-width: 0; }
+.goal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.goal-name { font-family: var(--font-cute); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.goal-sub { font-size: 13px; color: var(--text-secondary); margin: 8px 0 10px; }
+.goal-deposit {
+  border: none; border-radius: var(--radius-sm); padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer;
+  color: var(--accent-strong); background: var(--accent-soft);
+  transition: transform var(--dur-fast) var(--ease-spring);
+}
+.goal-deposit:active { transform: scale(0.95); }
+
+.emoji-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.emoji-chip {
+  width: 44px; height: 44px; border-radius: var(--radius); font-size: 22px; cursor: pointer;
+  border: 2px solid var(--border); background: var(--surface-2);
+  transition: transform var(--dur-fast) var(--ease-spring);
+}
+.emoji-chip:active { transform: scale(0.9); }
+.emoji-chip.is-active { border-color: var(--accent); background: var(--accent-soft); }

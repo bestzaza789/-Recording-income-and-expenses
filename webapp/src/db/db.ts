@@ -27,6 +27,15 @@ export interface Budget {
   monthlyLimit: number;
 }
 
+export interface Goal {
+  id: string;
+  name: string;
+  emoji: string;
+  targetAmount: number;
+  savedAmount: number;  // tracked on its own; does not touch any account balance
+  createdAt: Date;
+}
+
 export interface RecurringRule {
   id: string;
   amount: number;
@@ -66,6 +75,7 @@ export const db = new Dexie('PersonalFinanceDB') as Dexie & {
   budgets: EntityTable<Budget, 'id'>;
   recurring: EntityTable<RecurringRule, 'id'>;
   bookmarks: EntityTable<Bookmark, 'id'>;
+  goals: EntityTable<Goal, 'id'>;
 };
 
 db.version(1).stores({
@@ -96,6 +106,16 @@ db.version(4).stores({
   budgets: 'id, &categoryId',
   recurring: 'id',
   bookmarks: 'id, name, type',
+});
+
+db.version(5).stores({
+  accounts: 'id, name, accountType',
+  categories: 'id, name, type',
+  transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+  budgets: 'id, &categoryId',
+  recurring: 'id',
+  bookmarks: 'id, name, type',
+  goals: 'id',
 });
 
 export function newId(): string {
