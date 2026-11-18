@@ -23,8 +23,8 @@ export function Mascot({ mood = 'happy', size = 72 }: Props) {
     >
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#9fd0ff" />
-          <stop offset="1" stopColor="#5aa5f0" />
+          <stop offset="0" style={{ stopColor: 'var(--mascot-1)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--mascot-2)' }} />
         </linearGradient>
       </defs>
       <ellipse cx="40" cy="73" rx="20" ry="3.5" fill="currentColor" opacity="0.12" />
@@ -56,8 +56,8 @@ export function Mascot({ mood = 'happy', size = 72 }: Props) {
             <path d="M47 46 Q51 39 55 46" stroke="#1b2a41" strokeWidth="2.6" fill="none" strokeLinecap="round" />
             <path d="M32 52 Q40 63 48 52 Z" fill="#1b2a41" />
             <path d="M36 57 Q40 60 44 57" fill="#ff8fab" />
-            <path className="mascot-arm mascot-arm-l" d="M13 50 Q5 40 8 30" stroke="#5aa5f0" strokeWidth="6" fill="none" strokeLinecap="round" />
-            <path className="mascot-arm mascot-arm-r" d="M67 50 Q75 40 72 30" stroke="#5aa5f0" strokeWidth="6" fill="none" strokeLinecap="round" />
+            <path className="mascot-arm mascot-arm-l" d="M13 50 Q5 40 8 30" style={{ stroke: 'var(--mascot-2)' }} strokeWidth="6" fill="none" strokeLinecap="round" />
+            <path className="mascot-arm mascot-arm-r" d="M67 50 Q75 40 72 30" style={{ stroke: 'var(--mascot-2)' }} strokeWidth="6" fill="none" strokeLinecap="round" />
           </g>
         )}
         {mood === 'sleepy' && (

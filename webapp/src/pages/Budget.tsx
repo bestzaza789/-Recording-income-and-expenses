@@ -5,6 +5,7 @@ import { db, type Category } from '../db/db';
 import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
 import { BudgetForm } from '../components/BudgetForm';
+import { Mascot, type MascotMood } from '../components/Mascot';
 
 export function Budget() {
   const [editing, setEditing] = useState<Category | null>(null);
@@ -34,6 +35,17 @@ export function Budget() {
     return 'var(--green)';
   }
 
+  const budgeted = budgets.filter((x) => categories.some((c) => c.id === x.categoryId));
+  const totalLimit = budgeted.reduce((s, x) => s + x.monthlyLimit, 0);
+  const totalSpent = budgeted.reduce((s, x) => s + (spentByCategory.get(x.categoryId) ?? 0), 0);
+  const usedPct = totalLimit > 0 ? totalSpent / totalLimit : 0;
+  const pet: { mood: MascotMood; text: string } =
+    totalLimit === 0 ? { mood: 'sleepy', text: 'ยังไม่ได้ตั้งงบเลย ตั้งงบกันนะ~ 💤' }
+    : usedPct > 1 ? { mood: 'shocked', text: 'ว้าย! งบเกินแล้ว 😱' }
+    : usedPct >= 0.8 ? { mood: 'shocked', text: 'งบใกล้หมดแล้วนะ ระวังหน่อย 😥' }
+    : usedPct >= 0.5 ? { mood: 'happy', text: 'ครึ่งทางแล้ว ยังไหวอยู่ 😊' }
+    : { mood: 'cheer', text: 'ประหยัดเก่งมาก! 🎉' };
+
   const editingBudget = editing ? budgetFor(editing.id) : undefined;
 
   if (!transactionsQuery) {
@@ -43,6 +55,20 @@ export function Budget() {
   return (
     <div className="page">
       <h1 className="page-title">งบประมาณ</h1>
+      <div className="card budget-pet">
+        <Mascot mood={pet.mood} size={76} />
+        <div className="budget-pet-main">
+          <div className="budget-pet-bubble">{pet.text}</div>
+          {totalLimit > 0 && (
+            <>
+              <div className="budget-pet-sub">ใช้ไป {formatCurrency(totalSpent)} / {formatCurrency(totalLimit)}</div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: `${Math.min(usedPct * 100, 100)}%`, background: progressColor(totalSpent, totalLimit) }} />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
       <div className="card">
         {categories.length === 0 && <div className="empty-state">ยังไม่มีหมวดหมู่รายจ่าย</div>}
         {categories.map((c) => {

@@ -7,6 +7,7 @@ import { CategoryForm } from '../components/CategoryForm';
 import { BookmarkForm } from '../components/BookmarkForm';
 import { RecurringForm } from '../components/RecurringForm';
 import { GoogleSyncCard } from '../components/GoogleSyncCard';
+import { ThemePicker } from '../components/ThemePicker';
 import { AccountsSection } from '../components/management/AccountsSection';
 import { CategoriesSection } from '../components/management/CategoriesSection';
 import { QuickAddSection } from '../components/management/QuickAddSection';
@@ -73,6 +74,7 @@ export function Management() {
   return (
     <div className="page">
       <h1 className="page-title">จัดการ</h1>
+      <ThemePicker />
       <div className="segmented">
         <button className={tab === 'accounts' ? 'active' : ''} onClick={() => setTab('accounts')}>บัญชี</button>
         <button className={tab === 'categories' ? 'active' : ''} onClick={() => setTab('categories')}>หมวดหมู่</button>

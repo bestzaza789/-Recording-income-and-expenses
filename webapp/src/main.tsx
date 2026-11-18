@@ -5,6 +5,9 @@ import App from './App.tsx'
 import { seedDefaultsIfEmpty } from './db/db'
 import { generateDueRecurring } from './db/recurringEngine'
 import { removeBuddhistEraImports } from './db/transactionManager'
+import { applyTheme, getTheme } from './lib/theme'
+
+applyTheme(getTheme())
 
 seedDefaultsIfEmpty()
   .then(() => removeBuddhistEraImports())
