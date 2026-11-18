@@ -5,6 +5,8 @@ import { addFromBookmark } from '../db/transactionManager';
 import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
+import { showSaved } from '../lib/saveFeedback';
+import { budgetWarningAfterExpense } from '../lib/budgetAlert';
 
 export function QuickAddBar() {
   const bookmarks = useLiveQuery(() => db.bookmarks.toArray(), []) ?? [];
@@ -20,6 +22,10 @@ export function QuickAddBar() {
     try {
       await addFromBookmark(bookmark);
       setSavedId(bookmark.id);
+      if (bookmark.type === 'expense') {
+        const warning = await budgetWarningAfterExpense(bookmark.categoryId, bookmark.amount, new Date());
+        if (warning) void showSaved(warning, { tone: 'warn' });
+      }
       setTimeout(() => setSavedId((cur) => (cur === bookmark.id ? null : cur)), 1500);
     } finally {
       setBusyId(null);

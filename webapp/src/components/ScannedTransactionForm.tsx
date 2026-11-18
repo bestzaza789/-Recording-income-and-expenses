@@ -1,4 +1,5 @@
 import { showSaved } from '../lib/saveFeedback';
+import { budgetWarningAfterExpense } from '../lib/budgetAlert';
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AlertTriangle } from 'lucide-react';
@@ -132,7 +133,9 @@ export function ScannedTransactionForm({
     }
 
     await onSaved?.();
-    await showSaved();
+    const warning = mode === 'expense' ? await budgetWarningAfterExpense(categoryId, amountNum, date) : null;
+    if (warning) await showSaved(warning, { tone: 'warn' });
+    else await showSaved();
     onClose();
   }
 

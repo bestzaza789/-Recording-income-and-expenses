@@ -2248,3 +2248,9 @@ button {
   .hero[data-tod='night']::after { animation: twinkle 3.6s ease-in-out infinite alternate; }
 }
 @keyframes twinkle { from { opacity: 0.35; } to { opacity: 0.95; } }
+
+/* ---------- Budget warning toast ---------- */
+
+.save-toast.is-warn { border: 2px solid var(--yellow); }
+.save-toast.is-warn .save-toast-text { color: var(--text); }
+.save-toast .mascot { flex-shrink: 0; }

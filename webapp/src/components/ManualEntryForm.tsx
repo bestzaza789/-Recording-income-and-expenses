@@ -1,4 +1,5 @@
 import { showSaved } from '../lib/saveFeedback';
+import { budgetWarningAfterExpense } from '../lib/budgetAlert';
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { WizardShell, WizardOption } from './WizardShell';
@@ -46,7 +47,9 @@ export function ManualEntryForm({ onClose }: { onClose: () => void }) {
       accountId,
       categoryId,
     });
-    await showSaved(type === 'income' ? 'ได้เงินเข้าแล้ว เย้! 🎉' : undefined, { celebrate: type === 'income' });
+    const warning = type === 'expense' ? await budgetWarningAfterExpense(categoryId, amountNum, new Date(date)) : null;
+    if (warning) await showSaved(warning, { tone: 'warn' });
+    else await showSaved(type === 'income' ? 'ได้เงินเข้าแล้ว เย้! 🎉' : undefined, { celebrate: type === 'income' });
     onClose();
   }
 
