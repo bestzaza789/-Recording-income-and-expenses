@@ -87,6 +87,10 @@ export function Dashboard() {
   }).sort((a, b) => b.value - a.value);
 
   const heroMood: MascotMood = monthIncome === 0 && monthExpense === 0 ? 'sleepy' : monthExpense > monthIncome ? 'shocked' : 'cheer';
+  const heroReason =
+    heroMood === 'sleepy' ? 'ง่วงจัง เดือนนี้ยังไม่มีรายรับรายจ่ายเลย 💤'
+    : heroMood === 'shocked' ? `ตกใจ! เดือนนี้จ่ายไป ${formatCurrency(monthExpense)} มากกว่ารายรับ ${formatCurrency(monthIncome)} อยู่ ${formatCurrency(monthExpense - monthIncome)} 😱`
+    : `ดีใจ! เดือนนี้รายรับมากกว่ารายจ่าย เหลือเก็บ ${formatCurrency(monthIncome - monthExpense)} 🎉`;
 
   if (!accountsQuery || !transactionsQuery) {
     return <div className="page"><PageSkeleton variant="dashboard" /></div>;
@@ -95,7 +99,7 @@ export function Dashboard() {
   return (
     <div className="page dashboard">
       <header className="hero" data-tod={phaseOfDay()}>
-        <div className="hero-mascot"><Mascot mood={heroMood} size={64} /></div>
+        <div className="hero-mascot"><Mascot mood={heroMood} size={64} reason={heroReason} /></div>
         <div className="app-version">{__APP_VERSION__}</div>
         <div className="hero-greeting">{greeting()}</div>
         {streak.count > 0 && (

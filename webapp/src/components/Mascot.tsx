@@ -1,14 +1,77 @@
-import { useId } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export type MascotMood = 'happy' | 'cheer' | 'sleepy' | 'shocked';
 
 interface Props {
   mood?: MascotMood;
   size?: number;
+  /** Why the mascot looks this way. When set, tapping the mascot shows it in a speech bubble. */
+  reason?: string;
 }
 
 /** Little blue cat-blob. Pure inline SVG so it costs no extra requests. */
-export function Mascot({ mood = 'happy', size = 72 }: Props) {
+export function Mascot({ reason, ...props }: Props) {
+  if (!reason) return <MascotArt {...props} />;
+  return <ExplainedMascot reason={reason} {...props} />;
+}
+
+const BUBBLE_W = 240;
+
+function ExplainedMascot({ reason, ...props }: Props & { reason: string }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number; arrow: number } | null>(null);
+
+  useEffect(() => {
+    if (!pos) return;
+    const close = () => setPos(null);
+    const timer = window.setTimeout(close, 6000);
+    // Deferred so the tap that opened the bubble doesn't immediately close it.
+    const attach = window.setTimeout(() => document.addEventListener('pointerdown', close), 0);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(attach);
+      document.removeEventListener('pointerdown', close);
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [pos]);
+
+  function toggle() {
+    if (pos) return setPos(null);
+    const r = ref.current!.getBoundingClientRect();
+    const center = r.left + r.width / 2;
+    // Fixed + portal: the bubble escapes clipping (the hero has overflow: hidden) and the
+    // transformed .page children, which would otherwise trap a fixed element.
+    const left = Math.min(Math.max(12, center - BUBBLE_W / 2), window.innerWidth - BUBBLE_W - 12);
+    setPos({ top: r.bottom + 8, left, arrow: center - left });
+  }
+
+  return (
+    <>
+      <button
+        ref={ref}
+        type="button"
+        className="mascot-btn"
+        onClick={toggle}
+        aria-label="ทำไมน้องแมวเป็นแบบนี้"
+        aria-expanded={pos !== null}
+      >
+        <MascotArt {...props} />
+      </button>
+      {pos && createPortal(
+        <div className="mascot-tip" role="tooltip" style={{ top: pos.top, left: pos.left, width: BUBBLE_W, ['--arrow-x' as string]: `${pos.arrow}px` }}>
+          {reason}
+        </div>,
+        document.body,
+      )}
+    </>
+  );
+}
+
+function MascotArt({ mood = 'happy', size = 72 }: Props) {
   const gid = useId();
   const eyeY = 44;
 

@@ -59,7 +59,13 @@ export function Budget() {
     <div className="page">
       <h1 className="page-title">งบประมาณ</h1>
       <div className="card budget-pet">
-        <Mascot mood={pet.mood} size={76} />
+        <Mascot
+          mood={pet.mood}
+          size={76}
+          reason={totalLimit === 0
+            ? 'ง่วงอยู่ เพราะยังไม่ได้ตั้งงบให้หมวดไหนเลย'
+            : `ใช้งบไปแล้ว ${Math.round(usedPct * 100)}% — ต่ำกว่า 50% ดีใจ, 50–79% ยิ้ม, ตั้งแต่ 80% เริ่มตกใจ`}
+        />
         <div className="budget-pet-main">
           <div className="budget-pet-bubble">{pet.text}</div>
           {totalLimit > 0 && (

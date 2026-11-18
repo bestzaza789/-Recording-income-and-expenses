@@ -45,7 +45,17 @@ export function GoalsSection() {
         const pct = g.targetAmount > 0 ? g.savedAmount / g.targetAmount : 0;
         return (
           <div className="card goal-card" key={g.id}>
-            <div className="goal-mascot"><Mascot mood={moodFor(pct)} size={sizeFor(pct)} /></div>
+            <div className="goal-mascot">
+              <Mascot
+                mood={moodFor(pct)}
+                size={sizeFor(pct)}
+                reason={pct >= 1
+                  ? 'ถึงเป้าแล้ว! เลยดีใจสุด ๆ 🎉'
+                  : pct > 0
+                    ? `เก็บได้ ${Math.floor(pct * 100)}% แล้ว น้องแมวจะตัวโตขึ้นเรื่อย ๆ จนถึงเป้า`
+                    : 'ยังไม่ได้ฝากเงินเข้าเป้านี้เลย เลยง่วง ๆ 💤'}
+              />
+            </div>
             <div className="goal-main">
               <div className="goal-head">
                 <div className="goal-name">{g.emoji} {g.name}</div>

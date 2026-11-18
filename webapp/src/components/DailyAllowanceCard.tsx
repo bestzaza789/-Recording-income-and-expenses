@@ -24,7 +24,13 @@ export function DailyAllowanceCard() {
 
   return (
     <div className={`card allowance-card${over ? ' is-over' : ''}`}>
-      <Mascot mood={over ? 'shocked' : 'cheer'} size={64} />
+      <Mascot
+        mood={over ? 'shocked' : 'cheer'}
+        size={64}
+        reason={over
+          ? 'ตกใจ! งบที่เหลือไม่พอสำหรับรายจ่ายประจำที่ยังไม่ถึงกำหนด ลองลดรายจ่ายช่วงนี้ดูนะ'
+          : 'ดีใจ! งบเดือนนี้ยังพอ ถ้าใช้ไม่เกินวันละเท่านี้ จะอยู่ในงบจนสิ้นเดือน'}
+      />
       <div className="allowance-main">
         {over ? (
           <div className="allowance-headline">งบเดือนนี้ไม่พอแล้ว 😱</div>
