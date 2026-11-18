@@ -1,43 +1,41 @@
+import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { computeDailyAllowance } from '../lib/dailyAllowance';
-import { formatCurrency } from '../lib/format';
+import { getDailyLimit, spentToday } from '../lib/dailyAllowance';
+import { formatCurrency, startOfDay } from '../lib/format';
 import { Mascot } from './Mascot';
 
-/** "วันนี้ใช้ได้อีก ฿320 🐱" — remaining budget less upcoming bills, per remaining day. */
+/** "วันนี้ใช้ได้อีก ฿320 🐱" — the daily limit set in Management minus today's expenses. */
 export function DailyAllowanceCard() {
-  const transactions = useLiveQuery(() => db.transactions.toArray(), []);
-  const budgets = useLiveQuery(() => db.budgets.toArray(), []);
-  const categories = useLiveQuery(() => db.categories.toArray(), []);
-  const recurring = useLiveQuery(() => db.recurring.toArray(), []);
-  if (!transactions || !budgets || !categories || !recurring) return null;
+  const [limit] = useState(getDailyLimit);
+  const transactions = useLiveQuery(
+    () => db.transactions.where('date').aboveOrEqual(new Date(startOfDay(new Date()))).toArray(),
+    [],
+  );
+  if (!limit || !transactions) return null;
 
-  const a = computeDailyAllowance(transactions, budgets, categories, recurring);
-  if (!a) return null;
-
-  const over = a.perDay < 0;
-  const detail = [
-    `งบเหลือ ${formatCurrency(a.remainingBudget)}`,
-    a.upcomingRecurring > 0 ? `หักรายจ่ายประจำที่ยังไม่ถึงกำหนด ${formatCurrency(a.upcomingRecurring)}` : null,
-    `เหลือ ${a.daysLeft} วัน`,
-  ].filter(Boolean).join(' · ');
+  const spent = spentToday(transactions);
+  const left = limit - spent;
+  const over = left < 0;
 
   return (
     <div className={`card allowance-card${over ? ' is-over' : ''}`}>
       <Mascot
-        mood={over ? 'shocked' : 'cheer'}
+        mood={over ? 'shocked' : spent === 0 ? 'happy' : 'cheer'}
         size={64}
         reason={over
-          ? 'ตกใจ! งบที่เหลือไม่พอสำหรับรายจ่ายประจำที่ยังไม่ถึงกำหนด ลองลดรายจ่ายช่วงนี้ดูนะ'
-          : 'ดีใจ! งบเดือนนี้ยังพอ ถ้าใช้ไม่เกินวันละเท่านี้ จะอยู่ในงบจนสิ้นเดือน'}
+          ? `ตกใจ! วันนี้ใช้ไป ${formatCurrency(spent)} เกินที่ตั้งไว้วันละ ${formatCurrency(limit)} แล้ว`
+          : spent === 0
+            ? 'วันนี้ยังไม่ได้ใช้เงินเลย ยิ้มรอไว้ก่อน~'
+            : `ดีใจ! วันนี้ยังไม่เกินวันละ ${formatCurrency(limit)} ที่ตั้งไว้`}
       />
       <div className="allowance-main">
         {over ? (
-          <div className="allowance-headline">งบเดือนนี้ไม่พอแล้ว 😱</div>
+          <div className="allowance-headline">วันนี้ใช้เกินแล้ว <strong className="is-over">{formatCurrency(-left)}</strong> 😱</div>
         ) : (
-          <div className="allowance-headline">วันนี้ใช้ได้อีก <strong>{formatCurrency(Math.floor(a.perDay))}</strong> 🐱</div>
+          <div className="allowance-headline">วันนี้ใช้ได้อีก <strong>{formatCurrency(left)}</strong> 🐱</div>
         )}
-        <div className="allowance-detail">{over ? `ขาดอีก ${formatCurrency(Math.ceil(-a.perDay * a.daysLeft))} · ` : ''}{detail}</div>
+        <div className="allowance-detail">ตั้งไว้วันละ {formatCurrency(limit)} · ใช้ไปแล้ว {formatCurrency(spent)}</div>
       </div>
     </div>
   );
