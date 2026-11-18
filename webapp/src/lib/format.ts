@@ -45,3 +45,7 @@ export function startOfMonth(date: Date): number {
   const d = new Date(date);
   return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
 }
+
+export function formatDayLong(date: Date): string {
+  return new Date(date).toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long' });
+}

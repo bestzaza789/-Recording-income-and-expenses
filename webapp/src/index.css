@@ -2262,3 +2262,44 @@ button {
 }
 .suggest-name:focus { outline: none; border-color: var(--accent); }
 .suggest-actions .confirm-btn:disabled { opacity: 0.5; }
+
+/* ---------- Daily allowance ---------- */
+
+.allowance-card { display: flex; align-items: center; gap: 14px; padding: 16px; }
+.allowance-card.is-over { border: 2px solid var(--red); }
+.allowance-main { flex: 1; min-width: 0; }
+.allowance-headline { font-family: var(--font-cute); font-weight: 700; font-size: 17px; }
+.allowance-headline strong { color: var(--accent-strong); font-size: 22px; }
+.allowance-detail { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+/* ---------- Loans ---------- */
+
+.loan-totals { display: flex; gap: 24px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+.loan-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.loan-row:last-child { border-bottom: none; }
+.loan-main { flex: 1; min-width: 0; }
+.loan-person { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loan-sub { font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loan-amount { font-weight: 700; white-space: nowrap; }
+.loan-done { width: auto; margin: 0; padding: 6px 10px; white-space: nowrap; }
+.loan-toggle { background: none; border: none; color: var(--accent-strong); font: inherit; font-size: 13px; font-weight: 600; padding: 10px 0 2px; cursor: pointer; }
+
+/* ---------- Badges ---------- */
+
+.badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; padding: 14px; }
+.badge-sticker { text-align: center; padding: 10px 6px; border-radius: 18px; background: var(--surface-2); opacity: 0.55; filter: grayscale(1); }
+.badge-sticker.is-earned { opacity: 1; filter: none; background: var(--accent-soft); box-shadow: 0 6px 14px -10px var(--accent-strong); }
+.badge-emoji { font-size: 34px; line-height: 1.1; }
+.badge-sticker.is-earned .badge-emoji { transform: rotate(-6deg); }
+.badge-title { font-family: var(--font-cute); font-weight: 700; font-size: 12px; margin-top: 4px; }
+.badge-sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ---------- Wrapped ---------- */
+
+.wrapped-btn {
+  width: 100%; margin-top: 12px; padding: 12px; border: none; border-radius: var(--radius-sm);
+  font: inherit; font-weight: 700; color: #fff; cursor: pointer;
+  background: linear-gradient(120deg, #5aa5f0, #8f7bf0, #ff9fc0);
+}
+.wrapped-wrap { padding: 0 16px 16px; }
+.wrapped-svg { width: 100%; height: auto; display: block; border-radius: 20px; }

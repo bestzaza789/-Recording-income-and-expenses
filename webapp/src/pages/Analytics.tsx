@@ -11,6 +11,7 @@ import { DailySummary } from '../components/DailySummary';
 import { DonutChart } from '../components/DonutChart';
 import { InsightCard } from '../components/InsightCard';
 import { CategoryTrendCard } from '../components/CategoryTrendCard';
+import { WrappedModal } from '../components/WrappedModal';
 import { buildInsights } from '../lib/insights';
 import { formatCurrency, formatDateTime, formatMonth, startOfMonth } from '../lib/format';
 import { categoryFor } from '../lib/lookup';
@@ -28,6 +29,7 @@ export function Analytics() {
   const [selectedMonth, setSelectedMonth] = useState(() => startOfMonth(new Date()));
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [view, setView] = useState<'monthly' | 'daily'>('monthly');
+  const [showWrapped, setShowWrapped] = useState(false);
 
   const chartData = useMemo(() => {
     const map = new Map<number, { month: number; Income: number; Expense: number }>();
@@ -133,6 +135,9 @@ export function Analytics() {
       )}
 
       {view === 'monthly' && (<>
+      {monthTransactions.length > 0 && (
+        <button className="wrapped-btn" onClick={() => setShowWrapped(true)}>✨ ดูสรุปเดือนแบบ Wrapped</button>
+      )}
       {insight && <div style={{ marginTop: 12 }}><InsightCard insight={insight} /></div>}
       <div className="card" style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between' }}>
         <div>
@@ -187,6 +192,15 @@ export function Analytics() {
         <div className="empty-state" style={{ marginTop: 16 }}>ไม่มีรายจ่ายในเดือน {formatMonth(new Date(selectedMonth))}</div>
       )}
       </>)}
+
+      {showWrapped && (
+        <WrappedModal
+          transactions={transactions}
+          categories={categories}
+          monthStart={selectedMonth}
+          onClose={() => setShowWrapped(false)}
+        />
+      )}
 
       {selectedCategory && (
         <Modal title={selectedCategory.name} onCancel={() => setSelectedCategoryId(null)}>

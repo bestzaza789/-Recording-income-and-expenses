@@ -36,6 +36,26 @@ export interface Goal {
   createdAt: Date;
 }
 
+export type LoanDirection = 'lent' | 'borrowed';
+
+/** Money lent to someone ('lent': they owe us) or borrowed from someone ('borrowed': we owe them). */
+export interface Loan {
+  id: string;
+  person: string;
+  amount: number;
+  direction: LoanDirection;
+  note?: string;
+  createdAt: Date;
+  settled: boolean;
+  settledAt?: Date;
+}
+
+/** A collected achievement sticker. `id` is the badge key from lib/badges.ts. */
+export interface EarnedBadge {
+  id: string;
+  earnedAt: Date;
+}
+
 export interface RecurringRule {
   id: string;
   amount: number;
@@ -76,6 +96,8 @@ export const db = new Dexie('PersonalFinanceDB') as Dexie & {
   recurring: EntityTable<RecurringRule, 'id'>;
   bookmarks: EntityTable<Bookmark, 'id'>;
   goals: EntityTable<Goal, 'id'>;
+  loans: EntityTable<Loan, 'id'>;
+  badges: EntityTable<EarnedBadge, 'id'>;
 };
 
 db.version(1).stores({
@@ -116,6 +138,18 @@ db.version(5).stores({
   recurring: 'id',
   bookmarks: 'id, name, type',
   goals: 'id',
+});
+
+db.version(6).stores({
+  accounts: 'id, name, accountType',
+  categories: 'id, name, type',
+  transactions: 'id, date, transactionType, accountId, toAccountId, categoryId',
+  budgets: 'id, &categoryId',
+  recurring: 'id',
+  bookmarks: 'id, name, type',
+  goals: 'id',
+  loans: 'id',
+  badges: 'id',
 });
 
 export function newId(): string {

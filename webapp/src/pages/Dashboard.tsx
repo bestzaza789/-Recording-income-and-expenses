@@ -16,6 +16,8 @@ import { ManualEntryForm } from '../components/ManualEntryForm';
 import { TransferForm } from '../components/TransferForm';
 import { QuickAddBar } from '../components/QuickAddBar';
 import { SlipInboxCard } from '../components/SlipInboxCard';
+import { DailyAllowanceCard } from '../components/DailyAllowanceCard';
+import { BadgesCard } from '../components/BadgesCard';
 import { AccountCard } from '../components/AccountCard';
 import { DonutChart } from '../components/DonutChart';
 import { SpeedDial } from '../components/SpeedDial';
@@ -126,6 +128,7 @@ export function Dashboard() {
         ))}
       </div>
 
+      <DailyAllowanceCard />
       <SlipInboxCard />
       <QuickAddSuggestionCard />
 
@@ -164,6 +167,8 @@ export function Dashboard() {
           ))}
         </div>
       </section>
+
+      <BadgesCard />
 
       <SpeedDial
         actions={[

@@ -25,3 +25,19 @@ export function computeStreak(dates: Date[], now: Date = new Date()): Streak {
   }
   return { count, loggedToday };
 }
+
+/** Longest run of consecutive calendar days that each have at least one transaction. */
+export function bestStreak(dates: Date[]): number {
+  const days = [...new Set(dates.map((d) => new Date(d).setHours(0, 0, 0, 0)))].sort((a, b) => a - b);
+  let best = 0;
+  let run = 0;
+  let prev: Date | null = null;
+  for (const ms of days) {
+    const cur = new Date(ms);
+    const expected: Date | null = prev && new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 1);
+    run = expected && expected.getTime() === cur.getTime() ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = cur;
+  }
+  return best;
+}

@@ -1,4 +1,5 @@
-import { db, newId, type Account, type Bookmark, type CategoryType, type Transaction, type TransactionType } from './db';
+import { db, newId, type Account, type Bookmark, type CategoryType, type LoanDirection, type Transaction, type TransactionType } from './db';
+import { EMOJI_PREFIX } from '../lib/iconData';
 import { scheduleAutoSync } from '../lib/autoSync';
 import { nextAccountSortOrder } from '../lib/lookup';
 
@@ -195,5 +196,52 @@ export async function addFromBookmark(bookmark: Bookmark): Promise<string> {
     note: bookmark.note || bookmark.name,
     accountId: bookmark.accountId,
     categoryId: bookmark.categoryId,
+  });
+}
+
+// ---------- Loans ----------
+
+export async function addLoan(input: { person: string; amount: number; direction: LoanDirection; note?: string }): Promise<string> {
+  const id = newId();
+  await db.loans.add({ id, ...input, createdAt: new Date(), settled: false });
+  return id;
+}
+
+export async function deleteLoan(id: string): Promise<void> {
+  await db.loans.delete(id);
+}
+
+const LOAN_CATEGORY: Record<LoanDirection, { name: string; type: CategoryType }> = {
+  lent: { name: 'รับเงินยืมคืน', type: 'income' },
+  borrowed: { name: 'คืนเงินยืม', type: 'expense' },
+};
+
+async function loanCategoryId(direction: LoanDirection): Promise<string> {
+  const { name, type } = LOAN_CATEGORY[direction];
+  const existing = (await db.categories.toArray()).find((c) => c.name === name && c.type === type);
+  if (existing) return existing.id;
+  const id = newId();
+  await db.categories.add({ id, name, type, iconName: EMOJI_PREFIX + '🤝', hexColor: '5856D6' });
+  return id;
+}
+
+/**
+ * Marks a loan as paid back and records the money moving: someone repaying us is income
+ * into `accountId`, us repaying someone is an expense from it.
+ */
+export async function settleLoan(loanId: string, accountId: string): Promise<void> {
+  const loan = await db.loans.get(loanId);
+  if (!loan || loan.settled) return;
+  const categoryId = await loanCategoryId(loan.direction);
+  await db.transaction('rw', db.loans, db.transactions, db.accounts, async () => {
+    await addTransaction({
+      amount: loan.amount,
+      type: loan.direction === 'lent' ? 'income' : 'expense',
+      date: new Date(),
+      note: loan.direction === 'lent' ? `${loan.person} คืนเงิน` : `คืนเงิน ${loan.person}`,
+      accountId,
+      categoryId,
+    });
+    await db.loans.update(loanId, { settled: true, settledAt: new Date() });
   });
 }

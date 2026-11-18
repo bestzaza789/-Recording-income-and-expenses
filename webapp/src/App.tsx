@@ -4,6 +4,7 @@ import { SaveToast } from './components/SaveToast';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { Onboarding } from './components/Onboarding';
 import { MonthEndCelebration } from './components/MonthEndCelebration';
+import { BadgeWatcher } from './components/BadgeWatcher';
 import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { Management } from './pages/Management';
@@ -28,6 +29,7 @@ function App() {
         <ConfirmDialog />
         <Onboarding />
         <MonthEndCelebration />
+        <BadgeWatcher />
       </div>
     </HashRouter>
   );

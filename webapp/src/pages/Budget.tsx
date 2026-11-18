@@ -7,6 +7,7 @@ import { CategoryIcon } from '../lib/icons';
 import { formatCurrency } from '../lib/format';
 import { BudgetForm } from '../components/BudgetForm';
 import { GoalsSection } from '../components/GoalsSection';
+import { LoansSection } from '../components/LoansSection';
 import { Mascot, type MascotMood } from '../components/Mascot';
 
 export function Budget() {
@@ -72,6 +73,7 @@ export function Budget() {
         </div>
       </div>
       <GoalsSection />
+      <LoansSection />
       <div className="section-title">งบรายหมวด</div>
       <div className="card">
         {categories.length === 0 && <div className="empty-state">ยังไม่มีหมวดหมู่รายจ่าย</div>}
