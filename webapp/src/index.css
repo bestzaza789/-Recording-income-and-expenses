@@ -12,7 +12,9 @@
   --border: #d6e5fa;
   --card-border: transparent;
   --accent: #4a8fe7;
-  --accent-strong: #2f74d0;
+  --accent-strong: #2b6fcb;
+  --btn-from: #2b6fcb;
+  --btn-to: #3a80dc;
   --accent2: #7ab8f5;
   --accent-soft: rgba(74, 143, 231, 0.14);
   --green: #047857;
@@ -821,7 +823,7 @@ button {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-strong), var(--accent2));
+  background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
   color: #ffffff;
   border: none;
   display: flex;
@@ -1104,7 +1106,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--accent-strong), var(--accent2));
+  background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
   color: #ffffff;
   padding: 13px 22px;
   border-radius: var(--radius);
@@ -1900,7 +1902,7 @@ button {
 }
 
 .confirm-btn.ok {
-  background: linear-gradient(135deg, var(--accent-strong), var(--accent2));
+  background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
   color: #ffffff;
 }
 
@@ -1987,7 +1989,9 @@ button {
   --surface-2: #fde4ee;
   --border: #f8d3e2;
   --accent: #ec6fa0;
-  --accent-strong: #d1477f;
+  --accent-strong: #c93a76;
+  --btn-from: #c93a76;
+  --btn-to: #de5a90;
   --accent2: #f7a1c4;
   --accent-soft: rgba(236, 111, 160, 0.14);
   --shadow-card: 0 1px 2px rgba(209, 71, 127, 0.05), 0 8px 24px -6px rgba(209, 71, 127, 0.14);
@@ -2001,7 +2005,9 @@ button {
   --surface-2: #dff4e9;
   --border: #cdeedd;
   --accent: #3fb98a;
-  --accent-strong: #1f9a6c;
+  --accent-strong: #12805a;
+  --btn-from: #12805a;
+  --btn-to: #1d9267;
   --accent2: #7fdcb6;
   --accent-soft: rgba(63, 185, 138, 0.14);
   --shadow-card: 0 1px 2px rgba(31, 154, 108, 0.05), 0 8px 24px -6px rgba(31, 154, 108, 0.14);
@@ -2016,6 +2022,8 @@ button {
   --border: #ddd3f7;
   --accent: #8b78e6;
   --accent-strong: #6b56d1;
+  --btn-from: #6b56d1;
+  --btn-to: #7e6add;
   --accent2: #b7a8f5;
   --accent-soft: rgba(139, 120, 230, 0.14);
   --shadow-card: 0 1px 2px rgba(107, 86, 209, 0.05), 0 8px 24px -6px rgba(107, 86, 209, 0.14);
