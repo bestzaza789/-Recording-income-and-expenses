@@ -1,9 +1,13 @@
 import { db, newId, type AccountType, type CategoryType, type TransactionType } from '../../db/db';
 import { addTransaction } from '../../db/transactionManager';
 import { requestAccessToken, isGoogleSyncConfigured } from '../googleAuth';
+import {
+  UNCATEGORIZED, getDailyLimit, setDailyLimit, setDailyCategories, setDailyRollover,
+  SETTING_DAILY_LIMIT, SETTING_DAILY_CATEGORIES, SETTING_DAILY_ROLLOVER_FROM,
+} from '../dailyAllowance';
 import { categoryFor, accountNameFor, nextAccountSortOrder, sortAccounts } from '../lookup';
 import {
-  ACCOUNTS_SHEET, CATEGORIES_SHEET, TRANSACTIONS_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET, GOALS_SHEET,
+  ACCOUNTS_SHEET, CATEGORIES_SHEET, TRANSACTIONS_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET, GOALS_SHEET, LOANS_SHEET, SETTINGS_SHEET,
   getStoredSpreadsheetId, readSheetValues,
 } from './api';
 
@@ -77,6 +81,8 @@ export interface ImportResult {
   bookmarksAdded: number;
   recurringAdded: number;
   goalsAdded: number;
+  loansAdded: number;
+  settingsRestored: boolean;
   transactionsImported: number;
   transactionsSkipped: number;
 }
@@ -88,7 +94,7 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
 
   const token = await requestAccessToken(interactive);
 
-  const [accountRows, categoryRows, transactionRows, budgetRows, bookmarkRows, recurringRows, goalRows] = await Promise.all([
+  const [accountRows, categoryRows, transactionRows, budgetRows, bookmarkRows, recurringRows, goalRows, loanRows, settingsRows] = await Promise.all([
     readSheetValues(token, spreadsheetId, ACCOUNTS_SHEET, true),
     readSheetValues(token, spreadsheetId, CATEGORIES_SHEET, true),
     readSheetValues(token, spreadsheetId, TRANSACTIONS_SHEET, true),
@@ -96,6 +102,8 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     readSheetValues(token, spreadsheetId, BOOKMARKS_SHEET, true),
     readSheetValues(token, spreadsheetId, RECURRING_SHEET, true),
     readSheetValues(token, spreadsheetId, GOALS_SHEET, true),
+    readSheetValues(token, spreadsheetId, LOANS_SHEET, true),
+    readSheetValues(token, spreadsheetId, SETTINGS_SHEET, true),
   ]);
 
   const accounts = await db.accounts.toArray();
@@ -179,6 +187,56 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     await db.goals.add(goal);
     existingGoals.push(goal);
     goalsAdded++;
+  }
+
+  // Daily-limit settings are restored only when this device hasn't set a limit yet,
+  // so importing never overwrites what the user chose here.
+  let settingsRestored = false;
+  const settings = new Map(settingsRows.slice(1).map(([key, value]) => [key?.trim(), value?.trim() ?? '']));
+  const sheetLimit = parseAmount(settings.get(SETTING_DAILY_LIMIT));
+  if (getDailyLimit() === null && sheetLimit > 0) {
+    setDailyLimit(sheetLimit);
+    let names: unknown = [];
+    try { names = JSON.parse(settings.get(SETTING_DAILY_CATEGORIES) || '[]'); } catch { /* malformed cell */ }
+    const expenseCategories = (await db.categories.toArray()).filter((c) => c.type === 'expense');
+    const ids = (Array.isArray(names) ? names : [])
+      .filter((n): n is string => typeof n === 'string')
+      .map((n) => (n === UNCATEGORIZED ? UNCATEGORIZED : expenseCategories.find((c) => sameName(c.name, n))?.id))
+      .filter((id): id is string => !!id);
+    setDailyCategories(ids);
+    const rolloverFrom = parseSheetDate(settings.get(SETTING_DAILY_ROLLOVER_FROM) ?? '');
+    setDailyRollover(rolloverFrom !== null, rolloverFrom ?? undefined);
+    settingsRestored = true;
+  }
+
+  // Loans match by person + direction + amount + created day; existing local loans are never overwritten.
+  const loanKey = (person: string, direction: string, amount: number, created: Date) =>
+    [person.trim().toLowerCase(), direction, amount.toFixed(2), dayKey(created)].join('|');
+  const existingLoanKeys = new Set(
+    (await db.loans.toArray()).map((l) => loanKey(l.person, l.direction, l.amount, l.createdAt))
+  );
+  let loansAdded = 0;
+  for (const [person, directionStr, amountStr, note, createdStr, status, settledStr] of loanRows.slice(1)) {
+    if (!person?.trim()) continue;
+    const amount = parseAmount(amountStr);
+    if (!amount || amount <= 0) continue;
+    const direction = directionStr?.trim().toLowerCase() === 'borrowed' ? 'borrowed' : 'lent';
+    const createdAt = parseSheetDate(createdStr ?? '') ?? new Date();
+    const key = loanKey(person, direction, amount, createdAt);
+    if (existingLoanKeys.has(key)) continue;
+    const settled = status?.trim().toLowerCase() === 'settled';
+    await db.loans.add({
+      id: newId(),
+      person: person.trim(),
+      amount,
+      direction,
+      note: note?.trim() || undefined,
+      createdAt,
+      settled,
+      settledAt: settled ? (parseSheetDate(settledStr ?? '') ?? createdAt) : undefined,
+    });
+    existingLoanKeys.add(key);
+    loansAdded++;
   }
 
   const existingBookmarks = await db.bookmarks.toArray();
@@ -276,5 +334,5 @@ export async function importFromGoogleSheets(interactive: boolean): Promise<Impo
     transactionsImported++;
   }
 
-  return { accountsAdded, categoriesAdded, budgetsAdded, bookmarksAdded, recurringAdded, goalsAdded, transactionsImported, transactionsSkipped };
+  return { accountsAdded, categoriesAdded, budgetsAdded, bookmarksAdded, recurringAdded, goalsAdded, loansAdded, settingsRestored, transactionsImported, transactionsSkipped };
 }

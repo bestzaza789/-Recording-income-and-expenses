@@ -3,7 +3,11 @@ import { formatSheetDate } from '../format';
 import { categoryFor, accountNameFor, sortAccounts } from '../lookup';
 import { isGoogleSyncConfigured, requestAccessToken } from '../googleAuth';
 import {
-  TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET, GOALS_SHEET,
+  UNCATEGORIZED, getDailyCategories, getDailyLimit, getDailyRolloverFrom,
+  SETTING_DAILY_LIMIT, SETTING_DAILY_CATEGORIES, SETTING_DAILY_ROLLOVER_FROM,
+} from '../dailyAllowance';
+import {
+  TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET, GOALS_SHEET, LOANS_SHEET, SETTINGS_SHEET,
   ensureSpreadsheet, ensureSheetTabs, writeSheet, readSheetValues,
 } from './api';
 
@@ -96,6 +100,35 @@ async function buildGoalRows(): Promise<string[][]> {
   return [header, ...rows];
 }
 
+async function buildLoanRows(): Promise<string[][]> {
+  const loans = (await db.loans.toArray()).sort((a, b) => +a.createdAt - +b.createdAt);
+  const header = ['Person', 'Direction', 'Amount', 'Note', 'Created', 'Status', 'Settled At'];
+  const rows = loans.map((l) => [
+    l.person, l.direction, l.amount.toFixed(2), l.note ?? '',
+    formatSheetDate(l.createdAt),
+    l.settled ? 'settled' : 'open',
+    l.settledAt ? formatSheetDate(l.settledAt) : '',
+  ]);
+  return [header, ...rows];
+}
+
+// Device settings worth restoring on a new device, as key/value rows. Categories are
+// stored by name because ids differ between devices.
+async function buildSettingsRows(): Promise<string[][]> {
+  const categories = await db.categories.toArray();
+  const limit = getDailyLimit();
+  const rolloverFrom = getDailyRolloverFrom();
+  const categoryNames = getDailyCategories()
+    .map((id) => (id === UNCATEGORIZED ? UNCATEGORIZED : categoryFor(categories, id)?.name))
+    .filter((name): name is string => !!name);
+  return [
+    ['Key', 'Value'],
+    [SETTING_DAILY_LIMIT, limit ? String(limit) : ''],
+    [SETTING_DAILY_CATEGORIES, categoryNames.length ? JSON.stringify(categoryNames) : ''],
+    [SETTING_DAILY_ROLLOVER_FROM, rolloverFrom ? formatSheetDate(new Date(rolloverFrom)) : ''],
+  ];
+}
+
 export async function syncToGoogleSheets(interactive: boolean, force = false): Promise<{ url: string; rowCount: number }> {
   if (!isGoogleSyncConfigured()) throw new Error('ยังไม่ได้ตั้งค่าการซิงก์ Google');
 
@@ -103,7 +136,7 @@ export async function syncToGoogleSheets(interactive: boolean, force = false): P
   const spreadsheetId = await ensureSpreadsheet(token);
   await ensureSheetTabs(token, spreadsheetId);
 
-  const [transactionRows, accountRows, categoryRows, budgetRows, bookmarkRows, recurringRows, goalRows] = await Promise.all([
+  const [transactionRows, accountRows, categoryRows, budgetRows, bookmarkRows, recurringRows, goalRows, loanRows, settingsRows] = await Promise.all([
     buildTransactionRows(),
     buildAccountRows(),
     buildCategoryRows(),
@@ -111,6 +144,8 @@ export async function syncToGoogleSheets(interactive: boolean, force = false): P
     buildBookmarkRows(),
     buildRecurringRows(),
     buildGoalRows(),
+    buildLoanRows(),
+    buildSettingsRows(),
   ]);
 
   // Every sync replaces the whole sheet with what's on this device. If the
@@ -133,6 +168,8 @@ export async function syncToGoogleSheets(interactive: boolean, force = false): P
   await writeSheet(token, spreadsheetId, BOOKMARKS_SHEET, bookmarkRows);
   await writeSheet(token, spreadsheetId, RECURRING_SHEET, recurringRows);
   await writeSheet(token, spreadsheetId, GOALS_SHEET, goalRows);
+  await writeSheet(token, spreadsheetId, LOANS_SHEET, loanRows);
+  await writeSheet(token, spreadsheetId, SETTINGS_SHEET, settingsRows);
 
   return {
     url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,

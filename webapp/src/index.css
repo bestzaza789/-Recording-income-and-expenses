@@ -2278,6 +2278,12 @@ button {
 .daily-limit-row .confirm-btn { flex: 0 0 auto; padding: 9px 14px; }
 .daily-limit-row .confirm-btn:disabled { opacity: 0.5; }
 .allowance-detail { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+.daily-limit-label { font-weight: 700; font-size: 13px; margin: 16px 0 8px; }
+.daily-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.daily-chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font: inherit; font-size: 13px; color: var(--text); background: var(--surface-2); border: 2px solid var(--border); border-radius: 999px; cursor: pointer; }
+.daily-chip.selected { border-color: var(--accent); color: var(--accent-strong); font-weight: 600; }
+.daily-rollover { display: flex; align-items: center; gap: 8px; margin: 16px 0 4px; font-weight: 700; font-size: 13px; cursor: pointer; }
+.daily-rollover input { width: 18px; height: 18px; accent-color: var(--accent); }
 
 /* ---------- Loans ---------- */
 

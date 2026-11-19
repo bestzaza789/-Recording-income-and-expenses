@@ -5,7 +5,9 @@ export const BUDGETS_SHEET = 'Budgets';
 export const BOOKMARKS_SHEET = 'Quick Add';
 export const RECURRING_SHEET = 'Recurring';
 export const GOALS_SHEET = 'Goals';
-export const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET, GOALS_SHEET];
+export const LOANS_SHEET = 'Loans';
+export const SETTINGS_SHEET = 'Settings';
+export const ALL_SHEETS = [TRANSACTIONS_SHEET, ACCOUNTS_SHEET, CATEGORIES_SHEET, BUDGETS_SHEET, BOOKMARKS_SHEET, RECURRING_SHEET, GOALS_SHEET, LOANS_SHEET, SETTINGS_SHEET];
 
 const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets';
 const SPREADSHEET_ID_KEY = 'googleSheetsSyncSpreadsheetId';

@@ -204,11 +204,13 @@ export async function addFromBookmark(bookmark: Bookmark): Promise<string> {
 export async function addLoan(input: { person: string; amount: number; direction: LoanDirection; note?: string }): Promise<string> {
   const id = newId();
   await db.loans.add({ id, ...input, createdAt: new Date(), settled: false });
+  scheduleAutoSync();
   return id;
 }
 
 export async function deleteLoan(id: string): Promise<void> {
   await db.loans.delete(id);
+  scheduleAutoSync();
 }
 
 const LOAN_CATEGORY: Record<LoanDirection, { name: string; type: CategoryType }> = {
@@ -244,4 +246,5 @@ export async function settleLoan(loanId: string, accountId: string): Promise<voi
     });
     await db.loans.update(loanId, { settled: true, settledAt: new Date() });
   });
+  scheduleAutoSync();
 }

@@ -73,7 +73,7 @@ export function GoogleSyncCard() {
     try {
       const result = await importFromGoogleSheets(true);
       setStatus(
-        `นำเข้าแล้ว: บัญชี ${result.accountsAdded}, หมวดหมู่ ${result.categoriesAdded}, งบประมาณ ${result.budgetsAdded}, รายการด่วน ${result.bookmarksAdded}, รายการประจำ ${result.recurringAdded}, เป้าหมาย ${result.goalsAdded}, รายการ ${result.transactionsImported} (ข้าม ${result.transactionsSkipped} รายการที่ซ้ำหรือจับคู่ไม่ได้)`
+        `นำเข้าแล้ว: บัญชี ${result.accountsAdded}, หมวดหมู่ ${result.categoriesAdded}, งบประมาณ ${result.budgetsAdded}, รายการด่วน ${result.bookmarksAdded}, รายการประจำ ${result.recurringAdded}, เป้าหมาย ${result.goalsAdded}, เงินยืม ${result.loansAdded}, ${result.settingsRestored ? 'ค่าใช้ได้วันละ, ' : ''}รายการ ${result.transactionsImported} (ข้าม ${result.transactionsSkipped} รายการที่ซ้ำหรือจับคู่ไม่ได้)`
       );
     } catch (e) {
       setStatus(`นำเข้าไม่สำเร็จ: ${(e as Error).message}`);
