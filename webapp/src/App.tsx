@@ -11,6 +11,8 @@ import { Management } from './pages/Management';
 import { Analytics } from './pages/Analytics';
 import { Budget } from './pages/Budget';
 import { AccountDetail } from './pages/AccountDetail';
+import { Guide } from './pages/Guide';
+import { TourOverlay } from './components/TourOverlay';
 
 function App() {
   return (
@@ -23,11 +25,13 @@ function App() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/budget" element={<Budget />} />
           <Route path="/account/:id" element={<AccountDetail />} />
+          <Route path="/guide" element={<Guide />} />
         </Routes>
         <BottomNav />
         <SaveToast />
         <ConfirmDialog />
         <Onboarding />
+        <TourOverlay />
         <MonthEndCelebration />
         <BadgeWatcher />
       </div>

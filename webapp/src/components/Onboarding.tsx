@@ -3,6 +3,7 @@ import { db, type Account } from '../db/db';
 import { updateAccount } from '../db/transactionManager';
 import { sortAccounts } from '../lib/lookup';
 import { showSaved } from '../lib/saveFeedback';
+import { startTour } from '../lib/tour/tourStore';
 import { Mascot, type MascotMood } from './Mascot';
 import { ThemePicker } from './ThemePicker';
 
@@ -89,6 +90,12 @@ export function Onboarding() {
     setStep((s) => s + 1);
   }
 
+  function finishWithTour() {
+    markDone();
+    setAccount(null);
+    startTour('first-expense');
+  }
+
   return (
     <div className="onboarding" role="dialog" aria-modal="true" aria-label="ยินดีต้อนรับ">
       <div className="onboarding-card">
@@ -123,6 +130,9 @@ export function Onboarding() {
         <div className="onboarding-actions">
           {!last && (
             <button className="confirm-btn cancel" onClick={skip}>ข้าม</button>
+          )}
+          {last && (
+            <button className="confirm-btn cancel" onClick={finishWithTour}>พาฉันจดรายการแรก</button>
           )}
           <button className="confirm-btn ok" onClick={next} disabled={saving}>
             {last ? 'เริ่มใช้งาน' : step === 0 ? 'เริ่มเลย' : 'ต่อไป'}

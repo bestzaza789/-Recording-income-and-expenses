@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { PageSkeleton } from '../components/Skeleton';
 import { db, type Account, type Bookmark, type Category, type CategoryType, type RecurringRule } from '../db/db';
@@ -74,6 +75,14 @@ export function Management() {
   return (
     <div className="page">
       <h1 className="page-title">จัดการ</h1>
+      <Link to="/guide" className="card guide-link">
+        <span aria-hidden="true">📖</span>
+        <span className="guide-link-main">
+          <strong>คู่มือการใช้งาน</strong>
+          <span className="text-secondary-sm">ให้แอปพากดทีละขั้น ทุกฟีเจอร์</span>
+        </span>
+        <span aria-hidden="true">›</span>
+      </Link>
       <ThemePicker />
       <DailyLimitSetting />
       <div className="segmented">

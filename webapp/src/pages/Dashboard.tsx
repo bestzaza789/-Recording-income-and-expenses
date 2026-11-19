@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, PencilLine, ScanLine } from 'lucide-react';
 import { db } from '../db/db';
 import { EMPTY } from '../lib/empty';
@@ -173,6 +173,8 @@ export function Dashboard() {
       </section>
 
       <BadgesCard />
+
+      <Link to="/guide" className="guide-footer-link">ยังไม่คุ้น? เปิดคู่มือให้แอปพากดทีละขั้น 📖</Link>
 
       <SpeedDial
         actions={[
