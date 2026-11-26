@@ -11,7 +11,7 @@ import type { ParsedData } from '../ocr/ocrService';
 import { accountMatchesBank } from '../ocr/parseSlip';
 import { accountForSuffix, forgetSuffix, rememberSuffix } from '../ocr/slipMemory';
 import { categoryFor, sortAccounts } from '../lib/lookup';
-import { formatCurrency, formatDateTime } from '../lib/format';
+import { formatCurrency, formatDateTime, toDatetimeLocalValue } from '../lib/format';
 import { TRANSACTION_TYPE_LABEL } from '../lib/labels';
 
 type Mode = 'expense' | 'transfer';
@@ -36,7 +36,10 @@ export function ScannedTransactionForm({
   const categories = useLiveQuery(() => db.categories.toArray(), []) ?? EMPTY;
   const expenseCategories = categories.filter((c) => c.type === 'expense');
 
-  const [date] = useState(() => defaultDate ?? new Date());
+  // Prefer the transfer time printed on the slip over when it was scanned/received.
+  const [dateValue, setDateValue] = useState(() => toDatetimeLocalValue(parsedData.date ?? defaultDate ?? new Date()));
+  const parsedDate = new Date(dateValue);
+  const date = isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
   const [mode, setMode] = useState<Mode>('expense');
   const [amount, setAmount] = useState(String(parsedData.amount ?? ''));
   const [accountId, setAccountId] = useState('');
@@ -173,10 +176,17 @@ export function ScannedTransactionForm({
 
       <div className="form-section">
         <div className="form-section-title">ตรวจสอบข้อมูลที่อ่านได้</div>
+        {!parsedData.date && (
+          <div className="text-secondary-sm" style={{ marginBottom: 8 }}>อ่านวันที่บนสลิปไม่ได้ ใช้เวลาที่{defaultDate ? 'ได้รับสลิป' : 'สแกน'}แทน ตรวจสอบก่อนบันทึก</div>
+        )}
         <div className="form-field">
           <div className="form-row">
             <label>จำนวนเงิน (฿)</label>
             <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          </div>
+          <div className="form-row">
+            <label>วันที่/เวลา</label>
+            <input type="datetime-local" value={dateValue} onChange={(e) => setDateValue(e.target.value)} />
           </div>
           <div className="form-row">
             <label>{mode === 'transfer' ? 'จากบัญชี' : 'บัญชี'}</label>

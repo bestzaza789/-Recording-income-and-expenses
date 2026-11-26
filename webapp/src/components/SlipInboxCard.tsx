@@ -88,7 +88,7 @@ export function SlipInboxCard() {
             <div className="list-item" key={slip.id}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 600 }}>{parsed.amount !== undefined ? formatCurrency(parsed.amount) : 'อ่านจำนวนเงินไม่ได้'}</div>
-                <div className="text-secondary-sm">{formatDateTime(slip.receivedAt)}</div>
+                <div className="text-secondary-sm">{formatDateTime(parsed.date ?? slip.receivedAt)}</div>
               </div>
               <div style={{ display: 'flex', flexShrink: 0 }}>
                 <button className="icon-btn" onClick={() => skip(slip)}>ข้าม</button>
